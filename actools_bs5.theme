@@ -183,7 +183,25 @@ function actools_bs5_preprocess_user(&$variables) {
   if (!$user || !$user->id()) {
     return;
   }
-  if (!$user->access('update')) {
+
+  // Compact author pictures never show private profile actions. Do not vary
+  // their otherwise shareable render cache by the viewing account.
+  $view_mode = $variables['elements']['#view_mode'] ?? $variables['view_mode'] ?? 'full';
+  if ($view_mode === 'compact') {
+    return;
+  }
+
+  $access = $user->access('update', NULL, TRUE);
+  // This check depends on the viewer's identity/permissions. Preserve its
+  // cacheability even when access is denied: otherwise an empty action list
+  // can be reused for the owner, or the owner's links for another viewer.
+  // The User component always renders content, including an empty array's
+  // cache metadata; user_actions itself is conditionally rendered.
+  $variables['content'] = $variables['content'] ?? [];
+  \Drupal\Core\Cache\CacheableMetadata::createFromRenderArray($variables['content'])
+    ->merge(\Drupal\Core\Cache\CacheableMetadata::createFromObject($access))
+    ->applyTo($variables['content']);
+  if (!$access->isAllowed()) {
     return;
   }
   $variables['user_actions'] = [

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\actools_bs5_test\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+
 use Drupal\Tests\BrowserTestBase;
 
 /**
@@ -13,8 +15,8 @@ use Drupal\Tests\BrowserTestBase;
  * hashed file when settings change (M-4), that a dark brand colour still renders,
  * and that the sticky-header setting actually controls its library.
  *
- * @group actools_bs5
  */
+#[Group('actools_bs5')]
 final class TokenFileLifecycleFunctionalTest extends BrowserTestBase {
 
   /**

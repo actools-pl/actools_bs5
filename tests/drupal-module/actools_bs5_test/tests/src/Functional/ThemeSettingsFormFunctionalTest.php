@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\actools_bs5_test\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+
 use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests the Actools BS5 theme settings form integration.
  *
- * @group actools_bs5
  */
+#[Group('actools_bs5')]
 final class ThemeSettingsFormFunctionalTest extends BrowserTestBase {
 
   /**

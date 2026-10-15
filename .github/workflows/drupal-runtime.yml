@@ -1,0 +1,99 @@
+name: Drupal runtime and browser tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: actools-runtime-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  drupal:
+    name: Drupal 11.4.10 (PHP ${{ matrix.php }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.3', '8.4']
+    env:
+      SIMPLETEST_DB: sqlite://localhost/sites/default/files/actools-tests.sqlite
+      SIMPLETEST_BASE_URL: http://127.0.0.1:8888
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea # v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: sqlite3, pdo_sqlite, gd, mbstring, xml, curl
+          ini-values: zend.assertions=1, memory_limit=-1
+          coverage: none
+          tools: composer:v2
+      - name: Build disposable Drupal test project
+        id: project
+        run: |
+          composer create-project drupal/recommended-project:11.4.10 "$RUNNER_TEMP/actools-drupal" --no-interaction --no-install
+          cd "$RUNNER_TEMP/actools-drupal"
+          composer require --dev drupal/core-dev:11.4.10 --no-interaction --prefer-dist
+          mkdir -p web/themes/custom/actools_bs5 web/modules/custom web/sites/default/files "$RUNNER_TEMP/actools-results"
+          touch web/sites/default/files/actools-tests.sqlite
+          git -C "$GITHUB_WORKSPACE" archive HEAD | tar -x -C web/themes/custom/actools_bs5
+          cp -a web/themes/custom/actools_bs5/tests/drupal-module/actools_bs5_test web/modules/custom/
+      - name: Kernel rendering, caching and Layout Builder tests
+        run: |
+          cd "$RUNNER_TEMP/actools-drupal/web"
+          ../vendor/bin/phpunit -c core/phpunit.xml.dist modules/custom/actools_bs5_test/tests/src/Kernel --log-junit "$RUNNER_TEMP/actools-results/kernel.xml"
+      - name: Functional site and settings tests
+        if: ${{ !cancelled() && steps.project.outcome == 'success' }}
+        run: |
+          cd "$RUNNER_TEMP/actools-drupal/web"
+          export BROWSERTEST_OUTPUT_DIRECTORY="$RUNNER_TEMP/actools-results/browser-output"
+          mkdir -p "$BROWSERTEST_OUTPUT_DIRECTORY"
+          php -S 127.0.0.1:8888 .ht.router.php > "$RUNNER_TEMP/actools-results/php-server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 20); do
+            if curl --silent --output /dev/null http://127.0.0.1:8888/; then break; fi
+            sleep 1
+          done
+          ../vendor/bin/phpunit -c core/phpunit.xml.dist modules/custom/actools_bs5_test/tests/src/Functional --log-junit "$RUNNER_TEMP/actools-results/functional.xml"
+      - name: Keep runtime test reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: drupal-runtime-php-${{ matrix.php }}
+          path: ${{ runner.temp }}/actools-results
+          if-no-files-found: ignore
+          retention-days: 7
+
+  content-media:
+    name: Content diagrams in Chromium
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Install isolated browser test tooling
+        run: |
+          npm install --prefix "$RUNNER_TEMP/actools-browser-tools" --no-save --package-lock=false @playwright/test@1.64.1
+          "$RUNNER_TEMP/actools-browser-tools/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Test compiled CSS at phone, tablet and desktop widths
+        run: |
+          export NODE_PATH="$RUNNER_TEMP/actools-browser-tools/node_modules"
+          export ACTOOLS_BROWSER_OUTPUT="$RUNNER_TEMP/actools-browser-results"
+          "$RUNNER_TEMP/actools-browser-tools/node_modules/.bin/playwright" test --config tests/browser/playwright.config.cjs
+      - name: Keep browser failure evidence
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: content-media-browser
+          path: ${{ runner.temp }}/actools-browser-results
+          if-no-files-found: ignore
+          retention-days: 7

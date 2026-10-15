@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\actools_bs5_test\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
+
 use Drupal\Core\Config\Schema\SchemaCheckTrait;
 use Drupal\KernelTests\KernelTestBase;
 
@@ -17,8 +19,8 @@ use Drupal\KernelTests\KernelTestBase;
  * The M-2/M-3 checks are intentionally adversarial and fail on the audited beta
  * until fixed. The schema check should pass today and guards against drift.
  *
- * @group actools_bs5
  */
+#[Group('actools_bs5')]
 final class TokenPipelineHardeningKernelTest extends KernelTestBase {
 
   use SchemaCheckTrait;

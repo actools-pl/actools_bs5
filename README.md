@@ -25,7 +25,11 @@ release yet; the source version 5.0.0-beta1 is inherited from the supplied fork.
 
 CI runs Composer validation, PHP syntax checks on 8.3/8.4, the static asset/YAML/JS
 audit, three layout source regressions and nine CSS publication-guard tests.
-The separate Drupal Kernel/Functional suites are not run by this source CI.
+The separate **Drupal runtime and browser tests** workflow builds disposable
+Drupal 11.4.10 projects on PHP 8.3/8.4 for Kernel/Functional coverage. Its Chromium
+job checks large and small content diagrams at four viewport widths using the
+shipped CSS. These jobs never connect to or alter the BOA installation. Consult
+the specific commit's Actions results; source CI alone is not runtime acceptance.
 
 Extract the ZIP so the folder is named `actools_bs5` in your Drupal platform's
 custom themes directory, commonly `web/themes/custom/actools_bs5`. On BOA, use
@@ -133,6 +137,9 @@ For regular Drupal image fields, use core **Responsive Image** and configure
 responsive image styles against `actools_bs5.breakpoints.yml`. Field formatters
 retain normal Drupal picture/srcset output. Native SDC image fallbacks use the
 normalized source; they do not automatically create responsive derivatives.
+Ordinary image fields and formatted-text images also fit their content column
+without forcing small diagrams to full width. Captioned figures respect the
+same column boundary.
 
 Print styles hide site navigation/footer and editing controls, show Bootstrap
 tab/accordion answers, and discourage splits inside figures and tables. Article
@@ -193,6 +200,8 @@ full site-files/classic-mysqldump backup was also reported green. Standalone
 site Verify after the final theme changes has not yet been reported.
 The full PHP/Drupal rendering suites and the other layout variants remain
 outside the completed smoke test.
+Further test work is described in [docs/IMPROVEMENT_PLAN.md](docs/IMPROVEMENT_PLAN.md).
+New automated coverage does not retroactively certify the deployed revision.
 
 This custom theme has no Drupal.org project release feed. Its metadata omits
 `project` and the inherited packaging timestamp. Track updates and security

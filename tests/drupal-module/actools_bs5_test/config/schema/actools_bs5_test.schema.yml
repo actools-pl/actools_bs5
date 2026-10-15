@@ -1,0 +1,7 @@
+block.settings.actools_bs5_layout_probe:
+  type: block_settings
+  label: 'Actools layout test probe settings'
+  mapping:
+    probe_text:
+      type: string
+      label: 'Probe text'

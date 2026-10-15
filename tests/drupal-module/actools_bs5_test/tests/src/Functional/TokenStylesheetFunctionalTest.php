@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\actools_bs5_test\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+
 use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests token stylesheet attachment and file output on rendered pages.
  *
- * @group actools_bs5
  */
+#[Group('actools_bs5')]
 final class TokenStylesheetFunctionalTest extends BrowserTestBase {
 
   /**

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\actools_bs5_test\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
+
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Core\Template\Attribute;
 use Drupal\Component\Serialization\Yaml;
@@ -11,8 +13,8 @@ use Drupal\Component\Serialization\Yaml;
 /**
  * Renders components to test URL filtering, HTML safety and slide wiring.
  *
- * @group actools_bs5
  */
+#[Group('actools_bs5')]
 final class ComponentRenderingRegressionTest extends KernelTestBase {
 
   protected static $modules = ['system', 'file', 'user'];
