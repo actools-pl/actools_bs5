@@ -67,11 +67,11 @@
 {% endif %}
 
 {# Print the HTML. #}
-<{{ html_tag }}{{ attributes }}>{% apply spaceless %}
+<{{ html_tag }}{{ attributes }}>
   {% if content and hidden_status %}
     <span{{ spinner_status_attributes }}>{{ content }}</span>
   {% endif %}
-{% endapply %}</{{ html_tag }}>
-{% if content and not hidden_status %}{% apply spaceless %}
+</{{ html_tag }}>
+{% if content and not hidden_status %}
   <span{{ spinner_status_attributes }}>{{ content }}</span>
-{% endapply %}{% endif %}
+{% endif %}

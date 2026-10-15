@@ -217,6 +217,20 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
   }
 
   /**
+   * A hero has no placeholder action; configured fragments pass real SDC checks.
+   */
+  public function testHeroButtonDefaultsAndFragmentPassComponentValidation(): void {
+    $default = $this->componentXpath($this->component('card-hero', []));
+    $this->assertSame(0, $default->query('//a[contains(concat(" ", normalize-space(@class), " "), " btn ")]')->length);
+    $configured = $this->componentXpath($this->component('card-hero', [
+      'button_1_label' => 'Browse courses',
+      'button_1_url' => '#courses',
+    ]));
+    $this->assertSame(1, $configured->query('//a[@href="#courses"]')->length);
+    $this->assertSame('Browse courses', trim($configured->evaluate('string(//a[@href="#courses"])')));
+  }
+
+  /**
    * Two navbars each control their own collapse container.
    */
   public function testRepeatedNavbarsHaveDistinctMatchingTargets(): void {

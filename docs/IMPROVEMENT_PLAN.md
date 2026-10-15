@@ -16,6 +16,12 @@ operator settings. Repository code and live site configuration are separate.
    add core Layout Builder section rendering/preview tests and warm profile-cache
    regressions, and test content media with the committed CSS in Chromium.
 
+Runtime validation also exposed a page-title/heading schema mismatch and an
+invalid bare-fragment hero button default. Accept the documented empty heading
+modifiers and hide optional hero buttons until a destination is configured.
+Remove deprecated Twig spaceless filters while retaining normal autoescaping,
+and escape the breadcrumb icon literal correctly.
+
 The runtime workflow uses temporary Drupal 11.4.10 projects on PHP 8.3/8.4. It
 does not deploy changes or read the public site's database. Browser media
 fixtures cover four widths and ordinary, captioned and column-contained images.

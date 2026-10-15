@@ -23,7 +23,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 final class LayoutBuilderIntegrationKernelTest extends KernelTestBase {
 
   protected static $modules = [
-    'system', 'user', 'field', 'field_ui', 'file', 'block', 'contextual',
+    'system', 'user', 'field', 'field_ui', 'file', 'block', 'contextual', 'path_alias',
     'layout_discovery', 'layout_builder', 'actools_bs5_test',
   ];
 
@@ -31,6 +31,7 @@ final class LayoutBuilderIntegrationKernelTest extends KernelTestBase {
 
   protected function setUp(): void {
     parent::setUp();
+    $this->installEntitySchema('path_alias');
     $this->installConfig(['system', 'user']);
     $this->container->get('theme_installer')->install(['actools_bs5']);
     $this->config('system.theme')->set('default', 'actools_bs5')->save();

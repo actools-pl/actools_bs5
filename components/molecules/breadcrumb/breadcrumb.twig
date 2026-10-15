@@ -54,7 +54,7 @@
 {% set items_attributes = items_attributes.addClass(items_classes) %}
 
 {# Print the HTML. #}
-{% if breadcrumb %}{% apply spaceless %}
+{% if breadcrumb %}
   <nav{{ attributes }}>
     <ol{{ items_attributes }}>
       {% for item in breadcrumb %}
@@ -73,4 +73,4 @@
       {% endfor %}
     </ol>
   </nav>
-{% endapply %}{% endif %}
+{% endif %}

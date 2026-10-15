@@ -56,7 +56,6 @@
 {% endif %}
 
 {# Print the HTML. #}
-{% apply spaceless %}
 {% if items is iterable and items|length > 0 %}
   {% set attributes = attributes.addClass(list_classes) %}
 
@@ -125,4 +124,3 @@
     </ul>
   {% endif %}
 {% endif %}
-{% endapply %}

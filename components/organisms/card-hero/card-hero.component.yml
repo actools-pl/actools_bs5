@@ -251,9 +251,11 @@ props:
       type: string
       title: Button URL
       format: uri-reference
-      default: "#"
+      description: Optional URL. Leave empty to hide the button until a destination is configured.
+      default: ""
       examples:
-        - "#"
+        - "/courses"
+        - "#courses"
     button_1_style:
       type: string
       title: Button style
