@@ -2,11 +2,30 @@ const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '../..');
-const css = ['base/bootstrap.base', 'base/tokens.base', 'base/actools.base', 'layout/builder.layout']
-  .map(name => fs.readFileSync(path.join(root, `css/${name}.css`), 'utf8')).join('\n');
+// Match framework dependencies. External CSS decoding strips a UTF-8 BOM;
+// remove it here too so inline fixtures do not invalidate the first selector.
+const css = ['components/base/root/root.css', 'css/base/bootstrap.base.css',
+  'css/base/tokens.base.css', 'css/base/actools.base.css', 'css/layout/builder.layout.css']
+  .map(name => fs.readFileSync(path.join(root, name), 'utf8').replace(/^\uFEFF/, '')).join('\n');
 const svg = (width, height) => 'data:image/svg+xml;base64,' + Buffer.from(
   `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#ddd"/></svg>`
 ).toString('base64');
+
+test('the actual page-template skip link is visible when reached by keyboard', async ({ page }) => {
+  const template = fs.readFileSync(path.join(root, 'templates/system/html.html.twig'), 'utf8');
+  const match = template.match(/<a href="#main-content" class="([^"]+)"/);
+  expect(match).not.toBeNull();
+  await page.setContent(`<!doctype html><html><head><style>${css}</style></head><body><a href="#main-content" class="${match[1]}">Skip to main content</a><main id="main-content" tabindex="-1">Physics content</main></body></html>`);
+  const link = page.getByRole('link', {name:'Skip to main content'});
+  await page.keyboard.press('Tab');
+  await expect(link).toBeFocused();
+  const dimensions = await link.boundingBox();
+  expect(dimensions.width).toBeGreaterThan(1);
+  expect(dimensions.height).toBeGreaterThan(1);
+  expect(await link.evaluate(element => getComputedStyle(element).clip)).toBe('auto');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#main-content')).toBeFocused();
+});
 
 for (const width of [320, 375, 768, 1440]) {
   for (const scenario of ['image-field', 'caption', 'layout-column']) {

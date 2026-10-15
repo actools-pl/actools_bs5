@@ -19,6 +19,8 @@ directory and tests the committed CSS in Chromium at 320, 375, 768 and 1440px.
 It covers ordinary image fields, captioned text images and Layout Builder-style
 columns, including aspect ratios and small authored widths. This is an asset
 test against representative HTML, not a claim of live Drupal drag/drop coverage.
+The same job reads the real page template's skip-link classes and checks keyboard
+visibility and activation using the bundled Bootstrap CSS.
 
 To run the browser fixtures locally with Playwright installed:
 

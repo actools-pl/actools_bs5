@@ -40,7 +40,7 @@ jobs:
           composer create-project drupal/recommended-project:11.4.10 "$RUNNER_TEMP/actools-drupal" --no-interaction --no-install
           cd "$RUNNER_TEMP/actools-drupal"
           composer require --dev drupal/core-dev:11.4.10 --with-all-dependencies --no-interaction --prefer-dist
-          mkdir -p web/themes/custom/actools_bs5 web/modules/custom web/sites/default/files "$RUNNER_TEMP/actools-results"
+          mkdir -p web/themes/custom/actools_bs5 web/modules/custom web/sites/default/files web/sites/simpletest/browser_output "$RUNNER_TEMP/actools-results"
           touch web/sites/default/files/actools-tests.sqlite
           git -C "$GITHUB_WORKSPACE" archive HEAD | tar -x -C web/themes/custom/actools_bs5
           cp -a web/themes/custom/actools_bs5/tests/drupal-module/actools_bs5_test web/modules/custom/
@@ -67,7 +67,9 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: drupal-runtime-php-${{ matrix.php }}
-          path: ${{ runner.temp }}/actools-results
+          path: |
+            ${{ runner.temp }}/actools-results
+            ${{ runner.temp }}/actools-drupal/web/sites/simpletest/browser_output
           if-no-files-found: ignore
           retention-days: 7
 

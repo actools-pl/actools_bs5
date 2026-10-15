@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\actools_bs5_test\Kernel;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 use Drupal\KernelTests\KernelTestBase;
 
@@ -13,6 +14,7 @@ use Drupal\KernelTests\KernelTestBase;
  *
  */
 #[Group('actools_bs5')]
+#[RunTestsInSeparateProcesses]
 final class TokenCssGenerationKernelTest extends KernelTestBase {
 
   /**

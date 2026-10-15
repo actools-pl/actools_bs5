@@ -11,6 +11,7 @@ use Drupal\layout_builder\Section;
 use Drupal\layout_builder\SectionComponent;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Exercises the six theme layouts through core Layout Builder's render pipeline.
@@ -18,6 +19,7 @@ use PHPUnit\Framework\Attributes\Group;
  * Pixel widths and browser drag/drop behavior require separate browser tests.
  */
 #[Group('actools_bs5')]
+#[RunTestsInSeparateProcesses]
 final class LayoutBuilderIntegrationKernelTest extends KernelTestBase {
 
   protected static $modules = [
@@ -63,7 +65,7 @@ final class LayoutBuilderIntegrationKernelTest extends KernelTestBase {
     $build = $section->toRenderArray([], FALSE);
     $this->assertFalse($build['#in_preview']);
     $result = (string) $this->container->get('renderer')->renderRoot($build);
-    $xpath = $this->xpath($result);
+    $xpath = $this->layoutXpath($result);
     $this->assertLayoutMarkup($xpath, $regions, $modifier, $contained);
 
     $metadata = CacheableMetadata::createFromRenderArray($build);
@@ -85,7 +87,7 @@ final class LayoutBuilderIntegrationKernelTest extends KernelTestBase {
       $build[$region]['#attributes']['data-actools-region-editor-probe'] = $region;
     }
     $result = (string) $this->container->get('renderer')->renderRoot($build);
-    $xpath = $this->xpath($result);
+    $xpath = $this->layoutXpath($result);
     $this->assertLayoutMarkup($xpath, $regions, $modifier, $contained);
     $this->assertSame(1, $xpath->query('//*[@data-actools-layout-editor-probe="' . $layout_id . '"]')->length);
     foreach ($regions as $region) {
@@ -106,7 +108,7 @@ final class LayoutBuilderIntegrationKernelTest extends KernelTestBase {
     $section = new Section('actools_bs5_twocol_equal', [], [$later, $second, $earlier]);
     $build = $section->toRenderArray();
     $result = (string) $this->container->get('renderer')->renderRoot($build);
-    $xpath = $this->xpath($result);
+    $xpath = $this->layoutXpath($result);
     $first = $xpath->query('//*[contains(concat(" ", normalize-space(@class), " "), " layout__region--first ")]')->item(0);
     $this->assertNotNull($first);
     $text = $first->textContent;
@@ -161,7 +163,7 @@ final class LayoutBuilderIntegrationKernelTest extends KernelTestBase {
     }
   }
 
-  private function xpath(string $html): \DOMXPath {
+  private function layoutXpath(string $html): \DOMXPath {
     $previous = libxml_use_internal_errors(TRUE);
     $document = new \DOMDocument();
     $document->loadHTML('<!DOCTYPE html><html><body>' . $html . '</body></html>');

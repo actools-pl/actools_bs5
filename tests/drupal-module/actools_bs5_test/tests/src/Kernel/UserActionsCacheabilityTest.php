@@ -12,11 +12,13 @@ use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests viewer-dependent profile actions through Drupal's entity render cache.
  */
 #[Group('actools_bs5')]
+#[RunTestsInSeparateProcesses]
 final class UserActionsCacheabilityTest extends KernelTestBase {
 
   protected static $modules = ['system', 'user', 'file', 'field'];

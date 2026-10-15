@@ -1,4 +1,4 @@
-# Theme improvement and testing plan — 16 October 2026
+# Theme improvement and testing plan — 15 October 2026
 
 Current baseline: e29a3c6719d518efa228276cc1094211567dafe8 on main. Preserve the
 BOA-verified section choices, compact/full profile heading corrections and
@@ -11,7 +11,8 @@ operator settings. Repository code and live site configuration are separate.
 2. Bubble update-access cacheability on full user profiles, including denied
    output. Keep compact author pictures free of private actions and unnecessary
    viewer-specific cache variation.
-3. Run the existing component/token suites in disposable Drupal installations,
+3. Correct the page skip link's Bootstrap class so keyboard focus reveals it.
+4. Run the existing component/token suites in disposable Drupal installations,
    add core Layout Builder section rendering/preview tests and warm profile-cache
    regressions, and test content media with the committed CSS in Chromium.
 
@@ -26,7 +27,9 @@ The anonymous homepage loaded successfully with one h1, loaded sample images,
 the Actools theme's aggregated styles and no desktop horizontal overflow.
 The ordinary image field's image had no maximum width constraint. This supports
 the preventive responsive-image change; it is not evidence of an existing
-overflow on the small sample image. Current content remains demonstration text.
+overflow on the small sample image. Keyboard focus reached the Skip to main
+content link, but its legacy classes kept it clipped at 1px square; the updated
+template uses Bootstrap's focusable visibility helper. Current content remains demonstration text.
 Cloud-browser screenshots could not be captured, and a live phone viewport and
 authenticated Layout Builder editing were not tested in this review.
 
