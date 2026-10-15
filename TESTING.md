@@ -74,11 +74,12 @@ database. Install the theme at a normal theme path. Copy the test-only helper:
 cp -a tests/drupal-module/actools_bs5_test /path/to/drupal/web/modules/custom/
 ```
 
-From the Drupal project root:
+From the Drupal web root, with the test database and base URL configured:
 
 ```sh
-vendor/bin/phpunit web/modules/custom/actools_bs5_test/tests/src/Kernel
-vendor/bin/phpunit web/modules/custom/actools_bs5_test/tests/src/Functional
+mkdir -p sites/simpletest/browser_output
+../vendor/bin/phpunit -c core/phpunit.xml.dist modules/custom/actools_bs5_test/tests/src/Kernel
+../vendor/bin/phpunit -c core/phpunit.xml.dist modules/custom/actools_bs5_test/tests/src/Functional
 ```
 
 ComponentRenderingRegressionTest renders real component templates for hostile
