@@ -39,7 +39,7 @@ jobs:
         run: |
           composer create-project drupal/recommended-project:11.4.10 "$RUNNER_TEMP/actools-drupal" --no-interaction --no-install
           cd "$RUNNER_TEMP/actools-drupal"
-          composer require --dev drupal/core-dev:11.4.10 --no-interaction --prefer-dist
+          composer require --dev drupal/core-dev:11.4.10 --with-all-dependencies --no-interaction --prefer-dist
           mkdir -p web/themes/custom/actools_bs5 web/modules/custom web/sites/default/files "$RUNNER_TEMP/actools-results"
           touch web/sites/default/files/actools-tests.sqlite
           git -C "$GITHUB_WORKSPACE" archive HEAD | tar -x -C web/themes/custom/actools_bs5
