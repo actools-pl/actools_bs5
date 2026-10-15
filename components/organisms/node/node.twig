@@ -1,0 +1,60 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Node component.
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: computed class fragments. #}
+{% set bundle_class = node.bundle|clean_class %}
+{% set bundle_view_mode_class = bundle_class ~ '--' ~ view_mode|clean_class %}
+
+{# Logic: merge node-level classes as arrays. #}
+{%
+  set classes = [
+    'node',
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    bundle_class,
+    bundle_view_mode_class,
+  ]
+%}
+
+{# Print the HTML. #}
+{% set attributes = attributes.addClass(classes) %}
+<article{{ attributes }}>
+  {{ title_prefix }}
+  {{ title_suffix }}
+
+  {% block content %}
+    {% if not page %}
+      <h2{{ title_attributes }}>
+        <a href="{{ url }}" rel="bookmark">{{ label }}</a>
+      </h2>
+    {% endif %}
+
+    {% if display_submitted %}
+      <footer>
+        {{ author_picture }}
+        <div{{ author_attributes }}>
+          {% trans %}Submitted by {{ author_name }} on {{ date }}{% endtrans %}
+          {{ metadata }}
+        </div>
+      </footer>
+    {% endif %}
+
+    <div{{ content_attributes }}>
+      {{ content }}
+    </div>
+  {% endblock %}
+</article>

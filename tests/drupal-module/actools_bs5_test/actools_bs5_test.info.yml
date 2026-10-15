@@ -1,0 +1,9 @@
+name: 'Actools BS5 automated tests'
+type: module
+description: 'Kernel and functional regression tests for the standalone Actools BS5 theme.'
+package: Testing
+core_version_requirement: ^11.3
+dependencies:
+  - drupal:system
+  - drupal:block
+  - drupal:user

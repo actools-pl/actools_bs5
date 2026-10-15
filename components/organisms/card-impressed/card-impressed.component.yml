@@ -1,0 +1,205 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Impressed Card
+group: Card
+status: stable
+description: 'Stacked card layout with an optional media image (top or bottom), tag overlay slot, and drag & drop content
+  area. Built with Bootstrap 5 utility classes.'
+props:
+  type: object
+  properties:
+    media_position:
+      type: string
+      title: Media position
+      default: top
+      examples:
+        - top
+      enum:
+        - top
+        - bottom
+      meta:enum:
+        top: Top
+        bottom: Bottom
+    media_image:
+      title: Media upload
+      description: 'Image selected from the Media Library or uploaded. Displayed in the media area (no drag & drop slot).'
+      properties:
+        src:
+          type: string
+          format: uri-reference
+        alt:
+          type: string
+        width:
+          type: integer
+          minimum: 1
+        height:
+          type: integer
+          minimum: 1
+        url:
+          type: string
+          format: uri-reference
+        data:
+          type: object
+      type: object
+      examples:
+        - src: /themes/custom/actools_bs5/components/foundation/images/assets/teaser-2.jpg
+          alt: Impressed image
+          width: 800
+          height: 600
+    ratio:
+      type: string
+      title: Image ratio (crop)
+      description: Keeps consistent image shapes.
+      enum:
+        - ratio-auto
+        - ratio-16x9
+        - ratio-4x3
+        - ratio-1x1
+        - ratio-21x9
+      default: ratio-16x9
+      examples:
+        - ratio-16x9
+      meta:enum:
+        ratio-auto: Auto (no crop)
+        ratio-16x9: Wide (16:9)
+        ratio-4x3: Standard (4:3)
+        ratio-1x1: Square (1:1)
+        ratio-21x9: Ultra-wide (21:9)
+    fit:
+      type: string
+      title: Image fit
+      description: How the image behaves inside a fixed ratio.
+      enum:
+        - object-fit-cover
+        - object-fit-contain
+      default: object-fit-cover
+      examples:
+        - object-fit-cover
+      meta:enum:
+        object-fit-cover: Fill (crop)
+        object-fit-contain: Fit (no crop)
+    card_border:
+      type: boolean
+      title: Card border
+      description: Add a default border for the card.
+      default: false
+      examples:
+        - false
+    background_color:
+      type: string
+      title: Background color
+      description: Bootstrap background utility applied to the card.
+      default: bg-transparent
+      examples:
+        - bg-transparent
+      enum:
+        - bg-transparent
+        - bg-body
+        - bg-body-tertiary
+        - bg-white
+        - bg-light
+        - bg-dark
+        - bg-primary
+        - bg-secondary
+        - bg-success
+        - bg-danger
+        - bg-warning
+        - bg-info
+      meta:enum:
+        bg-transparent: Transparent
+        bg-body: Body
+        bg-body-tertiary: Body tertiary
+        bg-white: White
+        bg-light: Light
+        bg-dark: Dark
+        bg-primary: Primary
+        bg-secondary: Secondary
+        bg-success: Success
+        bg-danger: Danger
+        bg-warning: Warning
+        bg-info: Info
+    padded:
+      type: boolean
+      title: Padded
+      description: Adds Bootstrap padding (p-4) to the content area.
+      default: false
+      examples:
+        - false
+    box_shadow:
+      type: string
+      title: Shadow
+      description: Bootstrap shadow utility applied to the card.
+      default: shadow-none
+      examples:
+        - shadow-none
+      enum:
+        - shadow-none
+        - shadow-sm
+        - shadow
+        - shadow-lg
+      meta:enum:
+        shadow-none: None
+        shadow-sm: Small
+        shadow: Medium
+        shadow-lg: Large
+    corner_style:
+      type: string
+      title: Corner style
+      description: Bootstrap rounded utility applied to the card.
+      default: rounded-0
+      examples:
+        - rounded-0
+      enum:
+        - rounded-0
+        - rounded-1
+        - rounded-2
+        - rounded-3
+        - rounded-4
+        - rounded-pill
+      meta:enum:
+        rounded-0: None (square)
+        rounded-1: Small
+        rounded-2: Medium
+        rounded-3: Large
+        rounded-4: Extra Large
+        rounded-pill: Pill
+    equal_height:
+      type: boolean
+      title: Equal height
+      description: Apply h-100 to the card wrapper.
+      default: false
+      examples:
+        - false
+    stretched_link:
+      type: boolean
+      title: Stretched link
+      description: When enabled and a Card link URL is provided, the entire card becomes clickable using Bootstrap’s stretched-link.
+      default: false
+      examples:
+        - false
+    link_url:
+      type: string
+      title: Card link URL
+      format: uri-reference
+      description: Optional URL for the card link.
+      default: ''
+    link_target:
+      type: string
+      title: Link target
+      enum:
+        - default
+        - _self
+        - _blank
+      default: default
+      examples:
+        - default
+      meta:enum:
+        default: Default (same tab)
+        _self: Same tab
+        _blank: New tab
+slots:
+  overlay:
+    title: Media overlay
+    description: 'Drag & drop slot rendered as a badge overlay in the top-left corner of the image. Drop a Badge component or any inline element here.'
+  content:
+    title: Card content
+    description: Drag & drop content slot for text/buttons/etc.

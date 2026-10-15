@@ -1,0 +1,180 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Button component.
+ *
+ * Bootstrap button that renders as a <button> by default, or as a link
+ * (<a>) when a URL is provided. Supports variant, size, outline, radius,
+ * an optional icon, alignment wrapper and full-width.
+ *
+ * Available properties:
+ * - variant: Bootstrap button style class. (btn-primary | btn-secondary
+ *            | btn-success | btn-danger | btn-warning | btn-info | btn-light
+ *            | btn-dark | btn-link) Defaults to `btn-primary`.
+ * - outline: (true|false) When enabled, uses the Bootstrap outline button
+ *            style (btn-outline-*) for the selected variant (not applied to
+ *            btn-link). Defaults to `false`.
+ * - size: Bootstrap button size class. (btn-md | btn-sm | btn-lg)
+ *         Defaults to `btn-md`.
+ * - label: Button text. Defaults to `Button label`.
+ * - href: If provided, renders as a link (<a>) instead of a <button>.
+ * - target: Where to open the link (used only when Link URL is provided).
+ *           (self | blank) Defaults to `self`.
+ * - disabled: (true|false) Disable the button. Defaults to `false`.
+ * - icon: Optional Bootstrap Icon name (without the "bi-" prefix).
+ *         Use "none" to disable. Defaults to `none`.
+ * - icon_first: (true|false) Change icon position to left. Defaults to `false`.
+ * - alignment: Alignment wrapper for a single button. Use Inline for
+ *              multiple buttons. (inline | left | center | right)
+ *              Defaults to `inline`.
+ * - full_width: (true|false) Make the button full width using the Bootstrap
+ *               w-100 utility class. Defaults to `false`.
+ * - radius: Bootstrap border-radius utility class. (rounded | rounded-0
+ *           | rounded-1 | rounded-2 | rounded-3 | rounded-4 | rounded-pill)
+ *           Defaults to `rounded-1`.
+ *
+ * Available attributes:
+ * - attributes: Attributes array.
+ * - wrapper_attributes: HTML attributes for the alignment wrapper element.
+ * - label_attributes: HTML attributes for the button label span.
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: scalar props with schema defaults. #}
+{% set label = label|default('Button label') %}
+{% set variant = variant|default('btn-primary') %}
+{% set size = size|default('btn-md') %}
+{% set target = target|default('self') %}
+{% set icon = icon|default('none') %}
+{% set alignment = alignment|default('inline') %}
+{% set radius = radius|default('rounded-1') %}
+
+{# Variables: boolean props.
+ # SDC validates `type: boolean` props and applies their schema defaults,
+ # so the values arrive as real booleans — only a presence fallback is
+ # needed here, never type coercion.
+ #}
+{% set is_outline = outline ?? false %}
+{% set is_disabled = disabled ?? false %}
+{% set full_width = full_width ?? false %}
+{% set is_icon_first = icon_first ?? false %}
+
+{# Logic: variant, outline and link handling. #}
+{% set variant_class = (is_outline and variant != 'btn-link') ? variant|replace({'btn-': 'btn-outline-'}) : variant %}
+{% set is_link_variant = variant_class == 'btn-link' %}
+
+{# Logic: link target and rel. #}
+{% set target_attr = target == 'blank' ? '_blank' : '_self' %}
+{% set rel_attr = target == 'blank' ? 'noopener noreferrer' : null %}
+
+{# Logic: href, removed when the button is disabled. #}
+{% set href_value = (href is defined and href is not empty) ? href : null %}
+{% set href_value = is_disabled ? null : href_value %}
+{# Permit web/contact links and relative paths. Reject controls and backslashes
+   before checking the scheme: browsers normalize embedded tabs/newlines. #}
+{% if href_value %}
+  {% set _href_value = href_value|trim %}
+  {% set _href_scheme = _href_value|lower %}
+  {% set _href_relative = not (':' in _href_value|split('/')|first|split('?')|first|split('#')|first) %}
+  {% set _href_allowed = _href_scheme starts with 'https://' or _href_scheme starts with 'http://' or _href_scheme starts with 'mailto:' or _href_scheme starts with 'tel:' or _href_relative %}
+  {% set _href_unsafe = _href_value matches '/[\\x00-\\x20\\x7f]/' or '\\' in _href_value or _href_value starts with '//' %}
+  {% set href_value = _href_allowed and not _href_unsafe ? _href_value : '#' %}
+{% endif %}
+
+{# Logic: icon presence. #}
+{% set icon_value = icon|trim %}
+{% set has_icon = icon_value is not empty and icon_value != 'none' %}
+
+{# Logic: optional utility classes, only when applicable. #}
+{% set is_inline = alignment == 'inline' %}
+{% set size_text_classes = size == 'btn-lg' ? ['fs-5'] : [] %}
+{% set width_classes = full_width ? ['w-100'] : [] %}
+{% set padding_classes = is_link_variant ? ['p-0'] : [] %}
+{% set inline_classes = is_inline ? ['me-3', 'mb-3'] : [] %}
+{% set icon_order_classes = (has_icon and not is_icon_first) ? ['flex-row-reverse'] : [] %}
+
+{#
+ # Inline buttons (no alignment wrapper) receive me-3 mb-3 so that when
+ # multiple buttons appear as siblings they automatically have 16px (gap-3)
+ # spacing both horizontally and vertically across rows.
+ #}
+{% set classes = [
+  'btn',
+  variant_class,
+  size,
+  radius,
+  'd-inline-flex',
+  'align-items-center',
+  'justify-content-center',
+  'gap-2',
+  'fw-bold',
+]|merge(size_text_classes)|merge(width_classes)|merge(padding_classes)|merge(inline_classes)|merge(icon_order_classes) %}
+
+{# Logic: alignment wrapper class, only for non-inline alignments. #}
+{% set wrapper_class = alignment == 'left' ? 'd-flex justify-content-start'
+  : alignment == 'center' ? 'd-flex justify-content-center'
+  : alignment == 'right' ? 'd-flex justify-content-end'
+  : '' %}
+
+{# Logic: per-region attributes objects for the structural wrappers. #}
+{% if not wrapper_attributes %}
+  {% set wrapper_attributes = create_attribute() %}
+{% endif %}
+{% if wrapper_class %}
+  {% set wrapper_attributes = wrapper_attributes.addClass(wrapper_class) %}
+{% endif %}
+
+{# Logic: branch-specific structural attributes for the link or button. #}
+{% if href_value %}
+  {% set attributes = attributes
+    .setAttribute('href', href_value)
+    .addClass(classes)
+    .setAttribute('target', target_attr)
+  %}
+  {% if rel_attr %}
+    {% set attributes = attributes.setAttribute('rel', rel_attr) %}
+  {% endif %}
+  {% if is_disabled %}
+    {% set attributes = attributes
+      .setAttribute('aria-disabled', 'true')
+      .setAttribute('tabindex', -1)
+    %}
+  {% endif %}
+{% else %}
+  {% set attributes = attributes
+    .setAttribute('type', 'button')
+    .addClass(classes)
+  %}
+{% endif %}
+
+{% set label_attributes = label_attributes|default(create_attribute()) %}
+
+{# Print the HTML. #}
+{% if wrapper_class %}<div{{ wrapper_attributes }}>{% endif %}
+
+{% if href_value %}
+<a{{ attributes }}>
+{% else %}
+<button{{ attributes }} {% if is_disabled %}disabled{% endif %}>
+{% endif %}
+
+{% if has_icon %}
+  {{ include('actools_bs5:bootstrap-icon', {
+    icon: icon_value
+  }, with_context = false) }}
+{% endif %}
+
+<span{{ label_attributes }}>{{ label }}</span>
+
+{% if href_value %}</a>{% else %}</button>{% endif %}
+
+{% if wrapper_class %}</div>{% endif %}

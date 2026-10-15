@@ -1,0 +1,1 @@
+SKIP: Drupal root and PHP CLI are required; no component render tests ran.

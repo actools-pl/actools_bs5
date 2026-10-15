@@ -1,0 +1,44 @@
+{#
+/**
+ * @file
+ * Template for status messages.
+ */
+#}
+{% set types = {
+  status: 'success',
+  warning: 'warning',
+  error: 'danger',
+  info: 'info',
+  primary: 'primary',
+  secondary: 'secondary',
+  light: 'light',
+  dark: 'dark',
+} %}
+
+{% for type, messages in message_list %}
+	<div role="region" aria-label="{{ status_headings[type] }}" {{ attributes|without('role', 'aria-label') }}>
+		{# Give each embedded alert its OWN fresh attributes object so it never
+		 # mutates the loop-level `attributes` used by the wrapper above. Without
+		 # this, the alert's addClass()/setAttribute() pollute the shared object
+		 # and the next message type's wrapper renders as a nested .alert. #}
+		{% embed 'actools_bs5:alert' with {
+      variant: types[type]|default(''),
+      attributes: create_attribute(),
+    } %}
+			{% block content %}
+				{% if status_headings[type] %}
+					<h2 class="visually-hidden">{{ status_headings[type] }}</h2>
+				{% endif %}
+				{% if messages|length > 1 %}
+					<ul>
+						{% for message in messages %}
+							<li>{{ message }}</li>
+						{% endfor %}
+					</ul>
+				{% else %}
+					{{ messages|first }}
+				{% endif %}
+			{% endblock %}
+		{% endembed %}
+	</div>
+{% endfor %}

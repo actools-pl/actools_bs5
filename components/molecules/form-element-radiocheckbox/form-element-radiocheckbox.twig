@@ -1,0 +1,65 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Form Element Radiocheckbox component.
+ *
+ * @ingroup themeable
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: display-state flags. #}
+{% set has_no_label = title_display not in ['after', 'before'] %}
+{% set is_disabled = disabled == 'disabled' %}
+{% set has_errors = errors ? true : false %}
+{% set description_invisible = description_display == 'invisible' %}
+
+{# Logic: merge the form item classes as arrays. #}
+{% set no_label_classes = has_no_label ? ['form-no-label'] : [] %}
+{% set disabled_classes = is_disabled ? ['form-disabled'] : [] %}
+{% set error_classes = has_errors ? ['form-item--error'] : [] %}
+{%
+set classes = [
+  'js-form-item',
+  'form-item',
+  'js-form-type-' ~ type|clean_class,
+  'form-item-' ~ name|clean_class,
+  'js-form-item-' ~ name|clean_class,
+]|merge(no_label_classes)|merge(disabled_classes)|merge(error_classes)|merge(['form-check'])
+%}
+{% set description_invisible_classes = description_invisible ? ['visually-hidden'] : [] %}
+{%
+set description_classes = [
+  'description',
+  'form-text',
+  'text-muted',
+]|merge(description_invisible_classes)
+%}
+{% set attributes = attributes.addClass(classes) %}
+
+{# Print the HTML. #}
+<div{{ attributes }}>
+  {{ children }}
+
+  {{ label }}
+
+  {% if errors %}
+    <div class="form-item--error-message">
+      {{ errors }}
+    </div>
+  {% endif %}
+
+  {% if description.content %}
+    <small{{ description.attributes.addClass(description_classes) }}>
+      {{ description.content }}
+    </small>
+  {% endif %}
+</div>

@@ -1,0 +1,459 @@
+"$schema": "https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json"
+name: Group
+group: Layout
+description: "Bootstrap flex group for stacking items (horizontal/vertical) with gap, alignment, spacing, background utilities."
+
+props:
+  type: object
+  properties:
+
+    background_color:
+      type: string
+      title: "Background color"
+      description: "Bootstrap background utility class."
+      enum:
+        - "none"
+        - "bg-primary"
+        - "bg-primary-subtle"
+        - "bg-secondary"
+        - "bg-secondary-subtle"
+        - "bg-success"
+        - "bg-success-subtle"
+        - "bg-danger"
+        - "bg-danger-subtle"
+        - "bg-warning"
+        - "bg-warning-subtle"
+        - "bg-info"
+        - "bg-info-subtle"
+        - "bg-light"
+        - "bg-light-subtle"
+        - "bg-dark"
+        - "bg-dark-subtle"
+        - "bg-body"
+        - "bg-body-secondary"
+        - "bg-body-tertiary"
+        - "bg-black"
+        - "bg-white"
+        - "bg-transparent"
+        - "bg-tertiary"
+        - "bg-accent"
+      default: "none"
+      examples:
+        - "none"
+      meta:enum:
+        none: "None"
+        bg-primary: "Primary"
+        bg-primary-subtle: "Primary subtle"
+        bg-secondary: "Secondary"
+        bg-secondary-subtle: "Secondary subtle"
+        bg-success: "Success"
+        bg-success-subtle: "Success subtle"
+        bg-danger: "Danger"
+        bg-danger-subtle: "Danger subtle"
+        bg-warning: "Warning"
+        bg-warning-subtle: "Warning subtle"
+        bg-info: "Info"
+        bg-info-subtle: "Info subtle"
+        bg-light: "Light"
+        bg-light-subtle: "Light subtle"
+        bg-dark: "Dark"
+        bg-dark-subtle: "Dark subtle"
+        bg-body: "Body"
+        bg-body-secondary: "Body secondary"
+        bg-body-tertiary: "Body tertiary"
+        bg-black: "Black"
+        bg-white: "White"
+        bg-transparent: "Transparent"
+        bg-tertiary: "Tertiary"
+        bg-accent: "Accent"
+
+    direction:
+      type: string
+      title: "Direction"
+      description: "How items should flow."
+      enum:
+        - "vertical"
+        - "horizontal"
+      default: "vertical"
+      examples:
+        - "vertical"
+      meta:enum:
+        vertical: "Vertical (stack)"
+        horizontal: "Horizontal (row)"
+
+    gap:
+      type: string
+      title: "Space between items"
+      description: "Bootstrap gap utility."
+      enum:
+        - "gap-0"
+        - "gap-1"
+        - "gap-2"
+        - "gap-3"
+        - "gap-4"
+        - "gap-5"
+      default: "gap-3"
+      examples:
+        - "gap-3"
+      meta:enum:
+        gap-0: "None"
+        gap-1: "Small"
+        gap-2: "Medium"
+        gap-3: "Large"
+        gap-4: "X-Large"
+        gap-5: "XX-Large"
+
+    wrap:
+      type: string
+      title: "Wrap items (horizontal only)"
+      description: "If horizontal, allow items to wrap onto new lines."
+      enum:
+        - "wrap"
+        - "nowrap"
+        - "wrap-reverse"
+      default: "wrap"
+      examples:
+        - "wrap"
+      meta:enum:
+        wrap: "Wrap"
+        nowrap: "No wrap"
+        wrap-reverse: "Wrap (reverse)"
+
+    align_items:
+      type: string
+      title: "Vertical alignment"
+      description: "Align items on the cross axis."
+      enum:
+        - "align-items-start"
+        - "align-items-center"
+        - "align-items-end"
+        - "align-items-stretch"
+        - "align-items-baseline"
+      default: "align-items-stretch"
+      examples:
+        - "align-items-stretch"
+      meta:enum:
+        align-items-start: "Top"
+        align-items-center: "Center"
+        align-items-end: "Bottom"
+        align-items-stretch: "Stretch"
+        align-items-baseline: "Baseline"
+
+    justify_content:
+      type: string
+      title: "Horizontal distribution"
+      description: "Distribute items along the main axis."
+      enum:
+        - "justify-content-start"
+        - "justify-content-center"
+        - "justify-content-end"
+        - "justify-content-between"
+        - "justify-content-around"
+        - "justify-content-evenly"
+      default: "justify-content-start"
+      examples:
+        - "justify-content-start"
+      meta:enum:
+        justify-content-start: "Start"
+        justify-content-center: "Center"
+        justify-content-end: "End"
+        justify-content-between: "Space between"
+        justify-content-around: "Space around"
+        justify-content-evenly: "Space evenly"
+
+    padding_block_start:
+      type: string
+      title: "Padding top"
+      description: "Bootstrap padding-top utility class."
+      enum:
+        - "pt-0"
+        - "pt-1"
+        - "pt-2"
+        - "pt-3"
+        - "pt-4"
+        - "pt-5"
+      default: "pt-0"
+      examples:
+        - "pt-0"
+      meta:enum:
+        pt-0: "None"
+        pt-1: "Small"
+        pt-2: "Medium"
+        pt-3: "Large"
+        pt-4: "X-Large"
+        pt-5: "XX-Large"
+
+    padding_block_end:
+      type: string
+      title: "Padding bottom"
+      description: "Bootstrap padding-bottom utility class."
+      enum:
+        - "pb-0"
+        - "pb-1"
+        - "pb-2"
+        - "pb-3"
+        - "pb-4"
+        - "pb-5"
+      default: "pb-0"
+      examples:
+        - "pb-0"
+      meta:enum:
+        pb-0: "None"
+        pb-1: "Small"
+        pb-2: "Medium"
+        pb-3: "Large"
+        pb-4: "X-Large"
+        pb-5: "XX-Large"
+
+    padding_inline_start:
+      type: string
+      title: "Padding start"
+      description: "Bootstrap padding-start utility class."
+      enum:
+        - "ps-0"
+        - "ps-1"
+        - "ps-2"
+        - "ps-3"
+        - "ps-4"
+        - "ps-5"
+      default: "ps-0"
+      examples:
+        - "ps-0"
+      meta:enum:
+        ps-0: "None"
+        ps-1: "Small"
+        ps-2: "Medium"
+        ps-3: "Large"
+        ps-4: "X-Large"
+        ps-5: "XX-Large"
+
+    padding_inline_end:
+      type: string
+      title: "Padding end"
+      description: "Bootstrap padding-end utility class."
+      enum:
+        - "pe-0"
+        - "pe-1"
+        - "pe-2"
+        - "pe-3"
+        - "pe-4"
+        - "pe-5"
+      default: "pe-0"
+      examples:
+        - "pe-0"
+      meta:enum:
+        pe-0: "None"
+        pe-1: "Small"
+        pe-2: "Medium"
+        pe-3: "Large"
+        pe-4: "X-Large"
+        pe-5: "XX-Large"
+
+    margin_block_start:
+      type: string
+      title: "Margin top"
+      description: "Bootstrap margin-top utility class."
+      enum:
+        - "mt-0"
+        - "mt-1"
+        - "mt-2"
+        - "mt-3"
+        - "mt-4"
+        - "mt-5"
+      default: "mt-0"
+      examples:
+        - "mt-0"
+      meta:enum:
+        mt-0: "None"
+        mt-1: "Small"
+        mt-2: "Medium"
+        mt-3: "Large"
+        mt-4: "X-Large"
+        mt-5: "XX-Large"
+
+    margin_block_end:
+      type: string
+      title: "Margin bottom"
+      description: "Bootstrap margin-bottom utility class."
+      enum:
+        - "mb-0"
+        - "mb-1"
+        - "mb-2"
+        - "mb-3"
+        - "mb-4"
+        - "mb-5"
+      default: "mb-0"
+      examples:
+        - "mb-0"
+      meta:enum:
+        mb-0: "None"
+        mb-1: "Small"
+        mb-2: "Medium"
+        mb-3: "Large"
+        mb-4: "X-Large"
+        mb-5: "XX-Large"
+
+    margin_inline_start:
+      type: string
+      title: "Margin start"
+      description: "Bootstrap margin-start utility class."
+      enum:
+        - "ms-0"
+        - "ms-1"
+        - "ms-2"
+        - "ms-3"
+        - "ms-4"
+        - "ms-5"
+      default: "ms-0"
+      examples:
+        - "ms-0"
+      meta:enum:
+        ms-0: "None"
+        ms-1: "Small"
+        ms-2: "Medium"
+        ms-3: "Large"
+        ms-4: "X-Large"
+        ms-5: "XX-Large"
+
+    margin_inline_end:
+      type: string
+      title: "Margin end"
+      description: "Bootstrap margin-end utility class."
+      enum:
+        - "me-0"
+        - "me-1"
+        - "me-2"
+        - "me-3"
+        - "me-4"
+        - "me-5"
+      default: "me-0"
+      examples:
+        - "me-0"
+      meta:enum:
+        me-0: "None"
+        me-1: "Small"
+        me-2: "Medium"
+        me-3: "Large"
+        me-4: "X-Large"
+        me-5: "XX-Large"
+
+    radius:
+      type: string
+      title: "Border radius"
+      description: "Bootstrap border-radius utility class."
+      enum:
+        - "none"
+        - "rounded"
+        - "rounded-0"
+        - "rounded-1"
+        - "rounded-2"
+        - "rounded-3"
+        - "rounded-4"
+        - "rounded-pill"
+      default: "none"
+      examples:
+        - "none"
+      meta:enum:
+        none: "None"
+        rounded: "Default"
+        rounded-0: "Square"
+        rounded-1: "Small"
+        rounded-2: "Medium"
+        rounded-3: "Large"
+        rounded-4: "Extra Large"
+        rounded-pill: "Round"
+
+    border:
+      type: string
+      title: "Border"
+      description: "Apply Bootstrap border utility. Select a preset combination of sides."
+      enum:
+        - "none"
+        - "border"
+        - "border-top"
+        - "border-bottom"
+        - "border-start"
+        - "border-end"
+      default: "none"
+      examples:
+        - "none"
+      meta:enum:
+        none: "None"
+        border: "All sides"
+        border-top: "Top"
+        border-bottom: "Bottom"
+        border-start: "Start"
+        border-end: "End"
+
+    border_color:
+      type: string
+      title: "Border color"
+      description: "Bootstrap border color utility. Only applies when border is set."
+      enum:
+        - "none"
+        - "border-primary"
+        - "border-primary-subtle"
+        - "border-secondary"
+        - "border-secondary-subtle"
+        - "border-success"
+        - "border-success-subtle"
+        - "border-danger"
+        - "border-danger-subtle"
+        - "border-warning"
+        - "border-warning-subtle"
+        - "border-info"
+        - "border-info-subtle"
+        - "border-light"
+        - "border-dark"
+        - "border-dark-subtle"
+        - "border-black"
+        - "border-white"
+      default: "none"
+      examples:
+        - "none"
+      meta:enum:
+        none: "Default"
+        border-primary: "Primary"
+        border-primary-subtle: "Primary subtle"
+        border-secondary: "Secondary"
+        border-secondary-subtle: "Secondary subtle"
+        border-success: "Success"
+        border-success-subtle: "Success subtle"
+        border-danger: "Danger"
+        border-danger-subtle: "Danger subtle"
+        border-warning: "Warning"
+        border-warning-subtle: "Warning subtle"
+        border-info: "Info"
+        border-info-subtle: "Info subtle"
+        border-light: "Light"
+        border-dark: "Dark"
+        border-dark-subtle: "Dark subtle"
+        border-black: "Black"
+        border-white: "White"
+
+    border_width:
+      type: string
+      title: "Border width"
+      description: "Bootstrap border width utility. Only applies when border is set."
+      enum:
+        - "none"
+        - "border-1"
+        - "border-2"
+        - "border-3"
+        - "border-4"
+        - "border-5"
+      default: "none"
+      examples:
+        - "none"
+      meta:enum:
+        none: "Default"
+        border-1: "Extra small"
+        border-2: "Small"
+        border-3: "Medium"
+        border-4: "Large"
+        border-5: "Extra large"
+
+
+slots:
+  content:
+    title: "Content"

@@ -1,0 +1,15 @@
+{#
+/**
+ * @file
+ * Page user login.
+ */
+#}
+
+{% include 'actools_bs5:page-user-login' with {
+  without_blocks: [
+    'actools_bs5_local_tasks',
+    'actools_bs5_breadcrumbs',
+    'actools_bs5_local_actions',
+    'actools_bs5_page_title'
+  ]
+} %}

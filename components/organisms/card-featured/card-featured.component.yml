@@ -1,0 +1,364 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Featured Card
+group: Card
+status: stable
+description: Featured card (media + content) with Bootstrap 5 grid ratios per breakpoint. Canvas-friendly controls for border,
+  padding, gutters and alignment.
+props:
+  type: object
+  properties:
+    media_position:
+      type: string
+      title: Media position
+      description: Choose the location of the media from (start|end|no-media).
+      default: start
+      examples:
+        - start
+      enum:
+        - start
+        - end
+        - no-media
+      meta:enum:
+        start: Start
+        end: End
+        no-media: No media
+    media_image:
+      title: Media upload
+      description: Optional image selected from Media Library or uploaded. Used when the media slot is empty.
+      properties:
+        src:
+          type: string
+          format: uri-reference
+        alt:
+          type: string
+        width:
+          type: integer
+          minimum: 1
+        height:
+          type: integer
+          minimum: 1
+        url:
+          type: string
+          format: uri-reference
+        data:
+          type: object
+      type: object
+      examples:
+        - src: /themes/custom/actools_bs5/components/foundation/images/assets/teaser-3.jpg
+          alt: Featured image
+          width: 800
+          height: 600
+    ratio:
+      type: string
+      title: Image ratio (crop)
+      description: Keeps consistent image shapes.
+      enum:
+        - ratio-auto
+        - ratio-16x9
+        - ratio-4x3
+        - ratio-1x1
+        - ratio-21x9
+      default: ratio-16x9
+      examples:
+        - ratio-auto
+      meta:enum:
+        ratio-auto: Auto (no crop)
+        ratio-16x9: Wide (16:9)
+        ratio-4x3: Standard (4:3)
+        ratio-1x1: Square (1:1)
+        ratio-21x9: Ultra-wide (21:9)
+    fit:
+      type: string
+      title: Image fit
+      description: How the image behaves inside a fixed ratio.
+      enum:
+        - object-fit-cover
+        - object-fit-contain
+      default: object-fit-cover
+      examples:
+        - object-fit-cover
+      meta:enum:
+        object-fit-cover: Fill (crop)
+        object-fit-contain: Fit (no crop)
+    card_border:
+      type: boolean
+      title: Card Border
+      description: Add a default border for the card.
+      default: false
+      examples:
+        - false
+    corner_style:
+      type: string
+      title: Border radius
+      description: Bootstrap rounded utility. Applied to the whole card when border is enabled, or to the image only when border is disabled.
+      default: rounded-0
+      examples:
+        - rounded-0
+      enum:
+        - rounded-0
+        - rounded-1
+        - rounded-2
+        - rounded-3
+        - rounded-4
+        - rounded-pill
+      meta:enum:
+        rounded-0: None (square)
+        rounded-1: Small
+        rounded-2: Medium
+        rounded-3: Large
+        rounded-4: Extra Large
+        rounded-pill: Pill
+    padded:
+      type: boolean
+      title: Padded
+      description: When enabled, adds p-4 padding to the content area.
+      default: false
+      examples:
+        - false
+    equal_height:
+      type: boolean
+      title: Equal height
+      default: false
+      examples:
+        - false
+    stretched_link:
+      type: boolean
+      title: Stretched link
+      description: Makes the whole card clickable using Bootstrap's stretched-link (requires Card link URL).
+      default: false
+      examples:
+        - false
+    link_url:
+      type: string
+      title: Card link URL
+      format: uri-reference
+      description: URL used for the card link. When Stretched link is enabled, this link covers the whole card.
+      default: ''
+    link_target:
+      type: string
+      title: Link target
+      enum:
+        - default
+        - _self
+        - _blank
+      default: default
+      examples:
+        - default
+      meta:enum:
+        default: Same tab (default)
+        _self: Same tab
+        _blank: New tab
+    content_vertical_alignment:
+      type: string
+      title: Content vertical alignment
+      description: Controls the vertical alignment of the card content.
+      default: align-items-center
+      examples:
+        - align-items-center
+      enum:
+        - align-items-start
+        - align-items-center
+        - align-items-end
+      meta:enum:
+        align-items-start: Top
+        align-items-center: Center
+        align-items-end: Bottom
+    gutters_between:
+      type: string
+      title: Gutters Between
+      description: Bootstrap gutter utility classes applied to the inner row.
+      default: g-2 g-lg-3
+      examples:
+        - g-2 g-lg-3
+      enum:
+        - g-0
+        - g-2 g-lg-3
+        - g-4
+        - g-4 g-lg-5
+      meta:enum:
+        g-0: None (g-0)
+        g-2 g-lg-3: Small (g-2 g-lg-3)
+        g-4: Medium (g-4)
+        g-4 g-lg-5: Large (g-4 g-lg-5)
+    columns_xs_size:
+      type: string
+      title: All Breakpoints
+      description: Size of two columns for all devices. Starting from (Extra small and up).
+      default: '06_06'
+      examples:
+        - '06_06'
+      enum:
+        - '02_10'
+        - '10_02'
+        - '03_09'
+        - '09_03'
+        - '04_08'
+        - '08_04'
+        - '05_07'
+        - '07_05'
+        - '06_06'
+        - '12_12'
+      meta:enum:
+        '02_10': '17% - 83%'
+        '10_02': '83% - 17%'
+        '03_09': '25% - 75%'
+        '09_03': '75% - 25%'
+        '04_08': '33% - 67%'
+        '08_04': '67% - 33%'
+        '05_07': '42% - 58%'
+        '07_05': '58% - 42%'
+        '06_06': '50% - 50%'
+        '12_12': '100% - 100%'
+    columns_sm_size:
+      type: string
+      title: Small Breakpoint size (sm)
+      description: Size of two columns for Small devices (landscape phones, 576px and up).
+      default: '06_06'
+      examples:
+        - '06_06'
+      enum:
+        - '02_10'
+        - '10_02'
+        - '03_09'
+        - '09_03'
+        - '04_08'
+        - '08_04'
+        - '05_07'
+        - '07_05'
+        - '06_06'
+        - '12_12'
+      meta:enum:
+        "": "Default (auto)"
+        '02_10': '17% - 83%'
+        '10_02': '83% - 17%'
+        '03_09': '25% - 75%'
+        '09_03': '75% - 25%'
+        '04_08': '33% - 67%'
+        '08_04': '67% - 33%'
+        '05_07': '42% - 58%'
+        '07_05': '58% - 42%'
+        '06_06': '50% - 50%'
+        '12_12': '100% - 100%'
+    columns_md_size:
+      type: string
+      title: Medium Breakpoint size (md)
+      description: Size of two columns for Medium devices (tablets, 768px and up).
+      default: '06_06'
+      examples:
+        - '06_06'
+      enum:
+        - '02_10'
+        - '10_02'
+        - '03_09'
+        - '09_03'
+        - '04_08'
+        - '08_04'
+        - '05_07'
+        - '07_05'
+        - '06_06'
+        - '12_12'
+      meta:enum:
+        '02_10': '17% - 83%'
+        '10_02': '83% - 17%'
+        '03_09': '25% - 75%'
+        '09_03': '75% - 25%'
+        '04_08': '33% - 67%'
+        '08_04': '67% - 33%'
+        '05_07': '42% - 58%'
+        '07_05': '58% - 42%'
+        '06_06': '50% - 50%'
+        '12_12': '100% - 100%'
+    columns_lg_size:
+      type: string
+      title: Large Breakpoint size (lg)
+      description: Size of two columns for Large devices (desktops, 992px and up).
+      default: '06_06'
+      examples:
+        - '06_06'
+      enum:
+        - '02_10'
+        - '10_02'
+        - '03_09'
+        - '09_03'
+        - '04_08'
+        - '08_04'
+        - '05_07'
+        - '07_05'
+        - '06_06'
+        - '12_12'
+      meta:enum:
+        '02_10': '17% - 83%'
+        '10_02': '83% - 17%'
+        '03_09': '25% - 75%'
+        '09_03': '75% - 25%'
+        '04_08': '33% - 67%'
+        '08_04': '67% - 33%'
+        '05_07': '42% - 58%'
+        '07_05': '58% - 42%'
+        '06_06': '50% - 50%'
+        '12_12': '100% - 100%'
+    columns_xl_size:
+      type: string
+      title: Extra Large Breakpoint size (xl)
+      description: Size of two columns for X-Large devices (large desktops, 1200px and up).
+      default: '06_06'
+      examples:
+        - '06_06'
+      enum:
+        - '02_10'
+        - '10_02'
+        - '03_09'
+        - '09_03'
+        - '04_08'
+        - '08_04'
+        - '05_07'
+        - '07_05'
+        - '06_06'
+        - '12_12'
+      meta:enum:
+        '02_10': '17% - 83%'
+        '10_02': '83% - 17%'
+        '03_09': '25% - 75%'
+        '09_03': '75% - 25%'
+        '04_08': '33% - 67%'
+        '08_04': '67% - 33%'
+        '05_07': '42% - 58%'
+        '07_05': '58% - 42%'
+        '06_06': '50% - 50%'
+        '12_12': '100% - 100%'
+    columns_xxl_size:
+      type: string
+      title: Extra Extra Large Breakpoint size (xxl)
+      description: Size of two columns for XX-Large devices (larger desktops, 1400px and up).
+      default: '06_06'
+      examples:
+        - '06_06'
+      enum:
+        - '02_10'
+        - '10_02'
+        - '03_09'
+        - '09_03'
+        - '04_08'
+        - '08_04'
+        - '05_07'
+        - '07_05'
+        - '06_06'
+        - '12_12'
+      meta:enum:
+        '02_10': '17% - 83%'
+        '10_02': '83% - 17%'
+        '03_09': '25% - 75%'
+        '09_03': '75% - 25%'
+        '04_08': '33% - 67%'
+        '08_04': '67% - 33%'
+        '05_07': '42% - 58%'
+        '07_05': '58% - 42%'
+        '06_06': '50% - 50%'
+        '12_12': '100% - 100%'
+slots:
+  overlay:
+    title: Media overlay
+    description: 'Drag & drop slot rendered as a badge overlay in the top-left corner of the media image. Drop a Badge or any inline element here. Renders even when no image is uploaded (shows placeholder).'
+  content:
+    title: Card content
+    description: Drag & drop content slot for text, buttons, and other elements.

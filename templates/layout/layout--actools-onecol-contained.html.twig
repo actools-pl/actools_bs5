@@ -1,0 +1,10 @@
+{# Native Layout API template. Preserve layout and region attributes for editing. #}
+{% if content %}
+  <div{{ attributes.addClass('layout', 'actools-layout', 'actools-layout--contained', 'actools-layout--onecol', 'container') }}>
+    <div class="actools-layout__grid">
+      <div{{ region_attributes.content.addClass('layout__region', 'layout__region--content') }}>
+        {{ content.content }}
+      </div>
+    </div>
+  </div>
+{% endif %}

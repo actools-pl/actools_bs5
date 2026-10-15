@@ -1,0 +1,35 @@
+# Schema for the configuration files of the Actools BS5.
+actools_bs5.settings:
+  type: theme_settings
+  label: "Actools BS5 settings"
+  mapping:
+    # Containers for regions.
+    # ----------------------------
+    container_header:
+      type: string
+      label: "Container for Header region"
+    container_content:
+      type: string
+      label: "Container for Content region"
+    container_footer:
+      type: string
+      label: "Container for Footer region"
+    # Header behaviour.
+    # ----------------------------
+    sticky_header:
+      type: boolean
+      label: "Make the header sticky on scroll"
+    # Design tokens.
+    # ----------------------------
+    tokens_brand_color:
+      type: string
+      label: "Brand colour (hex)"
+    tokens_body_font:
+      type: string
+      label: "Body font (figtree|system|serif)"
+    tokens_base_font_size:
+      type: string
+      label: "Base font size in px (16-20)"
+    tokens_corner_radius:
+      type: string
+      label: "Corner radius (sharp|subtle|default|rounded)"

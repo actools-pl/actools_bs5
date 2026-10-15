@@ -1,0 +1,44 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Bootstrap Icon component.
+ *
+ * Props:
+ * - icon (string): Bootstrap icon name, e.g. "alarm", "link-45deg"
+ * - icon_size (string): Bootstrap font-size utility class, e.g. fs-4
+ * - color (string): Optional text color utility class, e.g. "text-primary"
+ *
+ * Available attributes:
+ * - attributes: HTML attributes for the icon element.
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: scalar props with schema defaults. #}
+{% set icon = icon|default('award')|trim %}
+{% set icon_size = icon_size|default('fs-4')|trim %}
+{% set color = color|default('')|trim %}
+
+{# Logic: merge icon classes as arrays. #}
+{% set color_classes = color ? [color] : [] %}
+{% set classes = [
+  'bi',
+  'bi-' ~ icon,
+  'd-inline-block',
+  'lh-1',
+  icon_size,
+]|merge(color_classes) %}
+
+{# Print the HTML. #}
+{% if icon %}
+  {% set attributes = attributes.addClass(classes) %}
+  <i{{ attributes }}></i>
+{% endif %}

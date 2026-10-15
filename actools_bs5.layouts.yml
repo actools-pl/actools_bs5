@@ -1,0 +1,81 @@
+actools_bs5_onecol_contained:
+  label: 'Actools: One column (contained)'
+  category: 'Actools sections'
+  template: templates/layout/layout--actools-onecol-contained
+  library: actools_bs5/layout-builder
+  default_region: content
+  icon_map:
+    - [content]
+  regions:
+    content:
+      label: Content
+
+actools_bs5_onecol_full:
+  label: 'Actools: One column (full available width)'
+  category: 'Actools sections'
+  template: templates/layout/layout--actools-onecol-full
+  library: actools_bs5/layout-builder
+  default_region: content
+  icon_map:
+    - [content]
+  regions:
+    content:
+      label: Content
+
+actools_bs5_twocol_equal:
+  label: 'Actools: Two columns (50/50)'
+  category: 'Actools sections'
+  template: templates/layout/layout--actools-twocol-equal
+  library: actools_bs5/layout-builder
+  default_region: first
+  icon_map:
+    - [first, second]
+  regions:
+    first:
+      label: First column
+    second:
+      label: Second column
+
+actools_bs5_twocol_narrow_wide:
+  label: 'Actools: Two columns (33/67)'
+  category: 'Actools sections'
+  template: templates/layout/layout--actools-twocol-narrow-wide
+  library: actools_bs5/layout-builder
+  default_region: first
+  icon_map:
+    - [first, second, second]
+  regions:
+    first:
+      label: First column (one third)
+    second:
+      label: Second column (two thirds)
+
+actools_bs5_twocol_wide_narrow:
+  label: 'Actools: Two columns (67/33)'
+  category: 'Actools sections'
+  template: templates/layout/layout--actools-twocol-wide-narrow
+  library: actools_bs5/layout-builder
+  default_region: first
+  icon_map:
+    - [first, first, second]
+  regions:
+    first:
+      label: First column (two thirds)
+    second:
+      label: Second column (one third)
+
+actools_bs5_threecol_equal:
+  label: 'Actools: Three columns (equal)'
+  category: 'Actools sections'
+  template: templates/layout/layout--actools-threecol-equal
+  library: actools_bs5/layout-builder
+  default_region: first
+  icon_map:
+    - [first, second, third]
+  regions:
+    first:
+      label: First column
+    second:
+      label: Second column
+    third:
+      label: Third column

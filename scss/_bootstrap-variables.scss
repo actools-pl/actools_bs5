@@ -1,0 +1,179 @@
+// Override Bootstrap variables with Varbase 10 Branding
+// ----------------------------------------------------------------
+// See more about override Bootstrap variables here:
+// https://getbootstrap.com/docs/5.3/customize/sass
+// https://github.com/twbs/bootstrap/blob/v5.3.2/scss/_variables.scss
+
+@import "../node_modules/bootstrap/scss/functions";      // Bootstrap functions.
+@import "../node_modules/bootstrap/scss/mixins";         // Bootstrap mixins.
+
+$prefix: bs-;
+
+// Override aspect ratios array to add more ratios.
+$aspect-ratios: (
+  "1x1": 100%,
+  "2x1": calc(1 / 2 * 100%),
+  "3x1": calc(1 / 3 * 100%),
+  "4x1": calc(1 / 4 * 100%),
+  "4x3": calc(3 / 4 * 100%),
+  "16x9": calc(9 / 16 * 100%),
+  "21x9": calc(9 / 21 * 100%),
+);
+
+// Override the default primary font family to Inter - Regular, Italic Bold for sans serif.
+$font-family-sans-serif: figtree, sans-serif;
+
+// Secondary monospace font family.
+$font-family-monospace: 'DM Mono', monospace;
+
+// Override the default font size.
+$font-size-root: null;
+$font-size-base: 1.125rem; // Assumes the browser default, typically `16px`
+$font-size-sm: 0.875rem;
+$font-size-lg: 1.125rem;
+
+// Override the default quote font size.
+$blockquote-font-size: 1rem;
+
+// Override the default headings font sizes.
+$h1-font-size: 3.25rem;
+$h2-font-size: 2.625rem;
+$h3-font-size: 1.5rem;
+$h4-font-size: 1.25rem;
+$h5-font-size: 1rem;
+$h6-font-size: 0.875rem;
+
+// Override the default display font sizes.
+$display-font-sizes: (
+  1: 3.375rem,
+  2: 3rem,
+  3: 2.375rem,
+  4: 1.875rem,
+  5: 1.5rem,
+  6: 1.125rem
+);
+
+// Override the default headings.
+$headings-font-style: normal;
+$headings-font-weight: 700;
+$headings-line-height: 140%;
+
+// Override the default display headings.
+$display-font-weight: 500;
+
+// Override the default lead styling.
+$lead-font-weight: 500;
+
+// Override the dark color to use navy-600.
+$navy: #001D38;
+$navy-600: shade-color($navy, 0%);
+$dark: $navy-600;
+
+// Override the light color to use sky-600.
+$sky: #F5F9FE;
+$sky-600: shade-color($sky, 0%);
+
+// Lavender — accent base color.
+$lavender:     #E4DCFF;
+$lavender-600: shade-color($lavender, 0%);
+$accent:       $lavender-600;
+
+// Linen — warm neutral used for secondary-subtle surfaces and borders.
+$linen:     #F3F1EF;
+$linen-600: shade-color($linen, 0%);
+
+// Sand — slightly deeper warm neutral used for secondary backgrounds.
+$sand:     #EBE8E5;
+$sand-600: shade-color($sand, 0%);
+$secondary: $sand-600;
+
+// Stone — mid-tone warm gray for emphasis and light text.
+$stone:     #D7D2CB;
+$stone-600: shade-color($stone, 0%);
+
+// Powder — light blue for primary subtle background.
+$powder:     #BEDCFF;
+$powder-600: shade-color($powder, 0%);
+
+// Mist — very light lavender for accent subtle background.
+$mist:     #F6F3FF;
+$mist-600: shade-color($mist, 0%);
+
+// Lilac — medium lavender for accent emphasis, border, and background.
+$lilac:     #DBD0FF;
+$lilac-600: shade-color($lilac, 0%);
+
+// Tertiary background (Bootstrap $light default is #f8f9fa; Figma uses sky #F5F9FE).
+$tertiary: $sky-600;
+
+// Override subtle background variants (Bootstrap computes these from base colors).
+$primary-bg-subtle:   $powder-600;
+$secondary-bg-subtle: $linen-600;
+$accent-bg-subtle:    $mist-600;
+
+// Override text emphasis variants (Bootstrap computes these from base colors).
+$primary-text-emphasis:   $navy-600;
+$secondary-text-emphasis: $stone-600;
+$accent-text-emphasis:    $lilac-600;
+
+// Override border colors (Bootstrap defaults differ).
+$border-color:            $linen-600;
+$primary-border-subtle:   #0D6EFD;    // full primary blue (Figma primary-border)
+$secondary-border-subtle: $lilac-600;
+
+// Custom color variables with no Bootstrap equivalents.
+$border-white: #FFFFFF;
+$light-text:   $stone-600;
+$subtle-text:  rgba($navy, .7); // subtle-text at 70% opacity
+$accent-bg:    $lilac-600;
+
+// Override body-tertiary to use gray-900 (#212529) for both background and text.
+$gray: #212529;
+$gray-900: shade-color($gray, 0%);
+$body-tertiary-bg:    $gray-900;
+$body-tertiary-color: $gray-900;
+
+// Override border radius for all breakpoints.
+$border-radius-sm: 0.25rem;   // rounded-1
+$border-radius: 0.5rem;       // rounded-2
+$border-radius-lg: 0.75rem;   // rounded-3
+$border-radius-xl: 1rem;      // rounded-4
+$border-radius-xxl: 1.5rem;   // rounded-5
+
+// Override default bootstrap breadcrumb variables.
+$breadcrumb-divider: quote("\F285");
+$breadcrumb-divider-flipped: quote("\F285");
+
+// Override border radius for buttons with no radius.
+$btn-font-weight: 700;
+$btn-border-radius: 0;
+$btn-border-radius-sm: 0;
+$btn-border-radius-lg: 0;
+
+// Override the color and decoration of links.
+$link-hover-color: #084298;
+$link-hover-decoration: none;
+
+// Override the default card variables.
+$card-title-spacer-y: 0.94rem;
+$card-border-radius: 0;
+
+// Override the default carousel variables.
+$carousel-control-width: 2.1875rem;
+$carousel-control-opacity: 1;
+$carousel-control-hover-opacity: 0.9;
+$carousel-control-transition: opacity .15s ease !default;
+
+$carousel-indicator-width: 0.625rem;
+$carousel-indicator-height: 0.625rem;
+$carousel-indicator-hit-area-height: 0.625rem;
+$carousel-indicator-spacer: 0.3125rem;
+$carousel-indicator-opacity: 1;
+$carousel-indicator-active-opacity: 1;
+
+$carousel-control-icon-width: 2.1875rem;
+
+$carousel-control-prev-icon-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='35' height='35' viewBox='0 0 35 35' fill='none'><path d='M17.5 0C7.83502 0 0 7.83502 0 17.5C0 27.165 7.83502 35 17.5 35C27.165 35 35 27.165 35 17.5C35 7.83502 27.165 0 17.5 0ZM25.1562 16.4062C25.7603 16.4062 26.25 16.8959 26.25 17.5C26.25 18.1041 25.7603 18.5938 25.1562 18.5938H12.4843L17.1796 23.2891C17.6068 23.7162 17.6068 24.4088 17.1796 24.8359C16.7525 25.263 16.06 25.263 15.6329 24.8359L9.07035 18.2734C8.64322 17.8463 8.64322 17.1537 9.07035 16.7266L15.6329 10.1641C16.06 9.73697 16.7525 9.73697 17.1796 10.1641C17.6068 10.5912 17.6068 11.2838 17.1796 11.7109L12.4843 16.4062H25.1562Z' fill='white'/></svg>");
+$carousel-control-next-icon-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='35' height='35' viewBox='0 0 35 35' fill='none'><path d='M17.5 0C27.165 0 35 7.83502 35 17.5C35 27.165 27.165 35 17.5 35C7.83502 35 0 27.165 0 17.5C0 7.83502 7.83502 0 17.5 0ZM9.84375 16.4062C9.23969 16.4062 8.75 16.8959 8.75 17.5C8.75 18.1041 9.23969 18.5938 9.84375 18.5938H22.5157L17.8204 23.2891C17.3932 23.7162 17.3932 24.4088 17.8204 24.8359C18.2475 25.263 18.94 25.263 19.3671 24.8359L25.9296 18.2734C26.3568 17.8463 26.3568 17.1537 25.9296 16.7266L19.3671 10.1641C18.94 9.73697 18.2475 9.73697 17.8204 10.1641C17.3932 10.5912 17.3932 11.2838 17.8204 11.7109L22.5157 16.4062H9.84375Z' fill='white'/></svg>");
+
+$carousel-transition-duration: .6s !default;

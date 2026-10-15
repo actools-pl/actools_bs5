@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Input Submit component.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the input element.
+ * - children: Optional additional rendered elements.
+ *
+ * @see template_preprocess_input()
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: utility classes. #}
+{% set input_submit_utility_classes = input_submit_utility_classes ? input_submit_utility_classes : [] %}
+
+{# Print the HTML. #}
+{{ include('actools_bs5:input', {
+  type: 'submit',
+  input_utility_classes: input_submit_utility_classes,
+}) }}

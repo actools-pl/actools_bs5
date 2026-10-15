@@ -1,0 +1,12 @@
+/node_modules/
+npm-debug.log
+yarn-error.log
+.DS_Store
+/.build/
+/vendor/
+__pycache__/
+*.pyc
+/.phpunit.cache/
+/.phpunit.result.cache
+/auth.json
+/.env

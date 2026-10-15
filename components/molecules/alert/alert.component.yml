@@ -1,0 +1,50 @@
+"$schema": "https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json"
+name: Alert
+description: "Alerts are available for any length of text, as well as an optional close button."
+
+props:
+  type: object
+  properties:
+    variant:
+      type: string
+      title: Alert variant
+      description: "Predefined alert variant."
+      default: ""
+      enum:
+        - ""
+        - primary
+        - secondary
+        - success
+        - danger
+        - warning
+        - info
+        - dark
+        - light
+      meta:enum:
+        "": "- None -"
+        primary: "Primary"
+        secondary: "Secondary"
+        success: "Success"
+        danger: "Danger"
+        warning: "Warning"
+        info: "Info"
+        dark: "Dark"
+        light: "Light"
+
+    dismissible:
+      type: boolean
+      title: Dismissible
+      description: "Show close button to dismiss the alert."
+      default: true
+      examples:
+        - true
+
+slots:
+  heading:
+    title: Alert heading
+  content:
+    title: Alert content
+
+libraryOverrides:
+  dependencies:
+    - actools_bs5/bs-alert-script

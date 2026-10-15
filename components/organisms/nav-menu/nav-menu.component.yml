@@ -1,0 +1,70 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Nav
+description: Nav component description
+noUi: true
+props:
+  type: object
+  properties:
+    items:
+      type: array
+      title: Items
+      item:
+        type: object
+        title: Link
+        properties:
+          title:
+            type: string
+            title: Title
+            description: Link text
+          url:
+            type: string
+            format: uri
+            title: URL
+            description: Link URL
+          target:
+            type: string
+            title: Target
+            description: HTML anchor target
+          rel:
+            type: string
+            title: Rel
+            description: HTML rel attribute
+      description: Navigation items.
+    alignment:
+      type: string
+      name: Alignment
+      enum:
+        - ''
+        - left
+        - right
+        - center
+        - vertical
+    style:
+      type: string
+      name: Style
+      enum:
+        - ''
+        - tabs
+        - pills
+    fill:
+      type: string
+      name: Fill
+      enum:
+        - ''
+        - fill
+        - justify
+    nav_menu_utility_classes:
+      type: array
+      title: Utility Classes
+      default: []
+      items:
+        type: string
+      description: Use to add extra Bootstrap utility classes or custom CSS classes
+        over to this to this component.
+    attributes:
+      type: Drupal\Core\Template\Attribute
+      title: Attributes
+      description: HTML attributes for the containing element.
+libraryOverrides:
+  dependencies:
+    - actools_bs5/bs-dropdown-script

@@ -1,0 +1,637 @@
+<?php
+
+/**
+ * @file
+ * Theme functions to support Actools BS5 theme.
+ */
+
+use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\File\FileExists;
+
+/**
+ * Implements hook_library_info_alter().
+ */
+function actools_bs5_library_info_alter(array &$libraries, $module) {
+  if ($module === 'sitewide_alert' && isset($libraries['init'])) {
+    // Add the dependency only if it's not already present. Guard the key so a
+    // library that omits 'dependencies' can't TypeError in_array() on null.
+    $deps = $libraries['init']['dependencies'] ?? [];
+    if (!in_array('core/components.actools_bs5--alert', $deps, TRUE)) {
+      $libraries['init']['dependencies'] = array_merge($deps, ['core/components.actools_bs5--alert']);
+    }
+    unset($libraries['init']['css']);
+  }
+
+  // Load components root and styles for CKEditor5 styles.
+  if ($module === 'ckeditor5' && isset($libraries['internal.drupal.ckeditor5.stylesheets'])) {
+    $libraries['internal.drupal.ckeditor5.stylesheets']['dependencies'][] = 'actools_bs5/ckeditor5-root';
+    $libraries['internal.drupal.ckeditor5.stylesheets']['dependencies'][] = 'actools_bs5/ckeditor5-styles';
+  }
+
+  // Replace the Popper.js library file from the Responsive Theme preview module.
+  // Actools BS5 need a different version which still
+  // works for the Responsive Theme preview module.
+  if ($module === 'responsive_preview'
+    && isset($libraries['drupal.responsive-preview'])
+    && isset($libraries['drupal.responsive-preview']['js'])
+    && isset($libraries['drupal.responsive-preview']['js']['js/popperjs/popper.min.js'])) {
+
+    unset($libraries['drupal.responsive-preview']['js']['js/popperjs/popper.min.js']);
+    $libraries['drupal.responsive-preview']['dependencies'][] = 'actools_bs5/popper-script';
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function actools_bs5_preprocess_field(&$variables) {
+  $ckeditor5_fields = [
+    'text_with_summary',
+    'text_long',
+  ];
+
+  // Check if the field type is in the list of CKEditor5 fields.
+  if (in_array($variables['field_type'], $ckeditor5_fields)) {
+    // Attach the library to the field.
+    $variables['#attached']['library'][] = 'actools_bs5/ckeditor5-styles';
+  }
+}
+
+/**
+ * Implements hook_preprocess().
+ */
+function actools_bs5_preprocess_menu(&$variables, $hook, $info) {
+  // Checks the nested level of a menu.
+  actools_bs5_process_menu_level($variables['items']);
+}
+
+/**
+ * Add menu_link_level to menus.
+ */
+function actools_bs5_process_menu_level(&$menu_items, $menu_level = 1) {
+  foreach ($menu_items as &$menu_item) {
+    // Set the menu level for the current item.
+    $menu_item['menu_link_level'] = $menu_level;
+
+    // If there are child items, process them recursively.
+    if (!empty($menu_item['below'])) {
+      actools_bs5_process_menu_level($menu_item['below'], $menu_level + 1);
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function actools_bs5_preprocess_page(&$variables) {
+  // Add the print logo.
+  $variables['logo_print'] = \Drupal::request()->getBaseUrl() . '/' . \Drupal::service('extension.list.theme')->getPath('actools_bs5') . '/logo-print.png';
+
+  // Add the white logo.
+  $variables['logo_white'] = \Drupal::request()->getBaseUrl() . '/' . \Drupal::service('extension.list.theme')->getPath('actools_bs5') . '/logo-white.svg';
+
+  // Add the site name and slogan.
+  $variables['site_name'] = \Drupal::config('system.site')->get('name');
+  $variables['site_slogan'] = \Drupal::config('system.site')->get('slogan');
+
+  $actools_bs5_contained_regions = [
+    'container_header',
+    'container_content',
+    'container_footer',
+  ];
+
+  $tsp = \Drupal::service('Drupal\Core\Extension\ThemeSettingsProvider');
+  $active_theme = \Drupal::theme()->getActiveTheme()->getName();
+  foreach ($actools_bs5_contained_regions as $contained_region) {
+    $theme_settings_for_contained_region = $tsp->getSetting($contained_region, $active_theme);
+    if (isset($theme_settings_for_contained_region)
+      && $theme_settings_for_contained_region !== '') {
+      $variables[$contained_region] = $theme_settings_for_contained_region;
+    }
+  }
+
+}
+
+/**
+ * Implements hook_preprocess_page_title().
+ */
+function actools_bs5_preprocess_page_title(&$variables) {
+
+  // Hide page title for the front page and let screen readers only see it.
+  if (\Drupal::service('path.matcher')->isFrontPage()) {
+    $variables['title_attributes']['class'][] = 'visually-hidden';
+  }
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function actools_bs5_preprocess_html(&$variables) {
+
+  // The path for Actools BS5 theme in variables.
+  $variables['actools_bs5_path'] = \Drupal::request()->getSchemeAndHttpHost() . \Drupal::request()->getBaseUrl() . '/' . \Drupal::service('extension.list.theme')->getPath('actools_bs5');
+
+  // Sticky header toggle (theme setting, defaults to enabled). Attach the
+  // sticky-header library (its own styles + behavior) only when enabled, so
+  // nothing loads when the feature is off.
+  $tsp = \Drupal::service('Drupal\Core\Extension\ThemeSettingsProvider');
+  $sticky_header = $tsp->getSetting('sticky_header', \Drupal::theme()->getActiveTheme()->getName());
+  $variables['actools_body_font'] = $tsp->getSetting('tokens_body_font', \Drupal::theme()->getActiveTheme()->getName()) ?: 'figtree';
+  if ($sticky_header ?? TRUE) {
+    $variables['#attached']['library'][] = 'actools_bs5/sticky-header';
+  }
+
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function actools_bs5_form_alter(&$form, $form_state, $form_id) {
+
+  // Have a default style for moderation entity form.
+  if ($form_id == 'content_moderation_entity_moderation_form') {
+    $form['#attributes']['class'][] = 'card card-body bg-light mb-3';
+  }
+
+  // Have a default style for the moderation status in the layout editing node pages.
+  if ((preg_match('/^node_.*._layout_builder_form$/', $form_id)
+    && isset($form['moderation_state']))) {
+    $form['moderation_state']['#attributes']['class'][] = 'card card-body bg-light mb-3';
+    $form['#attached']['library'][] = 'actools_bs5/content_moderation';
+  }
+
+  // Blog exposed filter row.
+  // Search-by placeholder + label-hide are config-driven (BEF advanced settings
+  // in views.view.blog). Only the select empty-option labels need a form alter,
+  // since Views/BEF expose no config for the "- Any -" option text.
+  if ($form_id === 'views_exposed_form' && ($form['#id'] ?? '') === 'views-exposed-form-blog-all') {
+    if (isset($form['type']['#options']['All'])) {
+      $form['type']['#options']['All'] = t('Select type');
+    }
+    if (isset($form['industry']['#options']['All'])) {
+      $form['industry']['#options']['All'] = t('Select industry');
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_user().
+ */
+function actools_bs5_preprocess_user(&$variables) {
+  $user = $variables['user'] ?? NULL;
+  if (!$user || !$user->id()) {
+    return;
+  }
+  if (!$user->access('update')) {
+    return;
+  }
+  $variables['user_actions'] = [
+    'edit' => [
+      '#type' => 'link',
+      '#title' => t('Edit profile'),
+      '#url' => \Drupal\Core\Url::fromRoute('entity.user.edit_form', ['user' => $user->id()]),
+      '#attributes' => ['class' => ['btn', 'btn-primary', 'user__action-edit']],
+    ],
+    'logout' => [
+      '#type' => 'link',
+      '#title' => t('Log out'),
+      '#url' => \Drupal\Core\Url::fromRoute('user.logout'),
+      '#attributes' => ['class' => ['btn', 'btn-secondary', 'user__action-logout', 'ms-2']],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_preprocess_region().
+ */
+function actools_bs5_preprocess_region(&$variables) {
+  $isFront = \Drupal::service('path.matcher')->isFrontPage();
+  if ($isFront && $variables["region"] === "header") {
+    $variables["is_front"] = $isFront;
+  }
+}
+
+/**
+ * Implements hook_preprocess().
+ */
+function actools_bs5_preprocess(&$variables, $hook, $info) {
+  $language = \Drupal::languageManager()->getCurrentLanguage(LanguageInterface::TYPE_CONTENT);
+  $language_direction = $language->getDirection();
+  $variables['lang_dir'] = $language_direction;
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ *
+ * Alter hooks (unlike hook_page_attachments()) fire for themes, so this is where
+ * a theme must attach page-level assets. Emits the configurable design-token
+ * overrides (brand colour, body font, base font size, corner radius) as an
+ * external, content-hashed stylesheet — never inline — so it stays compatible
+ * with a strict Content-Security-Policy. Only the tokens the site builder has
+ * changed from the theme defaults are emitted; the built-in defaults come from
+ * css/base/tokens.base.css.
+ */
+function actools_bs5_page_attachments_alter(array &$attachments) {
+  $active = \Drupal::theme()->getActiveTheme();
+  $theme = $active->getName();
+  $is_actools = ($theme === 'actools_bs5')
+    || array_key_exists('actools_bs5', $active->getBaseThemeExtensions());
+  if (!$is_actools) {
+    return;
+  }
+
+  // Always add the cache tag so pages rebuild when the settings change (even
+  // when the current settings produce no override).
+  $attachments['#cache']['tags'][] = 'config:' . $theme . '.settings';
+
+  $css = _actools_bs5_build_tokens_css(_actools_bs5_token_values($theme));
+  $uri = _actools_bs5_write_tokens_file($css);
+  if ($uri === NULL) {
+    return;
+  }
+  $attachments['#attached']['html_head_link'][] = [
+    [
+      'rel' => 'stylesheet',
+      'href' => \Drupal::service('file_url_generator')->generateString($uri),
+      'id' => 'actools-bs5-tokens',
+    ],
+    FALSE,
+  ];
+}
+
+/**
+ * Writes the generated design-token stylesheet and schedules retained cleanup.
+ *
+ * Returns the file URI, or NULL when there is no override to apply. Old files
+ * are retained for cached pages before periodic cleanup. Shared by the page
+ * attachments hook and the settings-save handler so the file is current the
+ * moment settings are saved — not only on the next page request.
+ */
+function _actools_bs5_write_tokens_file($css) {
+  $file_system = \Drupal::service('file_system');
+  $directory = 'public://actools_bs5';
+
+  // Drupal does not invoke hook_cron() implementations in themes. Cleanup is
+  // called from real theme execution, at most once per day with safe retention.
+  if ($css === '') {
+    _actools_bs5_cleanup_token_files();
+    return NULL;
+  }
+
+  // Ensure the directory is writable; bail cleanly if not (never attach a file
+  // we could not write).
+  if (!$file_system->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {
+    \Drupal::logger('actools_bs5')->warning('Design tokens: %dir is not writable; skipping token stylesheet.', ['%dir' => $directory]);
+    return NULL;
+  }
+
+  $uri = $directory . '/tokens-' . substr(hash('sha256', $css), 0, 16) . '.css';
+  $real = $file_system->realpath($uri);
+  if (!$real || !file_exists($real)) {
+    try {
+      $file_system->saveData($css, $uri, FileExists::Replace);
+    }
+    catch (\Exception $e) {
+      \Drupal::logger('actools_bs5')->warning('Design tokens: could not write %uri: @msg', ['%uri' => $uri, '@msg' => $e->getMessage()]);
+      return NULL;
+    }
+  }
+  _actools_bs5_cleanup_token_files([$uri]);
+  return $uri;
+}
+
+/**
+ * Removes expired token files on an uncached theme render, once per day.
+ *
+ * Current settings for this theme and all installed subthemes are protected,
+ * as are files just used by the writer. A lock prevents concurrent scans.
+ * No module or theme cron hook is required. Cache layers retaining HTML for
+ * more than seven days should arrange a longer asset-retention policy.
+ */
+function _actools_bs5_cleanup_token_files(array $protected_uris = []) {
+  $now = \Drupal::time()->getRequestTime();
+  $state = \Drupal::state();
+  if ((int) $state->get('actools_bs5.tokens_cleanup_after', 0) > $now) {
+    return;
+  }
+  $lock = \Drupal::lock();
+  if (!$lock->acquire('actools_bs5.tokens_cleanup', 30.0)) {
+    return;
+  }
+  try {
+    _actools_bs5_delete_expired_token_files($protected_uris, $now);
+    $state->set('actools_bs5.tokens_cleanup_after', $now + 86400);
+  }
+  catch (\Exception $e) {
+    $state->set('actools_bs5.tokens_cleanup_after', $now + 3600);
+    \Drupal::logger('actools_bs5')->warning('Token cleanup skipped: @message', ['@message' => $e->getMessage()]);
+  }
+  finally {
+    $lock->release('actools_bs5.tokens_cleanup');
+  }
+}
+
+/**
+ * Deletes only superseded token files older than the seven-day retention.
+ */
+function _actools_bs5_delete_expired_token_files(array $protected_uris, $now) {
+  $file_system = \Drupal::service('file_system');
+  $directory = 'public://actools_bs5';
+  $real_dir = $file_system->realpath($directory);
+  if (!$real_dir || !is_dir($real_dir)) {
+    return;
+  }
+
+  // Compute the file names the current settings of actools_bs5 AND any theme
+  // built on it would produce, so a sub-theme's still-valid token file is not
+  // deleted out from under HTML that references it.
+  $keep = [];
+  foreach ($protected_uris as $uri) {
+    $keep[basename($uri)] = TRUE;
+  }
+  $themes = ['actools_bs5' => TRUE];
+  try {
+    foreach (\Drupal::service('theme_handler')->listInfo() as $name => $info) {
+      if ($name === 'actools_bs5' || array_key_exists('actools_bs5', $info->base_themes ?? [])) {
+        $themes[$name] = TRUE;
+      }
+    }
+  }
+  catch (\Exception $e) {
+    // Fall back to just the base theme.
+  }
+  foreach (array_keys($themes) as $theme) {
+    $css = _actools_bs5_build_tokens_css(_actools_bs5_token_values($theme));
+    if ($css !== '') {
+      $keep['tokens-' . substr(hash('sha256', $css), 0, 16) . '.css'] = TRUE;
+    }
+  }
+
+  // Retain old assets for a week and never recurse into upload directories.
+  $cutoff = $now - 604800;
+  foreach ($file_system->scanDirectory($directory, '/^tokens-[0-9a-f]{16}\.css$/', ['recurse' => FALSE]) as $file) {
+    if (isset($keep[$file->filename])) {
+      continue;
+    }
+    $path = $file_system->realpath($file->uri);
+    if ($path && filemtime($path) < $cutoff) {
+      $file_system->delete($file->uri);
+    }
+  }
+}
+
+/**
+ * Returns the design-token defaults (the theme's built-in values).
+ */
+function _actools_bs5_token_defaults() {
+  return [
+    'tokens_brand_color' => '#0d6efd',
+    'tokens_body_font' => 'figtree',
+    'tokens_base_font_size' => '18',
+    'tokens_corner_radius' => 'default',
+  ];
+}
+
+/**
+ * Reads a design-token setting, falling back to its default.
+ */
+function _actools_bs5_token_setting($name, $default, $theme) {
+  $value = \Drupal::service('Drupal\Core\Extension\ThemeSettingsProvider')->getSetting($name, $theme);
+  return ($value === NULL || $value === '') ? $default : $value;
+}
+
+/**
+ * Reads the four design-token settings for a theme into a values array.
+ */
+function _actools_bs5_token_values($theme) {
+  $d = _actools_bs5_token_defaults();
+  $values = [];
+  foreach (array_keys($d) as $key) {
+    $values[$key] = _actools_bs5_token_setting($key, $d[$key], $theme);
+  }
+  return $values;
+}
+
+/**
+ * Builds the CSS override for any design tokens changed from their defaults.
+ */
+function _actools_bs5_build_tokens_css(array $values) {
+  $defaults = _actools_bs5_token_defaults();
+  $root = [];
+  $rules = [];
+
+  // Brand colour -> primary + link + primary buttons (with Bootstrap shades).
+  $brand = _actools_bs5_sanitize_hex(
+    $values['tokens_brand_color'] ?? $defaults['tokens_brand_color'],
+    $defaults['tokens_brand_color']
+  );
+  if (strtolower($brand) !== strtolower($defaults['tokens_brand_color'])) {
+    $rgb = _actools_bs5_hex_to_rgb($brand);
+    $text = _actools_bs5_contrast_color($brand);
+    $hover = _actools_bs5_shade_color($brand, 15);
+    $hover_border = _actools_bs5_shade_color($brand, 20);
+    $activ = _actools_bs5_shade_color($brand, 20);
+    $activ_border = _actools_bs5_shade_color($brand, 25);
+    $hover_text = _actools_bs5_contrast_color($hover);
+    $active_text = _actools_bs5_contrast_color($activ);
+    // The brand fill may be very pale; normal links must remain readable on
+    // the theme's light page background independently of button text colour.
+    $link = _actools_bs5_readable_link_color($brand, '#ffffff');
+    $link_rgb = _actools_bs5_hex_to_rgb($link);
+    $link_hover = _actools_bs5_readable_link_color(_actools_bs5_shade_color($brand, 20), '#ffffff');
+    $link_hover_rgb = _actools_bs5_hex_to_rgb($link_hover);
+    // Dark-mode link colours: tint (lighten) toward white so a dark brand stays
+    // readable on dark backgrounds (Bootstrap lightens links in dark mode).
+    $link_dark = _actools_bs5_readable_link_color(_actools_bs5_tint_color($brand, 40), '#212529', TRUE);
+    $link_dark_rgb = _actools_bs5_hex_to_rgb($link_dark);
+    $link_dark_hover = _actools_bs5_readable_link_color(_actools_bs5_tint_color($brand, 55), '#212529', TRUE);
+    $link_dark_hover_rgb = _actools_bs5_hex_to_rgb($link_dark_hover);
+    $root[] = "--bs-primary:$brand";
+    $root[] = "--bs-primary-rgb:$rgb";
+    $root[] = "--bs-link-color:$link";
+    $root[] = "--bs-link-color-rgb:$link_rgb";
+    $root[] = "--bs-link-hover-color:$link_hover";
+    $root[] = "--bs-link-hover-color-rgb:$link_hover_rgb";
+    // Solid primary button: brand fill, contrast-aware text, matching focus ring.
+    $rules[] = ".btn.btn-primary{--bs-btn-color:$text;--bs-btn-bg:$brand;--bs-btn-border-color:$brand;--bs-btn-hover-color:$hover_text;--bs-btn-hover-bg:$hover;--bs-btn-hover-border-color:$hover_border;--bs-btn-focus-shadow-rgb:$rgb;--bs-btn-active-color:$active_text;--bs-btn-active-bg:$activ;--bs-btn-active-border-color:$activ_border;--bs-btn-disabled-color:$text;--bs-btn-disabled-bg:$brand;--bs-btn-disabled-border-color:$brand}";
+    // Outline primary: brand text/border, contrast-aware text on hover fill.
+    $rules[] = ".btn.btn-outline-primary{--bs-btn-color:$link;--bs-btn-border-color:$link;--bs-btn-hover-color:$text;--bs-btn-hover-bg:$brand;--bs-btn-hover-border-color:$brand;--bs-btn-focus-shadow-rgb:$rgb;--bs-btn-active-color:$text;--bs-btn-active-bg:$brand;--bs-btn-active-border-color:$brand}";
+    $rules[] = ":root:root .link-primary{color:rgba($link_rgb,var(--bs-link-opacity,1))!important;text-decoration-color:rgba($link_rgb,var(--bs-link-underline-opacity,1))!important}";
+    // .link-primary base colour follows --bs-primary-rgb; its hover/focus is a
+    // hard-coded !important literal in Bootstrap. Override with real values and a
+    // :root:root prefix so it wins regardless of stylesheet load order.
+    $rules[] = ":root:root .link-primary:hover,:root:root .link-primary:focus{color:rgba($link_hover_rgb,var(--bs-link-opacity,1))!important;text-decoration-color:rgba($link_hover_rgb,var(--bs-link-underline-opacity,1))!important}";
+    // Dark-mode companion: lighter link colours + hover so a dark brand stays
+    // readable under [data-bs-theme=dark] (beats the :root:root light override,
+    // and this rule is emitted after the light one for equal-specificity wins).
+    $rules[] = ":root[data-bs-theme=dark]{--bs-link-color:$link_dark;--bs-link-color-rgb:$link_dark_rgb;--bs-link-hover-color:$link_dark_hover;--bs-link-hover-color-rgb:$link_dark_hover_rgb}";
+    $rules[] = ":root[data-bs-theme=dark] .link-primary{color:rgba($link_dark_rgb,var(--bs-link-opacity,1))!important;text-decoration-color:rgba($link_dark_rgb,var(--bs-link-underline-opacity,1))!important}";
+    $rules[] = ":root[data-bs-theme=dark] .btn.btn-outline-primary{--bs-btn-color:$link_dark;--bs-btn-border-color:$link_dark}";
+    $rules[] = ":root[data-bs-theme=dark] .link-primary:hover,:root[data-bs-theme=dark] .link-primary:focus{color:rgba($link_dark_hover_rgb,var(--bs-link-opacity,1))!important;text-decoration-color:rgba($link_dark_hover_rgb,var(--bs-link-underline-opacity,1))!important}";
+  }
+
+  // Body font family.
+  $font = $values['tokens_body_font'] ?? $defaults['tokens_body_font'];
+  if ($font !== $defaults['tokens_body_font']) {
+    $stack = _actools_bs5_body_font_stack($font);
+    if ($stack !== '') {
+      $root[] = "--bs-body-font-family:$stack";
+    }
+  }
+
+  // Base font size.
+  $size = (string) ($values['tokens_base_font_size'] ?? $defaults['tokens_base_font_size']);
+  $size_map = ['16' => '1rem', '17' => '1.0625rem', '18' => '1.125rem', '19' => '1.1875rem', '20' => '1.25rem'];
+  if ($size !== $defaults['tokens_base_font_size'] && isset($size_map[$size])) {
+    $root[] = "--bs-body-font-size:" . $size_map[$size];
+  }
+
+  // Corner radius (main + sm/lg/xl steps).
+  $radius = (string) ($values['tokens_corner_radius'] ?? $defaults['tokens_corner_radius']);
+  $radius_map = [
+    'sharp'   => ['0', '0', '0', '0'],
+    'subtle'  => ['0.25rem', '0.2rem', '0.375rem', '0.5rem'],
+    'default' => ['0.5rem', '0.375rem', '0.75rem', '1rem'],
+    'rounded' => ['1rem', '0.5rem', '1.5rem', '2rem'],
+  ];
+  if ($radius !== $defaults['tokens_corner_radius'] && isset($radius_map[$radius])) {
+    [$r, $rs, $rl, $rx] = $radius_map[$radius];
+    $root[] = "--bs-border-radius:$r";
+    $root[] = "--bs-border-radius-sm:$rs";
+    $root[] = "--bs-border-radius-lg:$rl";
+    $root[] = "--bs-border-radius-xl:$rx";
+  }
+
+  $css = '';
+  if ($root) {
+    // Doubled :root beats the base tokens.base.css :root regardless of order.
+    $css .= ':root:root{' . implode(';', $root) . '}';
+  }
+  if ($rules) {
+    $css .= implode('', $rules);
+  }
+  return $css;
+}
+
+/**
+ * Returns a validated "#rrggbb" colour, or the fallback.
+ */
+function _actools_bs5_sanitize_hex($value, $fallback) {
+  $value = is_string($value) ? trim($value) : '';
+  if (preg_match('/^#?([0-9a-fA-F]{6})$/', $value, $m)) {
+    return '#' . strtolower($m[1]);
+  }
+  if (preg_match('/^#?([0-9a-fA-F]{3})$/', $value, $m)) {
+    $h = $m[1];
+    return '#' . strtolower($h[0] . $h[0] . $h[1] . $h[1] . $h[2] . $h[2]);
+  }
+  return $fallback;
+}
+
+/**
+ * Converts "#rrggbb" to an "r, g, b" string.
+ */
+function _actools_bs5_hex_to_rgb($hex) {
+  $hex = ltrim($hex, '#');
+  return hexdec(substr($hex, 0, 2)) . ', ' . hexdec(substr($hex, 2, 2)) . ', ' . hexdec(substr($hex, 4, 2));
+}
+
+/**
+ * Darkens a hex colour toward black by a percentage (Bootstrap shade-color).
+ */
+function _actools_bs5_shade_color($hex, $percent) {
+  $hex = ltrim($hex, '#');
+  $f = max(0, min(100, (int) $percent)) / 100;
+  $r = (int) round(hexdec(substr($hex, 0, 2)) * (1 - $f));
+  $g = (int) round(hexdec(substr($hex, 2, 2)) * (1 - $f));
+  $b = (int) round(hexdec(substr($hex, 4, 2)) * (1 - $f));
+  return sprintf('#%02x%02x%02x', $r, $g, $b);
+}
+
+/**
+ * Lightens a hex colour toward white by a percentage (Bootstrap tint-color).
+ */
+function _actools_bs5_tint_color($hex, $percent) {
+  $hex = ltrim($hex, '#');
+  $f = max(0, min(100, (int) $percent)) / 100;
+  $r = hexdec(substr($hex, 0, 2));
+  $g = hexdec(substr($hex, 2, 2));
+  $b = hexdec(substr($hex, 4, 2));
+  return sprintf('#%02x%02x%02x',
+    (int) round($r + (255 - $r) * $f),
+    (int) round($g + (255 - $g) * $f),
+    (int) round($b + (255 - $b) * $f)
+  );
+}
+
+/**
+ * Returns black or white — whichever contrasts better with the given colour.
+ *
+ * Chooses the higher WCAG contrast of black and white for a solid fill.
+ */
+function _actools_bs5_contrast_color($hex) {
+  return _actools_bs5_luminance($hex) > 0.1791287847 ? '#000000' : '#ffffff';
+}
+
+/**
+ * Computes WCAG relative luminance for a validated six-digit hex colour.
+ */
+function _actools_bs5_luminance($hex) {
+  $hex = ltrim($hex, '#');
+  $channels = [];
+  foreach ([0, 2, 4] as $offset) {
+    $v = hexdec(substr($hex, $offset, 2)) / 255;
+    $channels[] = $v <= 0.04045 ? $v / 12.92 : pow(($v + 0.055) / 1.055, 2.4);
+  }
+  return 0.2126 * $channels[0] + 0.7152 * $channels[1] + 0.0722 * $channels[2];
+}
+
+/**
+ * Adjusts link colour to at least 4.5:1 against the standard page background.
+ */
+function _actools_bs5_readable_link_color($hex, $background, $lighten = FALSE) {
+  $bg = _actools_bs5_luminance($background);
+  for ($percent = 0; $percent <= 100; $percent += 5) {
+    $candidate = $lighten ? _actools_bs5_tint_color($hex, $percent) : _actools_bs5_shade_color($hex, $percent);
+    $fg = _actools_bs5_luminance($candidate);
+    $ratio = (max($fg, $bg) + 0.05) / (min($fg, $bg) + 0.05);
+    if ($ratio >= 4.5) {
+      return $candidate;
+    }
+  }
+  return $lighten ? '#ffffff' : '#000000';
+}
+
+/**
+ * Maps a body-font choice to a CSS font stack.
+ */
+function _actools_bs5_body_font_stack($choice) {
+  $stacks = [
+    'figtree' => 'figtree, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    'system' => 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    'serif' => 'Georgia, "Times New Roman", Times, serif',
+  ];
+  return $stacks[$choice] ?? '';
+}
+
+/**
+ * Submit handler for the theme settings form (registered in theme-settings.php).
+ *
+ * Regenerates the design-token stylesheet immediately from the submitted values
+ * — so the file is current the moment settings are saved, not only on the next
+ * page request — and invalidates the settings cache tag so cached pages pick up
+ * the change. Builds from $form_state so it is correct regardless of submit
+ * handler ordering relative to the config write.
+ */
+function actools_bs5_tokens_settings_submit($form, $form_state) {
+  $defaults = _actools_bs5_token_defaults();
+  $values = [];
+  foreach (array_keys($defaults) as $key) {
+    $values[$key] = $form_state->getValue($key, $defaults[$key]);
+  }
+  _actools_bs5_write_tokens_file(_actools_bs5_build_tokens_css($values));
+
+  $theme_key = $form_state->getBuildInfo()['args'][0] ?? 'actools_bs5';
+  \Drupal\Core\Cache\Cache::invalidateTags(['config:' . $theme_key . '.settings']);
+}

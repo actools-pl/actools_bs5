@@ -1,0 +1,91 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Navbar
+description: Navbar component
+group: Layout
+props:
+  type: object
+  properties:
+    container:
+      type:
+        - string
+        - 'null'
+      title: Container type
+      description: Container type
+      default: null
+      enum:
+        - no-container
+        - container-sm
+        - container
+        - container-md
+        - container-lg
+        - container-xl
+        - container-xxl
+        - container-fluid
+        - null
+    color_mode:
+      type: string
+      title: Color mode
+      default: light
+      examples:
+        - light
+      enum:
+        - light
+        - dark
+    color:
+      type: string
+      title: Background color
+      default: white
+      examples:
+        - white
+      enum:
+        - transparent
+        - light
+        - dark
+        - black
+        - white
+        - primary
+        - secondary
+        - success
+        - danger
+        - warning
+        - info
+    placement:
+      type: string
+      title: Placement
+      default: ''
+      enum:
+        - ''
+        - fixed-top
+        - fixed-bottom
+        - sticky-top
+    navbar_expand:
+      type: string
+      title: Navbar expand breakpoint
+      default: lg
+      examples:
+        - lg
+      enum:
+        - sm
+        - md
+        - lg
+        - xl
+    navbar_utility_classes:
+      type: array
+      title: Utility Classes
+      items:
+        type: string
+      default: []
+    attributes:
+      type: Drupal\Core\Template\Attribute
+      title: Attributes
+      description: HTML attributes for the navbar element
+slots:
+  branding:
+    title: Site branding
+  navigation:
+    title: Navigation menu
+libraryOverrides:
+  dependencies:
+    - actools_bs5/bs-collapse-script
+    - actools_bs5/bs-dropdown-script
+    - core/components.actools_bs5--navbar-brand

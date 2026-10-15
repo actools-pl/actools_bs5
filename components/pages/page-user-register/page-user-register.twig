@@ -1,0 +1,62 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Page User Register component.
+ * Available config:
+ *  - is_front: true | false -> to determine if page is front or not
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Logic: build class lists as arrays (merge, never concatenation). #}
+{% set page_classes = ['page', 'd-flex', 'flex-column'] %}
+{% set main_classes = ['mb-3'] %}
+{% set main_container_classes = ['main-container', 'container'] %}
+{% set row_classes = ['row', 'justify-content-center'] %}
+{% set auth_box_classes = ['register', 'col-10', 'col-sm-8', 'col-lg-5', 'col-xl-4'] %}
+
+{# Print the HTML. #}
+<div id="page" class="{{ page_classes|join(' ') }}">
+
+  <main class="{{ main_classes|join(' ') }}">
+    <a id="main-content" tabindex="-1"></a>{# link is in html.html.twig #}
+
+    <div role="main" class="{{ main_container_classes|join(' ') }}">
+      <div class="{{ row_classes|join(' ') }}">
+        <div id="auth-box" class="{{ auth_box_classes|join(' ') }}">
+          <div id="top-part">
+            {{ include('actools_bs5:heading', {
+                level: 1,
+                heading_text: 'Register a new account'|t,
+              }
+            , false) }}
+          </div>
+          <div id="middle-part">
+            {{ include('actools_bs5:page-better-login', {without_blocks: without_blocks}) }}
+            <div class="account-auth-login-hint">{{ 'Register with your email'|t }}</div>
+            {{ page.content }}
+          </div>
+          <div id="bottom-part">
+          {% if not logged_in %}
+            <div class="login-link">
+              <a href="{{ path('user.login') }}">{{ include('actools_bs5:icon', {icon: 'box-arrow-in-right', rtl: 'box-arrow-in-left', lang_dir: lang_dir}, false) }} {{ 'Login'|t }}</a>
+            </div>
+          {% endif %}
+            <div class="back-link">
+              <a href="{{ url('<front>') }}">{{ include('actools_bs5:icon', {icon: 'house-door-fill'}, false) }} {{ 'Back to'|t }}  {{ site_name }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</div>

@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Input Checkbox component.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the input element.
+ * - children: Optional additional rendered elements.
+ *
+ * @see template_preprocess_input()
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Print the HTML. #}
+{{ include('actools_bs5:input', {
+  type: 'checkbox',
+  bs_form_control: false,
+  bs_size: '',
+  input_utility_classes: ['form-check-input'],
+  attributes: attributes,
+}) }}

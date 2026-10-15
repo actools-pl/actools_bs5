@@ -1,0 +1,98 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Page component.
+ *
+ * Available variables:
+ *
+ * General utility variables:
+ * - base_path: The base URL path of the Drupal installation.
+ * - is_front: A flag indicating if the current page is the front page.
+ * - logged_in: A flag indicating if the user is registered and signed in.
+ * - is_admin: A flag indicating if the user has permission to access
+ *   administration pages.
+ * - front_page: The URL of the front page. Use this instead of base_path when
+ *   linking to the front page. This includes the language domain or prefix.
+ * - logo: The url of the logo image, as defined in theme settings.
+ * - site_name: The name of the site. This is empty when displaying the site
+ *   name has been disabled in the theme settings.
+ * - site_slogan: The slogan of the site. This is empty when displaying the site
+ *   slogan has been disabled in theme settings.
+ *
+ *
+ * Regions:
+ * - page.header: Items for the Header region.
+ * - page.content: Items for the Content region.
+ * - page.footer: Items for the Footer region.
+ *
+ * @see template_preprocess_page()
+ * @see html.html.twig
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: region container classes passed in from preprocess. #}
+{% set container_header = container_header|default('') %}
+{% set container_content = container_content|default('') %}
+{% set container_footer = container_footer|default('') %}
+
+{# Logic: build class lists as arrays (merge, never concatenation). #}
+{% set page_classes = ['page', 'd-flex', 'flex-column'] %}
+{% set main_classes = ['mb-3'] %}
+{% set page_content_classes = ['page-content'] %}
+{% set inner_content_classes = ['inner-content'] %}
+{% set footer_classes = ['footer'] %}
+
+{# Print the HTML. #}
+<div id="page" class="{{ page_classes|join(' ') }}">
+
+  {% if page.header %}
+    <header role="banner">
+      {% if container_header and container_header != 'no-container' %}
+        <div class="{{ container_header }}">
+      {% endif %}
+      {{ page.header }}
+      {% if container_header and container_header != 'no-container' %}
+        </div>
+      {% endif %}
+    </header>
+  {% endif %}
+
+  <main class="{{ main_classes|join(' ') }}">
+    <a id="main-content" tabindex="-1"></a>{# link is in html.html.twig #}
+    {% if page.content %}
+      {% if container_content and container_content != 'no-container' %}
+        <div class="{{ container_content }}">
+      {% endif %}
+        <div class="{{ page_content_classes|join(' ') }}">
+          <div class="{{ inner_content_classes|join(' ') }}">
+            {{ page.content }}
+          </div>
+        </div>
+      {% if container_content and container_content != 'no-container' %}
+        </div>
+      {% endif %}
+    {% endif %}
+  </main>
+
+  {% if page.footer %}
+    <footer class="{{ footer_classes|join(' ') }}" role="contentinfo">
+      {% if container_footer and container_footer != 'no-container' %}
+        <div class="{{ container_footer }}">
+      {% endif %}
+      {{ page.footer }}
+      {% if container_footer and container_footer != 'no-container' %}
+        </div>
+      {% endif %}
+    </footer>
+  {% endif %}
+
+</div>

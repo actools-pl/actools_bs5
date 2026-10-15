@@ -1,0 +1,7 @@
+// Page footer styles.
+@import "../../defaults";   // Global component defaults.
+
+footer.footer {
+  background-color: var(--bs-primary-text-emphasis);
+  color: var(--bs-white);
+}

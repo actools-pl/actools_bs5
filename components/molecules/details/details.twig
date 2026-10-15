@@ -1,0 +1,57 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Details component.
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: required marker state. #}
+{% set is_required = required ? true : false %}
+
+{# Logic: merge the wrapper classes as arrays. #}
+{% set classes = [
+  'details',
+  'mb-3',
+  ]
+%}
+{%
+  set content_wrapper_classes = [
+    'details-wrapper',
+  ]
+%}
+{% set required_classes = is_required ? ['js-form-required', 'form-required'] : [] %}
+{% set summary_classes = []|merge(required_classes) %}
+{% set attributes = attributes.addClass(classes) %}
+
+{# Print the HTML. #}
+<details{{ attributes }}>
+  {%- if title -%}
+    <summary{{ summary_attributes.addClass(summary_classes) }}>
+      {{ title }}
+    </summary>
+  {%- endif -%}
+
+  <div{{ content_attributes.addClass(content_wrapper_classes) }}>
+    {% if errors %}
+      {{ errors }}
+    {% endif %}
+    {%- if description -%}
+      {{ description }}
+    {%- endif -%}
+    {%- if children -%}
+      {{ children }}
+    {%- endif -%}
+    {%- if value -%}
+      {{ value }}
+    {%- endif -%}
+  </div>
+</details>

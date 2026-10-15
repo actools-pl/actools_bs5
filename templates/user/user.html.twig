@@ -1,0 +1,8 @@
+{# Drupal's page-title block supplies profile headings; compact views omit actions. #}
+{% set user_view_mode = elements['#view_mode']|default(view_mode|default('full')) %}
+{% set is_compact = user_view_mode == 'compact' %}
+{% include 'actools_bs5:user' with {
+  user_label: '',
+  user_actions: is_compact ? [] : user_actions|default([]),
+  view_mode: user_view_mode,
+} %}

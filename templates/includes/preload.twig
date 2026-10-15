@@ -1,0 +1,5 @@
+{# Preload only the primary Latin font when it is selected. Other subsets and
+   monospace fonts load on demand through their @font-face declarations. #}
+{% if actools_body_font|default('figtree') == 'figtree' %}
+  <link rel="preload" href="{{ actools_bs5_path }}/fonts/figtree/webfonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+{% endif %}

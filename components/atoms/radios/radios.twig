@@ -1,0 +1,31 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Radios component.
+ *
+ * Available variables
+ * - attributes: HTML attributes for the wrapper element.
+ * - children: The rendered radios.
+ * - radios_utility_classes: An array of utility classes that can be used to add extra
+ *                    Bootstrap utility classes or custom classes to this component.
+ *
+ * @see template_preprocess_radios()
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Logic: class arrays. #}
+{% set radios_utility_classes = radios_utility_classes ? radios_utility_classes : [] %}
+{% set radios_classes = ['form-radios']|merge(radios_utility_classes) %}
+
+{# Print the HTML. #}
+{% set attributes = attributes.addClass(radios_classes) %}
+<div{{ attributes }}>{{ children }}</div>

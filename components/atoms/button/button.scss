@@ -1,0 +1,30 @@
+.btn {
+  &.btn-md {
+    /* Medium (default) — 16px text with 16px vertical and 32px horizontal
+       padding. */
+    --bs-btn-padding-y: 1rem;
+    --bs-btn-padding-x: 2rem;
+    --bs-btn-font-size: 1rem;
+  }
+
+  &.btn-lg {
+    /* Large */
+    --bs-btn-padding-y: 1.25rem;
+    --bs-btn-padding-x: 1.875rem;
+    --bs-btn-font-size: 1.25rem;
+  }
+
+  &.btn-sm {
+    /* Small */
+    --bs-btn-padding-y: 0.625rem;
+    --bs-btn-padding-x: 0.9375rem;
+    --bs-btn-font-size: 0.875rem;
+  }
+}
+
+/* Button text drops to 14px on small viewports. */
+@media (max-width: 767.98px) {
+  .btn.btn-md {
+    --bs-btn-font-size: 0.875rem;
+  }
+}

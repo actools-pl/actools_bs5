@@ -1,0 +1,67 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Field Tags component.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the containing element.
+ * - label_hidden: Whether to show the field label or not.
+ * - title_attributes: HTML attributes for the label.
+ * - label: The label for the field.
+ * - content_attributes: HTML attributes for the content.
+ * - items: List of all the field items. Each item contains:
+ *   - attributes: List of HTML attributes for each item.
+ *   - content: The field item's content.
+ * - entity_type: The entity type to which the field belongs.
+ * - field_name: The name of the field.
+ * - field_type: The type of the field.
+ * - label_display: The display settings for the label.
+ *
+ * @see template_preprocess_field()
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: inline-label state. #}
+{% set is_inline_label = label_display == 'inline' %}
+
+{# Logic: merge the field and label classes as arrays. #}
+{%
+  set classes = [
+    'field',
+    'field--name-' ~ field_name|clean_class,
+    'field--type-' ~ field_type|clean_class,
+    'field--label-' ~ label_display,
+    'clearfix',
+    'vb-tags',
+  ]
+%}
+{% set inline_label_classes = is_inline_label ? ['inline'] : [] %}
+{% set title_classes = ['field__label']|merge(inline_label_classes) %}
+{% set attributes = attributes.addClass(classes) %}
+
+{# Print the HTML. #}
+<div{{ attributes }}>
+  {% if not label_hidden %}
+    {{ include('actools_bs5:heading', {
+        html_tag: 'h3',
+        content: label,
+        attributes: title_attributes,
+        field_tags_utility_classes: title_classes,
+      },
+    ) }}
+  {% endif %}
+  <ul class='links field__items'>
+    {% for item in items %}
+      <li{{ item.attributes }}>{{ include('actools_bs5:taxonomy', {label: item.content}, false) }}</li>
+    {% endfor %}
+  </ul>
+</div>

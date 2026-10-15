@@ -1,0 +1,65 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Page Header component.
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: header regions. #}
+{% set has_top_bar = page.top_bar %}
+{% set has_navbar = page.navbar_branding or page.navigation %}
+
+{# Logic: static structural class lists as arrays. #}
+{% set navbar_top_classes = ['navbar-top', 'w-100'] %}
+{% set row_classes = ['row'] %}
+{% set col_classes = ['col-12'] %}
+{% set navigation_classes = ['ms-auto'] %}
+
+{# Print the HTML. #}
+{% if has_top_bar %}
+  <div class="{{ navbar_top_classes|join(' ') }}">
+    {% if container_top_bar %}
+    <div class="{{ container_top_bar }}">
+    {% endif %}
+      <div class="{{ row_classes|join(' ') }}">
+        <div class="{{ col_classes|join(' ') }}">
+          {{ page.top_bar }}
+        </div>
+      </div>
+    {% if container_top_bar %}
+    </div>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% if has_navbar %}
+  {% embed 'actools_bs5:navbar' with {
+    container: container_top_bar,
+    color_mode: 'light',
+    color: 'white',
+  } %}
+
+    {% block branding %}
+      {% if page.navbar_branding %}
+        {{ page.navbar_branding }}
+      {% endif %}
+    {% endblock %}
+
+    {% block navigation %}
+      {% if page.navigation %}
+        <div class="{{ navigation_classes|join(' ') }}">
+          {{ page.navigation }}
+        </div>
+      {% endif %}
+    {% endblock %}
+  {% endembed %}
+{% endif %}

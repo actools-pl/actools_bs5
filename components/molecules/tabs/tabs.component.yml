@@ -1,0 +1,19 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Tabs
+description: Tabs
+props:
+  type: object
+  properties:
+    shape:
+      type: string
+      title: Shape
+      enum:
+        - tabs
+        - pills
+    attributes:
+      type: Drupal\Core\Template\Attribute
+      title: Attributes
+      description: HTML attributes for the containing element.
+libraryOverrides:
+  dependencies:
+    - actools_bs5/bs-tab-script

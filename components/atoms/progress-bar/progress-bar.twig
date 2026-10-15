@@ -1,0 +1,117 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Progress Bar component.
+ *
+ * Available properties:
+ * - color: Use background utility classes to change the appearance of individual progress bars.
+ *          (bg-primary|bg-secondary|bg-success|bg-info|bg-warning|bg-danger|
+ *          bg-light|bg-dark|bg-black|bg-white|bg-body|bg-transparent|bg-opacity-10|
+ *          bg-opacity-25|bg-opacity-50|bg-opacity-75|bg-opacity-100|bg-gradient)
+ * - striped: Add .progress-bar-striped to any .progress-bar to
+ *            apply a stripe via CSS gradient over the background color.
+ *            (true|false)
+ * - animated: The striped gradient can also be animated.
+ *             Add .progress-bar-animated to .progress-bar to animate
+ *             the stripes right to left via CSS3 animations.
+ *             (true|false)
+ * - label: The label of the working task.
+ * - percent: [1 to 100] The percentage of the progress.
+ * - message: A string containing information to be displayed.
+ * - progress_bar_utility_classes: An array of utility classes that can be used to add extra
+ *                    Bootstrap utility classes or custom classes to this component.
+ *
+ * Available attributes:
+ * - wrapper_attributes: HTML attributes for the Progress Bar wrapper element.
+ * - indicator_attributes: HTML attributes for the Progress Bar indicator element.
+ * - label_attributes: HTML attributes for the Progress Bar label element.
+ * - message_attributes: HTML attributes for the Progress Bar message element.
+ *
+ * Available slots:
+ * - N/A
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: boolean props. #}
+{% set striped = striped ?? false %}
+{% set animated = animated ?? false %}
+{# Clamp to a valid 0-100 range (schema is advisory with enforce_prop_schemas off). #}
+{% set percent = min(max(percent|default(0), 0), 100) %}
+
+{# Logic: class arrays. #}
+{% set color = color ? [color] : [] %}
+{% set striped_classes = striped ? ['progress-bar-striped'] : [] %}
+{% set animated_classes = animated ? ['progress-bar-animated'] : [] %}
+{% set progress_bar_utility_classes = progress_bar_utility_classes ? progress_bar_utility_classes : [] %}
+
+{# Progress Bar wrapper #}
+{%
+  set wrapper_classes = [
+    'progress',
+  ]
+%}
+{% if not wrapper_attributes %}
+  {% set wrapper_attributes = create_attribute() %}
+{% endif %}
+{% set wrapper_attributes = wrapper_attributes.addClass(wrapper_classes) %}
+{% set wrapper_attributes = wrapper_attributes.setAttribute('data-drupal-progress', true) %}
+
+{# Progress Bar indicator #}
+{%
+  set indicator_classes = [
+    'progress-bar',
+  ]|merge(color)|merge(striped_classes)|merge(animated_classes)|merge(progress_bar_utility_classes)
+%}
+{% if not indicator_attributes %}
+  {% set indicator_attributes = create_attribute() %}
+{% endif %}
+{% set indicator_attributes = indicator_attributes.addClass(indicator_classes) %}
+{%
+ set indicator_attributes = indicator_attributes.setAttribute('role', 'progressbar')
+  .setAttribute('aria-valuenow', percent)
+  .setAttribute('aria-valuemin', 0)
+  .setAttribute('aria-valuemax', 100)
+  .setAttribute('style', 'width: ' ~ percent ~ '%')
+%}
+
+{# Print the HTML. #}
+{% if label %}
+  {# Progress Bar label #}
+  {%
+    set label_classes = [
+      'progress-bar-label',
+    ]
+  %}
+  {% if not label_attributes %}
+    {% set label_attributes = create_attribute() %}
+  {% endif %}
+
+  <label{{ label_attributes.addClass(label_classes) }}>{{ label }}</label>
+{% endif %}
+<div{{ wrapper_attributes }}>
+  <div{{ indicator_attributes }}>{{ percent }}%</div>
+</div>
+{% if message %}
+  {# Progress Bar message #}
+  {%
+    set message_classes = [
+      'form-text',
+      'text-muted',
+      'progress-bar-message',
+    ]
+  %}
+  {% if not message_attributes %}
+    {% set message_attributes = create_attribute() %}
+  {% endif %}
+  {% set message_attributes = message_attributes.addClass(message_classes) %}
+  <small{{ message_attributes }}>{{ message }}</small>
+{% endif %}

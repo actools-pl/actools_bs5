@@ -1,0 +1,89 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Fieldset component.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the fieldset element.
+ * - errors: (optional) Any errors for this fieldset element, may not be set.
+ * - required: Boolean indicating whether the fieldset element is required.
+ * - legend: The legend element containing the following properties:
+ *   - title: Title of the fieldset, intended for use as the text of the legend.
+ *   - attributes: HTML attributes to apply to the legend.
+ * - description: The description element containing the following properties:
+ *   - content: The description content of the fieldset.
+ *   - attributes: HTML attributes to apply to the description container.
+ * - children: The rendered child elements of the fieldset.
+ * - prefix: The content to add before the fieldset children.
+ * - suffix: The content to add after the fieldset children.
+ *
+ * @see template_preprocess_fieldset()
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: required marker state. #}
+{% set is_required = required ? true : false %}
+
+{# Logic: merge the fieldset and legend classes as arrays. #}
+{%
+  set classes = [
+    'js-form-item',
+    'form-item',
+    'js-form-wrapper',
+    'form-wrapper',
+    'card',
+    'mb-3',
+  ]
+%}
+{% set required_classes = is_required ? ['js-form-required', 'form-required'] : [] %}
+{%
+  set legend_span_classes = [
+    'fieldset-legend',
+    'mb-0',
+  ]|merge(required_classes)
+%}
+{% set attributes = attributes.addClass(classes) %}
+
+{# Print the HTML. #}
+<fieldset{{ attributes }}>
+  {% if title_display != 'none' %}
+    <div class="card-header">
+      <legend{{ legend.attributes.addClass('m-0') }}>
+        <label{{ legend_span.attributes.addClass(legend_span_classes) }}>{{ legend.title }}</label>
+        {%- if required and title_display == 'before' -%}
+          <span class="font-weight-bolder form-required--indicator ps-1 text-danger">*</span>
+        {%- endif -%}
+      </legend>
+    </div>
+  {% endif %}
+
+  <div class="card-body fieldset-wrapper">
+    {% if description_display == 'before' and description.content %}
+      <small{{ description.attributes.addClass(['description', 'form-text', 'text-muted']) }}>{{ description.content }}</small>
+    {% endif %}
+    {% if errors %}
+      <div>
+        {{ errors }}
+      </div>
+    {% endif %}
+    {% if prefix %}
+      <span class="field-prefix">{{ prefix }}</span>
+    {% endif %}
+    {{ children }}
+    {% if suffix %}
+      <span class="field-suffix">{{ suffix }}</span>
+    {% endif %}
+    {% if description_display in ['after', 'invisible'] and description.content %}
+      <small{{ description.attributes.addClass(['description', 'form-text', 'text-muted']) }}>{{ description.content }}</small>
+    {% endif %}
+  </div>
+</fieldset>

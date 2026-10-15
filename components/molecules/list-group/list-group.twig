@@ -1,0 +1,128 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the List Group component.
+ *
+ * Bootstrap 5.3 List Group component implementation.
+ *
+ * Available properties:
+ * - items: Array of list group items with content, active, disabled, href, badge, and variant properties
+ * - flush: Boolean to remove borders and rounded corners
+ * - numbered: Boolean to add numbers to list items
+ * - horizontal: String for horizontal breakpoint (sm, md, lg, xl, xxl)
+ * - utility_classes: Array of additional utility classes
+ * - attributes: HTML attributes for the list group
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: utility classes and the optional modifier class arrays. #}
+{% set utility_classes = utility_classes ? utility_classes : [] %}
+{% set flush_classes = flush ? ['list-group-flush'] : [] %}
+{% set numbered_classes = numbered ? ['list-group-numbered'] : [] %}
+{% if horizontal %}
+  {% if horizontal == 'sm' or horizontal == 'md' or horizontal == 'lg' or horizontal == 'xl' or horizontal == 'xxl' %}
+    {% set horizontal_classes = ['list-group-horizontal-' ~ horizontal] %}
+  {% else %}
+    {% set horizontal_classes = ['list-group-horizontal'] %}
+  {% endif %}
+{% else %}
+  {% set horizontal_classes = [] %}
+{% endif %}
+
+{# Logic: merge the list-group classes as arrays. #}
+{%
+  set list_classes = [
+    'list-group',
+  ]|merge(flush_classes)|merge(numbered_classes)|merge(horizontal_classes)|merge(utility_classes)
+%}
+
+{# Logic: determine if we need div or ul based on whether items have links. #}
+{% set has_links = false %}
+{% if items is iterable %}
+  {% for item in items %}
+    {% if item.href is defined and item.href %}
+      {% set has_links = true %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{# Print the HTML. #}
+{% apply spaceless %}
+{% if items is iterable and items|length > 0 %}
+  {% set attributes = attributes.addClass(list_classes) %}
+
+  {% if has_links %}
+    <div{{ attributes }}>
+  {% else %}
+    <ul{{ attributes }}>
+  {% endif %}
+
+    {% for item in items %}
+      {% set item_classes = ['list-group-item'] %}
+
+      {# Add contextual classes #}
+      {% if item.active is defined and item.active %}
+        {% set item_classes = item_classes|merge(['active']) %}
+      {% endif %}
+
+      {% if item.disabled is defined and item.disabled %}
+        {% set item_classes = item_classes|merge(['disabled']) %}
+      {% endif %}
+
+      {% if item.variant is defined and item.variant %}
+        {% set item_classes = item_classes|merge(['list-group-item-' ~ item.variant]) %}
+      {% endif %}
+
+      {# Handle different item types #}
+      {% if item.href is defined and item.href %}
+        {% set _href_value = item.href|trim %}
+        {% set _href_scheme = _href_value|lower %}
+        {% set _href_relative = not (':' in _href_value|split('/')|first|split('?')|first|split('#')|first) %}
+        {% set _href_allowed = _href_scheme starts with 'https://' or _href_scheme starts with 'http://' or _href_scheme starts with 'mailto:' or _href_scheme starts with 'tel:' or _href_relative %}
+        {% set _href_unsafe = _href_value matches '/[\\x00-\\x20\\x7f]/' or '\\' in _href_value or _href_value starts with '//' %}
+        {% set _href = _href_allowed and not _href_unsafe ? _href_value : '#' %}
+        {% set item_classes = item_classes|merge(['list-group-item-action']) %}
+        <a href="{{ _href }}" class="{{ item_classes|join(' ') }}"{% if item.disabled is defined and item.disabled %} aria-disabled="true"{% endif %}>
+          {{ item.content }}
+          {% if item.badge is defined and item.badge.text %}
+            <span class="badge bg-{{ item.badge.variant|default('primary') }} rounded-pill">{{ item.badge.text }}</span>
+          {% endif %}
+        </a>
+      {% else %}
+        {% if has_links %}
+          <div class="{{ item_classes|join(' ') }}">
+        {% else %}
+          <li class="{{ item_classes|join(' ') }}">
+        {% endif %}
+          {% if item.content is iterable %}
+            {{ item.content|render }}
+          {% else %}
+            {{ item.content }}
+          {% endif %}
+          {% if item.badge is defined and item.badge.text %}
+            <span class="badge bg-{{ item.badge.variant|default('primary') }} rounded-pill">{{ item.badge.text }}</span>
+          {% endif %}
+        {% if has_links %}
+          </div>
+        {% else %}
+          </li>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+
+  {% if has_links %}
+    </div>
+  {% else %}
+    </ul>
+  {% endif %}
+{% endif %}
+{% endapply %}

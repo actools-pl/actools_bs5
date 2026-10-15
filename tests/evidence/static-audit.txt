@@ -1,0 +1,15 @@
+
+Actools BS5 static audit tests
+==================================
+Theme: /workspace/scratch/3930d26f7b04/theme_fix/actools_bs5
+Passed checks: 27
+Hard failures: 0
+Advisories: 1
+Skipped checks: 1
+SKIP: PHP syntax lint: PHP CLI is not installed; use --require-php for a release gate.
+
+ADVISORIES
+1. Low docs.preview_hardcoded_theme_path
+   Hard-coded theme install paths can break component previews/examples outside themes/custom. Files: components/atoms/image/image.component.yml, components/molecules/navbar-brand/README.md, components/organisms/card-featured/card-featured.component.yml, components/organisms/card-hero/card-hero.component.yml, components/organisms/card-impressed/card-impressed.component.yml, components/organisms/card-logo/card-logo.component.yml, components/organisms/card-overlay/card-overlay.component.yml, components/organisms/card-testimonial/card-testimonial.component.yml, components/organisms/card-text/card-text.component.yml, components/organisms/card/card.component.yml, components/organisms/hero-side-by-side/hero-side-by-side.component.yml, components/organisms/media-banner/media-banner.component.yml
+
+Result: PASS (with skipped checks)

@@ -1,0 +1,65 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Carousel
+description: A slideshow component for cycling through elements images/media or slides of text—like a carousel.
+noUi: true
+props:
+  type: object
+  properties:
+    id:
+      type: string
+      title: Carousel ID
+      description: Optional ID prefix. Drupal sanitizes it and adds a unique suffix when needed.
+      default: actools-carousel
+    slide_component:
+      type: string
+      title: Slider component
+      description: The supported component for the carousel media/content slide contract.
+      enum:
+        - 'actools_bs5:card-hero'
+      default: 'actools_bs5:card-hero'
+      examples:
+        - 'actools_bs5:card-hero'
+    items:
+      type: array
+      title: Items
+      description: An array of slider items, Each item has (caption, media, content)
+      default: []
+    controls:
+      type: boolean
+      title: Controls
+      description: Add the previous/next controls.
+      default: false
+      examples:
+        - false
+    indicators:
+      type: boolean
+      title: Indicators
+      description: Add indicators to the carousel, alongside the previous/next controls.
+      default: false
+      examples:
+        - false
+    carousel_utility_classes:
+      type: array
+      title: Utility Classes
+      default: []
+      items:
+        type: 'string'
+      description: An array of utility classes. Use to add extra Bootstrap utility classes or custom CSS classes over to the carousel element.
+    carousel_indicators_utility_classes:
+      type: array
+      title: Indicators Utility Classes
+      default: []
+      items:
+        type: 'string'
+      description: An array of utility classes. Use to add extra Bootstrap utility classes or custom CSS classes over to the indicators element.
+    attributes:
+      type: Drupal\Core\Template\Attribute
+      title: Attributes
+      description: HTML attributes to apply to the carousel main wrapper tag.
+    indicators_attributes:
+      type: Drupal\Core\Template\Attribute
+      title: Attributes
+      description: HTML attributes to apply to the indicators wrapper tag.
+libraryOverrides:
+  dependencies:
+    - actools_bs5/bs-carousel-script

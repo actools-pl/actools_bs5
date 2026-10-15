@@ -1,0 +1,31 @@
+{
+  "name": "actools/actools_bs5",
+  "description": "Actools BS5: a standalone Bootstrap 5 theme for Drupal, built with SASS and Single Directory Components, adapted from the Varbase theme by Vardot.",
+  "type": "drupal-theme",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "Vardot",
+      "homepage": "https://www.drupal.org/vardot",
+      "role": "Original author"
+    },
+    {
+      "name": "Aarin Content Tools Pvt Ltd",
+      "homepage": "https://github.com/actools-pl",
+      "role": "Maintainer"
+    }
+  ],
+  "require": {
+    "drupal/core": "^11.3",
+    "composer/installers": "^2.3"
+  },
+  "suggest": {
+    "drupal/canvas": "Optional visual editor; this standalone build does not supply Canvas-specific media widgets and requires separate integration testing.",
+    "drupal/cva": "Optional class-variance-authority helper for the component source build tooling."
+  },
+  "homepage": "https://github.com/actools-pl/actools_bs5",
+  "support": {
+    "issues": "https://github.com/actools-pl/actools_bs5/issues",
+    "source": "https://github.com/actools-pl/actools_bs5"
+  }
+}

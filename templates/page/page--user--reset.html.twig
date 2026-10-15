@@ -1,0 +1,20 @@
+{#
+/**
+ * @file
+ * Page user reset.
+ */
+#}
+
+{% include 'actools_bs5:page-user-reset' with {
+  logged_in_without_blocks: [
+    'actools_bs5_local_tasks',
+    'actools_bs5_breadcrumbs',
+    'actools_bs5_local_actions'
+  ],
+  not_logged_in_without_blocks: [
+    'actools_bs5_local_tasks',
+    'actools_bs5_breadcrumbs',
+    'actools_bs5_local_actions',
+    'actools_bs5_page_title'
+  ]
+} %}

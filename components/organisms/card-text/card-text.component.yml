@@ -1,0 +1,168 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: 'Text Card'
+group: Card
+status: stable
+description: 'Stacked card layout with an optional uploaded icon image and a drag-and-drop content area. Built with Bootstrap 5 utility classes.'
+props:
+  type: object
+  properties:
+    card_border:
+      type: boolean
+      title: Card border
+      description: Add a default border for the card.
+      default: false
+      examples:
+        - false
+    background_color:
+      type: string
+      title: Background color
+      description: Brand background color applied to the card.
+      default: none
+      examples:
+        - none
+      enum:
+        - none
+        - bg-body-tertiary
+        - bg-tertiary
+        - bg-accent
+        - bg-primary
+        - bg-primary-subtle
+        - bg-secondary
+        - bg-secondary-subtle
+        - bg-dark
+      meta:enum:
+        none: None
+        bg-body-tertiary: Body tertiary
+        bg-tertiary: Tertiary
+        bg-accent: Accent
+        bg-primary: Primary
+        bg-primary-subtle: Primary subtle
+        bg-secondary: Secondary
+        bg-secondary-subtle: Secondary subtle
+        bg-dark: Dark
+    padded:
+      type: boolean
+      title: Padded
+      description: Adds Bootstrap padding (p-4) to the content area.
+      default: false
+      examples:
+        - false
+    box_shadow:
+      type: string
+      title: Shadow
+      description: Bootstrap shadow utility applied to the card.
+      default: shadow-none
+      examples:
+        - shadow-none
+      enum:
+        - shadow-none
+        - shadow-sm
+        - shadow
+        - shadow-lg
+      meta:enum:
+        shadow-none: None
+        shadow-sm: Small
+        shadow: Medium
+        shadow-lg: Large
+    corner_style:
+      type: string
+      title: Border radius
+      description: Bootstrap rounded utility applied to the card.
+      default: rounded-0
+      examples:
+        - rounded-0
+      enum:
+        - rounded-0
+        - rounded-1
+        - rounded-2
+        - rounded-3
+        - rounded-4
+        - rounded-5
+        - rounded-pill
+      meta:enum:
+        rounded-0: None (square)
+        rounded-1: Small
+        rounded-2: Medium
+        rounded-3: Large
+        rounded-4: Extra Large
+        rounded-5: Extra Extra Large
+        rounded-pill: Pill
+    equal_height:
+      type: boolean
+      title: Equal height
+      description: Apply h-100 to the card wrapper.
+      default: false
+      examples:
+        - false
+    stretched_link:
+      type: boolean
+      title: Stretched link
+      description: When enabled and a Card link URL is provided, the entire card becomes clickable using Bootstrap's stretched-link.
+      default: false
+      examples:
+        - false
+    link_url:
+      type: string
+      title: Card link URL
+      format: uri-reference
+      description: Optional URL for the card link.
+      default: ''
+    link_target:
+      type: string
+      title: Link target
+      enum:
+        - default
+        - _self
+        - _blank
+      default: default
+      examples:
+        - default
+      meta:enum:
+        default: Default (same tab)
+        _self: Same tab
+        _blank: New tab
+    icon_image:
+      properties:
+        src:
+          type: string
+          format: uri-reference
+        alt:
+          type: string
+        width:
+          type: integer
+          minimum: 1
+        height:
+          type: integer
+          minimum: 1
+        url:
+          type: string
+          format: uri-reference
+        data:
+          type: object
+      type: object
+      title: Icon image
+      description: Upload an icon image (SVG, PNG, or WebP). Leave empty to hide the icon area — the card renders as a plain text card.
+      examples:
+        - src: /themes/custom/actools_bs5/components/foundation/images/assets/lightbulb.svg
+          alt: ''
+          width: 64
+          height: 64
+    icon_alignment:
+      type: string
+      title: Icon alignment
+      description: Horizontal alignment of the icon within the card.
+      enum:
+        - start
+        - center
+        - end
+      default: start
+      examples:
+        - start
+      meta:enum:
+        start: Left
+        center: Center
+        end: Right
+slots:
+  content:
+    title: Card content
+    description: Drag & drop content slot for text/buttons/etc.

@@ -1,0 +1,11 @@
+{# Uses the available parent width. Select no-container for the page's content
+   container when this section should extend to the full viewport width. #}
+{% if content %}
+  <div{{ attributes.addClass('layout', 'actools-layout', 'actools-layout--full', 'actools-layout--onecol') }}>
+    <div class="actools-layout__grid">
+      <div{{ region_attributes.content.addClass('layout__region', 'layout__region--content') }}>
+        {{ content.content }}
+      </div>
+    </div>
+  </div>
+{% endif %}

@@ -1,0 +1,11 @@
+{#
+/**
+ * @file
+ * Template for a Figure.
+ */
+#}
+{% include 'actools_bs5:figure' with {
+  image: node,
+  caption: caption,
+  figure_utility_classes: classes|split(' '),
+} %}

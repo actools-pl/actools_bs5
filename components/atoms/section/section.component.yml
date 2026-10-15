@@ -1,0 +1,560 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Section
+group: Layout
+description: Bootstrap Section wrapper for building layouts (container, background,
+  spacing, and responsive grid presets). Shows ONLY the selected number of columns.
+props:
+  type: object
+  properties:
+    bg_edge2edge:
+      type: boolean
+      title: Background edge-to-edge
+      description: Enable full-bleed background (adds bg-edge2edge class).
+      default: false
+      examples: [false]
+    container_type:
+      type: string
+      title: Container style
+      description: Choose how the content is contained.
+      enum:
+        - container
+        - container-fluid
+        - none
+      default: none
+      examples:
+        - none
+      meta:enum:
+        container: Container
+        container-fluid: Full width (fluid)
+        none: No container
+    background_color:
+      type: string
+      title: Background color
+      description: Bootstrap background utility class.
+      enum:
+        - none
+        - bg-body
+        - bg-body-secondary
+        - bg-body-tertiary
+        - bg-tertiary
+        - bg-accent
+        - bg-primary
+        - bg-primary-subtle
+        - bg-secondary
+        - bg-secondary-subtle
+        - bg-success
+        - bg-success-subtle
+        - bg-danger
+        - bg-danger-subtle
+        - bg-warning
+        - bg-warning-subtle
+        - bg-info
+        - bg-info-subtle
+        - bg-light
+        - bg-light-subtle
+        - bg-dark
+        - bg-dark-subtle
+        - bg-black
+        - bg-white
+        - bg-transparent
+      default: none
+      examples:
+        - none
+      meta:enum:
+        none: None
+        bg-body: Body
+        bg-body-secondary: Body secondary
+        bg-body-tertiary: Body tertiary
+        bg-tertiary: Tertiary
+        bg-accent: Accent
+        bg-primary: Primary
+        bg-primary-subtle: Primary subtle
+        bg-secondary: Secondary
+        bg-secondary-subtle: Secondary subtle
+        bg-success: Success
+        bg-success-subtle: Success subtle
+        bg-danger: Danger
+        bg-danger-subtle: Danger subtle
+        bg-warning: Warning
+        bg-warning-subtle: Warning subtle
+        bg-info: Info
+        bg-info-subtle: Info subtle
+        bg-light: Light
+        bg-light-subtle: Light subtle
+        bg-dark: Dark
+        bg-dark-subtle: Dark subtle
+        bg-black: Black
+        bg-white: White
+        bg-transparent: Transparent
+    text_color:
+      type: string
+      title: Text color
+      description: Text color utility. Auto uses white on dark backgrounds.
+      enum:
+        - auto
+        - text-body
+        - text-dark
+        - text-white
+        - text-muted
+      default: auto
+      examples:
+        - auto
+      meta:enum:
+        auto: Auto (recommended)
+        text-body: Default
+        text-dark: Dark
+        text-white: White
+        text-muted: Muted
+    background_media:
+      properties:
+        src:
+          type: string
+          format: uri-reference
+        alt:
+          type: string
+        width:
+          type: integer
+          minimum: 1
+        height:
+          type: integer
+          minimum: 1
+        url:
+          type: string
+          format: uri-reference
+        data:
+          type: object
+      title: Background image
+      type: object
+    background_overlay:
+      type: string
+      title: Image overlay
+      description: Dark overlay on top of the background image.
+      enum:
+        - none
+        - overlay-10
+        - overlay-25
+        - overlay-50
+        - overlay-75
+      default: none
+      examples:
+        - none
+      meta:enum:
+        none: None
+        overlay-10: Light (10%)
+        overlay-25: Soft (25%)
+        overlay-50: Medium (50%)
+        overlay-75: Strong (75%)
+    columns:
+      type: [string, number]
+      title: Grid layout (tablet/desktop)
+      description: Shows ONLY the selected number of columns.
+      enum:
+        - '100'
+        - 50-50
+        - 33-33-33
+        - 75-25
+        - 25-75
+        - 67-33
+        - 33-67
+        - 50-25-25
+        - 25-25-50
+        - 25-25-25-25
+        - 20-20-20-20-20
+        - 16-16-16-16-16-16
+      default: 50-50
+      examples:
+        - 50-50
+      meta:enum:
+        '100': 1 column (100%)
+        50-50: 2 columns (50% / 50%)
+        33-33-33: 3 columns (33% / 33% / 33%)
+        75-25: 2 columns (75% / 25%)
+        25-75: 2 columns (25% / 75%)
+        67-33: 2 columns (67% / 33%)
+        33-67: 2 columns (33% / 67%)
+        50-25-25: 3 columns (50% / 25% / 25%)
+        25-25-50: 3 columns (25% / 25% / 50%)
+        25-25-25-25: 4 columns (25% each)
+        20-20-20-20-20: 5 columns (equal width)
+        16-16-16-16-16-16: 6 columns (equal width)
+    gutter:
+      type: string
+      title: Grid gap
+      description: Space between columns (Bootstrap gutters).
+      enum:
+        - gx-0 gy-0
+        - gx-1 gy-1
+        - gx-2 gy-2
+        - gx-3 gy-3
+        - gx-4 gy-4
+        - gx-5 gy-5
+      default: gx-3 gy-3
+      examples:
+        - gx-3 gy-3
+      meta:enum:
+        gx-0 gy-0: None
+        gx-1 gy-1: Small
+        gx-2 gy-2: Medium
+        gx-3 gy-3: Large (recommended)
+        gx-4 gy-4: Extra large
+        gx-5 gy-5: XX-Large
+    padding_block_start:
+      type: string
+      title: Padding top
+      description: Space inside the section at the top.
+      enum:
+        - pt-0
+        - pt-1
+        - pt-2
+        - pt-3
+        - pt-4
+        - pt-5
+      default: pt-0
+      examples:
+        - pt-0
+      meta:enum:
+        pt-0: None
+        pt-1: Small
+        pt-2: Medium
+        pt-3: Large
+        pt-4: Extra large
+        pt-5: XX-Large
+    padding_block_end:
+      type: string
+      title: Padding bottom
+      description: Space inside the section at the bottom.
+      enum:
+        - pb-0
+        - pb-1
+        - pb-2
+        - pb-3
+        - pb-4
+        - pb-5
+      default: pb-0
+      examples:
+        - pb-0
+      meta:enum:
+        pb-0: None
+        pb-1: Small
+        pb-2: Medium
+        pb-3: Large
+        pb-4: Extra large
+        pb-5: XX-Large
+    padding_inline_start:
+      type: string
+      title: Padding start
+      description: Space inside the section at the start side.
+      enum:
+        - ps-0
+        - ps-1
+        - ps-2
+        - ps-3
+        - ps-4
+        - ps-5
+      default: ps-0
+      examples:
+        - ps-0
+      meta:enum:
+        ps-0: None
+        ps-1: Small
+        ps-2: Medium
+        ps-3: Large
+        ps-4: Extra large
+        ps-5: XX-Large
+    padding_inline_end:
+      type: string
+      title: Padding end
+      description: Space inside the section at the end side.
+      enum:
+        - pe-0
+        - pe-1
+        - pe-2
+        - pe-3
+        - pe-4
+        - pe-5
+      default: pe-0
+      examples:
+        - pe-0
+      meta:enum:
+        pe-0: None
+        pe-1: Small
+        pe-2: Medium
+        pe-3: Large
+        pe-4: Extra large
+        pe-5: XX-Large
+    margin_block_start:
+      type: string
+      title: Margin top
+      description: Space outside the section at the top.
+      enum:
+        - mt-0
+        - mt-1
+        - mt-2
+        - mt-3
+        - mt-4
+        - mt-5
+      default: mt-0
+      examples:
+        - mt-0
+      meta:enum:
+        mt-0: None
+        mt-1: Small
+        mt-2: Medium
+        mt-3: Large
+        mt-4: Extra large
+        mt-5: XX-Large
+    margin_block_end:
+      type: string
+      title: Margin bottom
+      description: Space outside the section at the bottom.
+      enum:
+        - mb-0
+        - mb-1
+        - mb-2
+        - mb-3
+        - mb-4
+        - mb-5
+      default: mb-0
+      examples:
+        - mb-0
+      meta:enum:
+        mb-0: None
+        mb-1: Small
+        mb-2: Medium
+        mb-3: Large
+        mb-4: Extra large
+        mb-5: XX-Large
+    margin_inline_start:
+      type: string
+      title: Margin start
+      description: Space outside the section at the start side.
+      enum:
+        - ms-0
+        - ms-1
+        - ms-2
+        - ms-3
+        - ms-4
+        - ms-5
+      default: ms-0
+      examples:
+        - ms-0
+      meta:enum:
+        ms-0: None
+        ms-1: Small
+        ms-2: Medium
+        ms-3: Large
+        ms-4: Extra large
+        ms-5: XX-Large
+    margin_inline_end:
+      type: string
+      title: Margin end
+      description: Space outside the section at the end side.
+      enum:
+        - me-0
+        - me-1
+        - me-2
+        - me-3
+        - me-4
+        - me-5
+      default: me-0
+      examples:
+        - me-0
+      meta:enum:
+        me-0: None
+        me-1: Small
+        me-2: Medium
+        me-3: Large
+        me-4: Extra large
+        me-5: XX-Large
+    shadow:
+      type: string
+      title: Shadow
+      description: Optional shadow (Bootstrap).
+      enum:
+        - none
+        - shadow-sm
+        - shadow
+        - shadow-lg
+      default: none
+      examples:
+        - none
+      meta:enum:
+        none: None
+        shadow-sm: Small
+        shadow: Medium
+        shadow-lg: Large
+    radius:
+      type: string
+      title: Border radius
+      description: Bootstrap border-radius utility class.
+      enum:
+        - none
+        - rounded
+        - rounded-0
+        - rounded-1
+        - rounded-2
+        - rounded-3
+        - rounded-4
+        - rounded-pill
+      default: none
+      examples:
+        - none
+      meta:enum:
+        none: None
+        rounded: Default
+        rounded-0: Square
+        rounded-1: Small
+        rounded-2: Medium
+        rounded-3: Large
+        rounded-4: Extra Large
+        rounded-pill: Round
+    border:
+      type: string
+      title: Border
+      description: Apply Bootstrap border utility. Select a preset combination of sides.
+      enum:
+        - none
+        - border
+        - border-top
+        - border-bottom
+        - border-start
+        - border-end
+      default: none
+      examples:
+        - none
+      meta:enum:
+        none: None
+        border: All sides
+        border-top: Top
+        border-bottom: Bottom
+        border-start: Start
+        border-end: End
+
+    border_color:
+      type: string
+      title: Border color
+      description: Bootstrap border color utility. Only applies when border is set.
+      enum:
+        - none
+        - border-primary
+        - border-primary-subtle
+        - border-secondary
+        - border-secondary-subtle
+        - border-success
+        - border-success-subtle
+        - border-danger
+        - border-danger-subtle
+        - border-warning
+        - border-warning-subtle
+        - border-info
+        - border-info-subtle
+        - border-light
+        - border-dark
+        - border-dark-subtle
+        - border-black
+        - border-white
+      default: none
+      examples:
+        - none
+      meta:enum:
+        none: Default
+        border-primary: Primary
+        border-primary-subtle: Primary subtle
+        border-secondary: Secondary
+        border-secondary-subtle: Secondary subtle
+        border-success: Success
+        border-success-subtle: Success subtle
+        border-danger: Danger
+        border-danger-subtle: Danger subtle
+        border-warning: Warning
+        border-warning-subtle: Warning subtle
+        border-info: Info
+        border-info-subtle: Info subtle
+        border-light: Light
+        border-dark: Dark
+        border-dark-subtle: Dark subtle
+        border-black: Black
+        border-white: White
+
+    border_width:
+      type: string
+      title: Border width
+      description: Bootstrap border width utility. Only applies when border is set.
+      enum:
+        - none
+        - border-1
+        - border-2
+        - border-3
+        - border-4
+        - border-5
+      default: none
+      examples:
+        - none
+      meta:enum:
+        none: Default
+        border-1: Extra small
+        border-2: Small
+        border-3: Medium
+        border-4: Large
+        border-5: Extra large
+
+    vertical_alignment:
+      type: string
+      title: Vertical alignment
+      description: Vertical alignment for the row.
+      enum:
+        - align-items-start
+        - align-items-center
+        - align-items-end
+        - align-items-stretch
+      default: align-items-start
+      examples:
+        - align-items-start
+      meta:enum:
+        align-items-start: Top
+        align-items-center: Center
+        align-items-end: Bottom
+        align-items-stretch: Stretch (equal height)
+    horizontal_alignment:
+      type: string
+      title: Horizontal alignment
+      description: Text alignment applied to each column.
+      enum:
+        - text-start
+        - text-center
+        - text-end
+      default: text-start
+      examples:
+        - text-start
+      meta:enum:
+        text-start: Left
+        text-center: Center
+        text-end: Right
+    section_header:
+      type: boolean
+      title: Show header region
+      default: false
+      examples: [false]
+    section_footer:
+      type: boolean
+      title: Show footer region
+      default: false
+      examples: [false]
+
+slots:
+  header_slot:
+    title: Header
+  col_1:
+    title: Column 1
+  col_2:
+    title: Column 2
+  col_3:
+    title: Column 3
+  col_4:
+    title: Column 4
+  col_5:
+    title: Column 5
+  col_6:
+    title: Column 6
+  footer_slot:
+    title: Footer

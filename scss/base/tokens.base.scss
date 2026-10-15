@@ -1,0 +1,28 @@
+// Actools BS5 — base design tokens.
+// Emits the Bootstrap 5 :root custom-property block (--bs-*) that the theme's
+// bootstrap.base build omits (the `root` partial is disabled there). Loaded
+// alongside the framework so the variables the compiled CSS references
+// (--bs-body-font-family, --bs-primary, --bs-border-radius, …) actually resolve.
+@import "../defaults";
+@import "../../node_modules/bootstrap/scss/root";
+
+// Custom tertiary/accent subtle & emphasis tokens.
+// Bootstrap's :root partial emits these only for the standard theme colours, so
+// the custom tertiary/accent contextual utilities (.list-group-item-tertiary,
+// .alert-accent, .text-bg-*, …) would otherwise reference undefined variables.
+:root {
+  --bs-tertiary-text-emphasis: #{shade-color($tertiary, 60%)};
+  --bs-tertiary-bg-subtle: #{tint-color($tertiary, 80%)};
+  --bs-tertiary-border-subtle: #{tint-color($tertiary, 60%)};
+  --bs-accent-text-emphasis: #{$accent-text-emphasis};
+  --bs-accent-bg-subtle: #{$accent-bg-subtle};
+  --bs-accent-border-subtle: #{tint-color($accent, 60%)};
+}
+[data-bs-theme="dark"] {
+  --bs-tertiary-text-emphasis: #{tint-color($tertiary, 40%)};
+  --bs-tertiary-bg-subtle: #{shade-color($tertiary, 80%)};
+  --bs-tertiary-border-subtle: #{shade-color($tertiary, 40%)};
+  --bs-accent-text-emphasis: #{tint-color($accent, 40%)};
+  --bs-accent-bg-subtle: #{shade-color($accent, 80%)};
+  --bs-accent-border-subtle: #{shade-color($accent, 40%)};
+}

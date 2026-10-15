@@ -1,0 +1,15 @@
+Validation performed in the build workspace on 2026-10-15.
+
+PASS: static audit (27 checks; no hard failures).
+ADVISORY: demonstration-image paths assume themes/custom/actools_bs5.
+SKIP: PHP syntax lint; PHP CLI is absent.
+PASS: 3 static Layout Builder registration/region/stylesheet checks.
+PASS: 9 Node CSS build/publication safeguard regressions.
+PASS: all 113 YAML files parse without duplicate keys; JSON parses.
+PASS: all 10 maintained CSS entrypoint outputs parse with the build checker.
+PASS: no component |raw sinks or unresolved Canvas-only media schema references.
+NOT RUN: Drupal Kernel/Functional rendering, database and editor tests.
+NOT RUN: Chromium browser checks; no browser executable is installed.
+NOT RUN: actual Sass compilation; locked dependencies are unavailable here.
+
+Source checks do not certify Drupal runtime, visual accessibility or BOA deployment.

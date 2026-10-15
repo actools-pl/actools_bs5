@@ -1,0 +1,93 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Tabs component.
+ *
+ * Available config:
+ * - tabs_id: Tabs container id.
+ * - items: Tabs items.
+ * - item:
+ *    - title: Tab item title
+ *    - body: Tab item body
+ *    - id: Tab item unique ID.
+ *    - target: Tab item unique related target (item body element).
+ *    - is_active: to check which item is active by default
+ * - shape: The shape of tabs (tabs | pills).
+ * - tabs_block_classes: A list of classes for tab container.
+ * - tab_pane_classes: A list of classes for tab body.
+ *
+ * Available attributes:
+ * - attributes: Attributes for the nav (tabs list) element.
+ * - tabs_list_item_attributes: Attributes for each tab list item (<li>).
+ * - tab_button_attributes: Attributes for each tab button.
+ * - nav_attributes: Attributes for the tab-content wrapper.
+ * - tab_content_attributes: Attributes for each tab pane.
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: scalar props with schema defaults. #}
+{% set shape = shape|default('tabs') %}
+
+{# Logic: merge the tab container classes as arrays. #}
+{% set tabs_block_classes = ['nav', 'nav-' ~ shape] %}
+{% set nav_classes = ['tab-content', 'mt-3'] %}
+
+{# Print the HTML. #}
+{% if items %}
+  {% set attributes = attributes
+    .addClass(tabs_block_classes)
+    .setAttribute('id', tabs_id)
+    .setAttribute('role', 'tablist')
+  %}
+  <ul{{ attributes }}>
+      {% for item in items %}
+        {% set tab_button_classes = ['nav-link']|merge(item.is_active ? ['active'] : []) %}
+        {% set tabs_list_item_attributes = create_attribute()
+          .addClass('nav-item')
+          .setAttribute('role', 'presentation')
+        %}
+        {% set tab_button_attributes = create_attribute()
+          .addClass(tab_button_classes)
+          .setAttribute('id', item.id)
+          .setAttribute('data-bs-toggle', 'tab')
+          .setAttribute('data-bs-target', '#' ~ item.target)
+          .setAttribute('type', 'button')
+          .setAttribute('role', 'tab')
+          .setAttribute('aria-controls', item.target)
+          .setAttribute('aria-selected', 'true')
+        %}
+        <li{{ tabs_list_item_attributes }}>
+          <button{{ tab_button_attributes }}>{{ item.title }}</button>
+        </li>
+      {% endfor %}
+  </ul>
+  {% if not nav_attributes %}
+    {% set nav_attributes = create_attribute() %}
+  {% endif %}
+  {% set nav_attributes = nav_attributes
+    .addClass(nav_classes)
+    .setAttribute('id', 'nav-tabContent')
+  %}
+  <div{{ nav_attributes }}>
+    {% for item in items %}
+      {% set tab_pane_classes = ['tab-pane', 'fade']|merge(item.is_active ? ['show', 'active'] : []) %}
+      {% set tab_content_attributes = create_attribute()
+        .addClass(tab_pane_classes)
+        .setAttribute('id', item.target)
+        .setAttribute('role', 'tabpanel')
+        .setAttribute('aria-labelledby', item.id)
+        .setAttribute('tabindex', loop.index)
+      %}
+      <div{{ tab_content_attributes }}>{{ item.body }}</div>
+    {% endfor %}
+  </div>
+{% endif %}

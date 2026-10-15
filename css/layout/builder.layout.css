@@ -1,0 +1,26 @@
+/* Native Layout Builder sections. Keep all rules inside the section wrapper. */
+.actools-layout {
+  padding-block: clamp(1.5rem, 3vw, 3rem);
+}
+.actools-layout > .actools-layout__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1rem, 2vw, 2rem);
+}
+.actools-layout > .actools-layout__grid > .layout__region {
+  min-width: 0;
+}
+@media (min-width: 768px) {
+  .actools-layout.actools-layout--twocol-equal > .actools-layout__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .actools-layout.actools-layout--twocol-narrow-wide > .actools-layout__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  }
+  .actools-layout.actools-layout--twocol-wide-narrow > .actools-layout__grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+  .actools-layout.actools-layout--threecol-equal > .actools-layout__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

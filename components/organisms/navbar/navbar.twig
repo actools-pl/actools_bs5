@@ -1,0 +1,82 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for Navbar component.
+ *
+ * Available properties:
+ * - container: fixed | fluid.
+ * - placement: '' | fixed-top | fixed-bottom | sticky-top
+ * - color_mode: light | dark
+ * - color: wight | dark
+ * - navbar_expand: sm | md | lg | xl
+ * - navbar_utility_classes: An array of utility classes that can be used to add extra Bootstrap utility classes or custom classes to this component.
+ * - attributes: HTML attributes for the containing element.
+ *
+ * Available slogs:
+ * - branding
+ * - navigation
+ */
+#}
+
+{# Variables: scalar props and their class-array conversions. #}
+{% set container = container ?? false %}
+{% set placement = placement ? [placement] : [] %}
+{% set color_mode = color_mode ? ['navbar-' ~ color_mode] : [] %}
+{% set color = color ? ['bg-' ~ color] : [] %}
+{% set navbar_expand = navbar_expand ? ['navbar-expand-' ~ navbar_expand] : ['navbar-expand-lg'] %}
+{% set navbar_utility_classes = navbar_utility_classes ? navbar_utility_classes : [] %}
+{% set collapse_id = 'navbar-collapse'|clean_unique_id %}
+
+{# Logic: merge root navbar classes as an array. #}
+{%
+  set classes = [
+    'navbar',
+    'justify-content-between',
+    'container',
+  ]|merge(placement)|merge(color_mode)|merge(color)|merge(navbar_expand)|merge(navbar_utility_classes)
+%}
+
+{# Logic: static structural class lists as arrays. #}
+{% set toggler_classes = ['navbar-toggler'] %}
+{% set toggler_icon_classes = ['navbar-toggler-icon'] %}
+{% set collapse_classes = ['collapse', 'navbar-collapse'] %}
+{% set navigation_wrap_classes = ['ms-auto'] %}
+
+{# Print the HTML. #}
+{% set attributes = attributes.addClass(classes) %}
+<nav{{ attributes }}>
+  {% if container and container != 'no-container' %}
+    {%
+      set container_classes = [
+        container,
+        'z-3',
+      ]|merge(color)
+    %}
+
+    {% if not container_attributes %}
+      {% set container_attributes = create_attribute() %}
+    {% endif %}
+
+    <div{{ container_attributes.addClass(container_classes) }}>
+  {% endif %}
+
+  {% block branding %}
+    {{ branding }}
+  {% endblock %}
+
+  <button class="{{ toggler_classes|join(' ') }}" type="button" data-bs-toggle="collapse" data-bs-target="#{{ collapse_id }}" aria-controls="{{ collapse_id }}" aria-expanded="false" aria-label="{{ 'Toggle navigation'|t }}">
+    <span class="{{ toggler_icon_classes|join(' ') }}"></span>
+  </button>
+
+  <div id="{{ collapse_id }}" class="{{ collapse_classes|join(' ') }}">
+    <div class="{{ navigation_wrap_classes|join(' ') }}">
+      {% block navigation %}
+        {{ navigation }}
+      {% endblock %}
+    </div>
+  </div>
+
+  {% if container and container != 'no-container' %}
+    </div>
+  {% endif %}
+</nav>

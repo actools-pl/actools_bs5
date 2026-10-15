@@ -1,0 +1,17 @@
+✔ detects utility loss, including RTL and responsive contexts (2.327736ms)
+✔ handles comments, strings, comma arguments and SVG data URLs (0.281764ms)
+✔ normalizes selector formatting and reports declaration drift via hashes (0.22526ms)
+✔ rejects unclosed rule blocks (0.448599ms)
+✔ ignores quoted comments while preserving comment text in attribute strings (0.167556ms)
+✔ publishing blocks selector removals and leaves shipped files untouched (97.832475ms)
+✔ publishing requires an explicit selector-removal override (92.520148ms)
+✔ publishing rejects modified staged CSS even with removal override (95.851897ms)
+✔ publishing rejects stale candidates after source edits (88.463688ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 475.682678

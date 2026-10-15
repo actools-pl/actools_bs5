@@ -1,0 +1,10 @@
+/* Impressed Card helpers
+   - Keeps stretched-link overlay working without blocking internal buttons/links.
+   - Component-scoped selectors only.
+*/
+
+.card-impressed {
+  .stretched-link {
+    z-index: 99;
+  }
+}

@@ -1,0 +1,82 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Rich Text component.
+ *
+ * Renders rich HTML, or a plain-text summary trimmed by words or characters.
+ *
+ * Available properties:
+ * - text: The rich HTML content. Defaults to ''.
+ * - trim: (true|false) Enable smart trimming. Defaults to `false`.
+ * - trim_length: Number of characters or words to keep. Defaults to `50`.
+ * - trim_units: Measure trim length in characters or words.
+ *               (characters | words) Defaults to `words`.
+ * - suffix: Text appended when content is trimmed. Defaults to `...`.
+ * - strip_html: Legacy setting retained for saved component data. Trimming
+ *               always removes tags before shortening to preserve valid markup.
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: scalar props with schema defaults. #}
+{% set content = text|default('') %}
+{% set trim_length = trim_length|default(50) %}
+{% set trim_units = trim_units|default('words') %}
+{% set suffix = suffix is defined ? suffix : '...' %}
+
+{# Variables: boolean props.
+ # SDC validates `type: boolean` props and applies their schema defaults,
+ # so the values arrive as real booleans — only a presence fallback is
+ # needed here, never type coercion.
+ #}
+{% set trim = trim ?? false %}
+{% set strip_html = strip_html ?? false %}
+
+{# Never cut an HTML string: doing so can leave open tags or attributes and
+   change the markup after this component. Strip tags first, and escape the
+   optional suffix. Core's #markup filter keeps encoded text entities intact
+   while filtering every string output, including untrimmed rich HTML. #}
+{% set output = content %}
+
+{% if trim and trim_length > 0 %}
+  {# Keep word boundaries between adjacent blocks before removing markup. #}
+  {% set separated_content = content|replace({
+    '</p>': ' ', '</P>': ' ', '</div>': ' ', '</DIV>': ' ',
+    '</li>': ' ', '</LI>': ' ', '</ul>': ' ', '</UL>': ' ', '</ol>': ' ', '</OL>': ' ',
+    '</h1>': ' ', '</H1>': ' ', '</h2>': ' ', '</H2>': ' ', '</h3>': ' ', '</H3>': ' ',
+    '</h4>': ' ', '</H4>': ' ', '</h5>': ' ', '</H5>': ' ', '</h6>': ' ', '</H6>': ' ',
+    '</section>': ' ', '</SECTION>': ' ', '</article>': ' ', '</ARTICLE>': ' ',
+    '</blockquote>': ' ', '</BLOCKQUOTE>': ' ', '</pre>': ' ', '</PRE>': ' ',
+    '</tr>': ' ', '</TR>': ' ', '</td>': ' ', '</TD>': ' ', '</th>': ' ', '</TH>': ' ',
+    '<br>': ' ', '<BR>': ' ', '<br/>': ' ', '<BR/>': ' ', '<br />': ' ', '<BR />': ' '
+  }) %}
+  {% set plain_text = separated_content|striptags|trim %}
+  {% set safe_suffix = suffix|escape %}
+
+  {% if trim_units == 'words' %}
+    {% set normalized_text = plain_text|replace({'\n': ' ', '\r': ' ', '\t': ' '}) %}
+    {% set words = normalized_text ? normalized_text|split(' ') : [] %}
+    {% set filtered_words = [] %}
+    {% for word in words %}
+      {% if word is not empty %}
+        {% set filtered_words = filtered_words|merge([word]) %}
+      {% endif %}
+    {% endfor %}
+    {% set output = filtered_words|length > trim_length ? filtered_words|slice(0, trim_length)|join(' ') ~ safe_suffix : plain_text %}
+  {% else %}
+    {% set output = plain_text|length > trim_length ? plain_text|slice(0, trim_length)|trim ~ safe_suffix : plain_text %}
+  {% endif %}
+{% endif %}
+
+{# Print the HTML. #}
+<div>
+  {{ {'#markup': output} }}
+</div>

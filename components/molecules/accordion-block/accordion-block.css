@@ -1,0 +1,231 @@
+.accordion {
+  --bs-accordion-color: var(--bs-body-color);
+  --bs-accordion-bg: var(--bs-secondary-bg-subtle);
+  --bs-accordion-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, border-radius 0.15s ease;
+  --bs-accordion-border-color: var(--bs-border-color);
+  --bs-accordion-border-width: 1px;
+  --bs-accordion-border-radius: 0.125rem;
+  --bs-accordion-inner-border-radius: calc(var(--bs-border-radius) - (var(--bs-border-width)));
+  --bs-accordion-btn-padding-x: 0.9375rem;
+  --bs-accordion-btn-padding-y: 0.9375rem;
+  --bs-accordion-btn-color: var(--bs-body-color);
+  --bs-accordion-btn-bg: var(--bs-accordion-bg);
+  /* stroke %23212529 = $gray-900 = --bs-body-color; can't use CSS vars inside SVG data URIs */
+  --bs-accordion-btn-icon: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23212529%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpath d=%27m2 5 6 6 6-6%27/%3e%3c/svg%3e");
+  --bs-accordion-btn-icon-width: 0.9375rem;
+  --bs-accordion-btn-icon-transform: rotate(-180deg);
+  --bs-accordion-btn-icon-transition: transform 0.2s ease-in-out;
+  /* stroke %23001d38 = $navy = --bs-dark; can't use CSS vars inside SVG data URIs */
+  --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23001d38%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpath d=%27m2 5 6 6 6-6%27/%3e%3c/svg%3e");
+  --bs-accordion-btn-focus-box-shadow: none;
+  --bs-accordion-body-padding-x: 0.9375rem;
+  --bs-accordion-body-padding-y: 0.9375rem;
+  --bs-accordion-active-color: var(--bs-dark);
+  --bs-accordion-active-bg: var(--bs-secondary-bg-subtle);
+}
+
+.accordion-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--bs-accordion-btn-padding-y) var(--bs-accordion-btn-padding-x);
+  transition: var(--bs-accordion-transition);
+  text-align: left;
+  color: var(--bs-accordion-btn-color);
+  border: 0;
+  border-radius: 0;
+  background-color: var(--bs-accordion-btn-bg);
+  font-size: 1.125rem;
+  overflow-anchor: none;
+}
+
+[dir="rtl"] .accordion-button {
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordion-button {
+    transition: none;
+  }
+}
+
+.accordion-button:not(.collapsed) {
+  color: var(--bs-accordion-active-color);
+  background-color: var(--bs-accordion-active-bg);
+  box-shadow: inset 0 calc(-1 * var(--bs-accordion-border-width)) 0 var(--bs-accordion-border-color);
+}
+
+.accordion-button:not(.collapsed)::after {
+  transform: var(--bs-accordion-btn-icon-transform);
+  background-image: var(--bs-accordion-btn-active-icon);
+}
+
+.accordion-button::after {
+  flex-shrink: 0;
+  width: var(--bs-accordion-btn-icon-width);
+  height: var(--bs-accordion-btn-icon-width);
+  margin-left: auto;
+  content: "";
+  transition: var(--bs-accordion-btn-icon-transition);
+  background-image: var(--bs-accordion-btn-icon);
+  background-repeat: no-repeat;
+  background-size: var(--bs-accordion-btn-icon-width);
+}
+
+[dir="rtl"] .accordion-button::after {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordion-button::after {
+    transition: none;
+  }
+}
+
+.accordion-button:hover {
+  z-index: 2;
+}
+
+.accordion-button:focus {
+  z-index: 3;
+  outline: 0;
+  box-shadow: var(--bs-accordion-btn-focus-box-shadow);
+}
+
+.accordion-header {
+  margin-bottom: 0;
+}
+
+.accordion-item {
+  color: var(--bs-accordion-color);
+  border: var(--bs-accordion-border-width) solid var(--bs-accordion-border-color);
+  background-color: var(--bs-accordion-bg);
+}
+
+.accordion-item:first-of-type {
+  border-top-left-radius: var(--bs-accordion-border-radius);
+  border-top-right-radius: var(--bs-accordion-border-radius);
+}
+
+.accordion-item:first-of-type > .accordion-header .accordion-button {
+  border-top-left-radius: var(--bs-accordion-inner-border-radius);
+  border-top-right-radius: var(--bs-accordion-inner-border-radius);
+}
+
+.accordion-item:not(:first-of-type) {
+  border-top: 0;
+}
+
+.accordion-item:last-of-type {
+  border-bottom-right-radius: var(--bs-accordion-border-radius);
+  border-bottom-left-radius: var(--bs-accordion-border-radius);
+}
+
+.accordion-item:last-of-type > .accordion-header .accordion-button.collapsed {
+  border-bottom-right-radius: var(--bs-accordion-inner-border-radius);
+  border-bottom-left-radius: var(--bs-accordion-inner-border-radius);
+}
+
+.accordion-item:last-of-type > .accordion-collapse {
+  border-bottom-right-radius: var(--bs-accordion-border-radius);
+  border-bottom-left-radius: var(--bs-accordion-border-radius);
+}
+
+.accordion-body {
+  padding: var(--bs-accordion-body-padding-y) var(--bs-accordion-body-padding-x);
+}
+
+.accordion-flush > .accordion-item {
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+}
+
+.accordion-flush > .accordion-item:first-child {
+  border-top: 0;
+}
+
+.accordion-flush > .accordion-item:last-child {
+  border-bottom: 0;
+}
+
+.accordion-flush > .accordion-item > .accordion-collapse,
+.accordion-flush > .accordion-item > .accordion-header .accordion-button,
+.accordion-flush > .accordion-item > .accordion-header .accordion-button.collapsed {
+  border-radius: 0;
+}
+
+[data-bs-theme="dark"] .accordion-button::after {
+  --bs-accordion-btn-icon: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27rgb%28109.8, 168, 253.8%29%27%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708%27/%3e%3c/svg%3e");
+  --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27rgb%28109.8, 168, 253.8%29%27%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708%27/%3e%3c/svg%3e");
+}
+
+.accordion .accordion-item {
+  margin-block-start: 1.25rem;
+}
+
+.accordion .accordion-item:first-of-type {
+  margin-block-start: 0;
+}
+
+.accordion .accordion-item:not(:first-of-type) {
+  border-block-start: 1px solid var(--bs-border-color);
+}
+
+.accordion .accordion-button {
+  text-align: start;
+  color: var(--bs-dark);
+  background-color: var(--bs-secondary-bg-subtle);
+  box-shadow: none;
+  font-weight: 700;
+}
+
+.accordion .accordion-button,
+.accordion .accordion-button.collapsed,
+.accordion .accordion-button:not(.collapsed) {
+  color: var(--bs-dark);
+  background-color: var(--bs-secondary-bg-subtle);
+  box-shadow: none;
+}
+
+.accordion .accordion-button::after {
+  margin-inline-start: auto;
+}
+
+.accordion .accordion-button:hover,
+.accordion .accordion-button:focus,
+.accordion .accordion-button:active {
+  color: var(--bs-primary);
+  background-color: var(--bs-secondary);
+  box-shadow: none;
+}
+
+.accordion-body--canvas {
+  display: block;
+  inline-size: 100%;
+}
+
+.accordion-body__content {
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.accordion-body__content > :first-child {
+  margin-block-start: 0;
+}
+
+.accordion-body__content > :last-child {
+  margin-block-end: 0;
+}
+
+.accordion-body--canvas-empty {
+  padding-block: 0;
+  padding-inline: 0;
+}
+
+.accordion-body--canvas-empty > .accordion-body__content {
+  padding-block: var(--bs-accordion-body-padding-y);
+  padding-inline: var(--bs-accordion-body-padding-x);
+}

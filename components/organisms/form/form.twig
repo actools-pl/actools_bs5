@@ -1,0 +1,40 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Form component.
+ *
+ * Available variables
+ * - attributes: HTML attributes for the wrapper element.
+ * - children: The child elements of the form.
+ *
+ * @see template_preprocess_form()
+ *
+ * @ingroup themeable
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: optional utility classes. #}
+{% set form_utility_classes = form_utility_classes ? form_utility_classes : [] %}
+
+{# Logic: merge form-level classes as arrays. #}
+{%
+  set classes = [
+    'form',
+    isInline ? 'form-inline',
+  ]|merge(form_utility_classes)
+%}
+
+{# Print the HTML. #}
+{% set attributes = attributes.addClass(classes) %}
+<form{{ attributes }}>
+  {{ children }}
+</form>

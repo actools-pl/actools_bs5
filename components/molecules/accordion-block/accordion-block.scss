@@ -1,0 +1,100 @@
+
+@import "../../defaults";   // Global component defaults.
+
+// Override default bootstrap accordion variables.
+$accordion-padding-y: 0.9375rem;
+$accordion-padding-x: 0.9375rem;
+$accordion-border-width: 1px;
+$accordion-border-color: var(--bs-border-color);
+$accordion-border-radius: 0.125rem;
+$accordion-inner-border-radius: subtract($accordion-border-radius, $accordion-border-width) !default;
+
+// Design: $secondary-bg-subtle ($linen) bg, dark text, $secondary ($sand) hover bg, primary hover text.
+$accordion-bg: $secondary-bg-subtle;
+
+$accordion-body-padding-y: $accordion-padding-y;
+$accordion-body-padding-x: $accordion-padding-x;
+
+$accordion-button-padding-y: $accordion-padding-y;
+$accordion-button-padding-x: $accordion-padding-x;
+$accordion-button-active-bg: $secondary-bg-subtle;
+$accordion-button-active-color: var(--bs-dark);
+
+$accordion-button-focus-border-color: var(--bs-border-color);
+$accordion-button-focus-box-shadow: none;
+
+$accordion-icon-width: 0.9375rem;
+
+@import "../../../node_modules/bootstrap/scss/accordion";
+
+// Design overrides: secondary-subtle background, dark default text, secondary hover bg, primary hover text.
+.accordion {
+  .accordion-item {
+    margin-block-start: 1.25rem;
+
+    &:first-of-type {
+      margin-block-start: 0;
+    }
+
+    &:not(:first-of-type) {
+      border-block-start: $accordion-border-width solid $accordion-border-color;
+    }
+  }
+
+  .accordion-button {
+    font-weight: 700;
+    background-color: var(--bs-secondary-bg-subtle);
+    color: var(--bs-dark);
+    box-shadow: none;
+    text-align: start;
+
+    &,
+    &.collapsed,
+    &:not(.collapsed) {
+      background-color: var(--bs-secondary-bg-subtle);
+      color: var(--bs-dark);
+      box-shadow: none;
+    }
+
+    &::after {
+      margin-inline-start: auto;
+    }
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: var(--bs-secondary);
+      color: #0D6EFD;
+      box-shadow: none;
+    }
+  }
+}
+
+// Canvas slot alignment fixes.
+.accordion-body--canvas {
+  display: block;
+  inline-size: 100%;
+}
+
+.accordion-body__content {
+  inline-size: 100%;
+  min-inline-size: 0;
+
+  > :first-child {
+    margin-block-start: 0;
+  }
+
+  > :last-child {
+    margin-block-end: 0;
+  }
+}
+
+.accordion-body--canvas-empty {
+  padding-block: 0;
+  padding-inline: 0;
+
+  > .accordion-body__content {
+    padding-block: var(--bs-accordion-body-padding-y);
+    padding-inline: var(--bs-accordion-body-padding-x);
+  }
+}

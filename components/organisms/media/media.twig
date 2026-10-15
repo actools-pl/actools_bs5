@@ -1,0 +1,61 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Media component.
+ *
+ * Available properties:
+ * - media: The media item, with limited access to object properties and methods.
+ * - name: Name of the media.
+ * - view_mode: The view mode of the media item; for example, `media_01_01` or `media_16_09`.
+ * - title_prefix: Additional output populated by modules, displayed before the main title tag.
+ * - title_suffix: Additional output populated by modules, displayed after the main title tag.
+ * - media_utility_classes: An array of utility classes for the root element.
+ *
+ * Available attributes:
+ * - attributes: HTML attributes for the containing element.
+ * - title_attributes: HTML attributes for the main title tag.
+ *
+ * Available slots:
+ * - content: Media content.
+ *
+ * @see template_preprocess_media()
+ *
+ * @ingroup themeable
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{% apply spaceless %}
+
+{# Variables: derived class fragments and contextual links. #}
+{% set media_bundle = media ? ['media--type-' ~ media.bundle()|clean_class] : [] %}
+{% set media_published = media and not media.isPublished() ? ['media--unpublished'] : [] %}
+{% set view_mode_class = view_mode ? ['media--view-mode-' ~ view_mode|clean_class] : [] %}
+{% set media_utility_classes = media_utility_classes ? media_utility_classes : [] %}
+{% set contextual_links = title_suffix and title_suffix.contextual_links ? title_suffix.contextual_links : '' %}
+
+{# Logic: merge root classes as an array. #}
+{%
+  set classes = [
+    'media',
+  ]|merge(media_bundle)|merge(media_published)|merge(view_mode_class)|merge(media_utility_classes)
+%}
+
+{# Print the HTML. #}
+{% set attributes = attributes.addClass(classes) %}
+<div{{ attributes }}>
+  {{ contextual_links }}
+  {% if content %}
+    {{ content }}
+  {% endif %}
+</div>
+
+{% endapply %}

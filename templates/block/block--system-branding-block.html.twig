@@ -1,0 +1,21 @@
+{#
+/**
+ * @file
+ * Template for the branding block.
+ */
+#}
+{% embed 'actools_bs5:block' with {
+  html_tag: 'div',
+} %}
+
+	{% block content %}
+		{% include 'actools_bs5:navbar-brand' with {
+    text: site_name,
+    image_path: site_logo,
+    height: 'auto',
+    path: path('<front>'),
+    alt: elements.content.site_name['#markup'] ~ ' logo' ,
+  } %}
+	{% endblock %}
+
+{% endembed %}

@@ -1,0 +1,23 @@
+{
+  "name": "actools_bs5",
+  "version": "5.0.0-beta1",
+  "private": true,
+  "description": "Build tooling for the Actools BS5 standalone theme (Bootstrap 5 + SDC).",
+  "license": "GPL-2.0-or-later",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "build:css": "node scripts/build-css.mjs build",
+    "check:css": "node scripts/build-css.mjs check",
+    "publish:css": "node scripts/build-css.mjs publish",
+    "test:build-tools": "node --test scripts/css-compat.test.mjs",
+    "build": "npm run build:css"
+  },
+  "devDependencies": {
+    "sass": "1.101.0",
+    "bootstrap": "5.3.8",
+    "bootstrap-borders-utilities": "1.0.2",
+    "bootstrap-ratio-utilities": "1.0.3"
+  }
+}

@@ -1,0 +1,84 @@
+{#
+/**
+ * @file
+ * Actools BS5 Starter Kit implementation for the Taxonomy component.
+ *
+ * Taxonomy badge rendered with Bootstrap utilities only. Renders as a link
+ * when a URL is provided, otherwise as a span.
+ *
+ * Available properties:
+ * - label: Text shown inside the taxonomy badge. (required)
+ * - url: If provided, taxonomy will render as a link. Defaults to ``.
+ * - target: Where to open the link (only used when Link is provided).
+ *           (_self | _blank) Defaults to `_self`.
+ * - size: Controls the typography size (taxonomy modifier class).
+ *         (taxonomy-lg | taxonomy-sm) Defaults to `taxonomy-lg`.
+ *
+ * Available attributes:
+ * - attributes: Attributes array.
+ */
+#}
+
+{# AI guidance:
+ # - Do not alter property descriptions or existing logic unless new
+ #   properties are added.
+ # - Keep the structure: 1) variables, 2) logical variable manipulations,
+ #   3) print the HTML.
+ # - Always handle classes as arrays with `merge` (never string
+ #   concatenation) to avoid duplicate classes and data type conflicts.
+ #}
+
+{# Variables: scalar props with schema defaults. #}
+{% set url = url|default('') %}
+{% if url %}
+  {% set _url_value = url|trim %}
+  {% set _url_scheme = _url_value|lower %}
+  {% set _url_relative = not (':' in _url_value|split('/')|first|split('?')|first|split('#')|first) %}
+  {% set _url_allowed = _url_scheme starts with 'https://' or _url_scheme starts with 'http://' or _url_scheme starts with 'mailto:' or _url_scheme starts with 'tel:' or _url_relative %}
+  {% set _url_unsafe = _url_value matches '/[\\x00-\\x20\\x7f]/' or '\\' in _url_value or _url_value starts with '//' %}
+  {% set url = _url_allowed and not _url_unsafe ? _url_value : '#' %}
+{% endif %}
+{% set target = target|default('_self') %}
+{% set size = size|default('taxonomy-lg') %}
+
+{# Logic: map size prop to Bootstrap font-size utilities. #}
+{% set size_classes = size == 'taxonomy-sm' ? [] : ['fs-6'] %}
+
+{# Logic: base visual styling — pure Bootstrap utilities, no custom CSS. #}
+{% set base_classes = [
+  'taxonomy',
+  'badge',
+  'd-inline-flex',
+  'align-items-center',
+  'justify-content-center',
+  'text-nowrap',
+  'fw-bold',
+  'text-uppercase',
+  'rounded-1',
+  'bg-dark',
+  'text-accent',
+  'border',
+  'border-accent',
+]|merge(size_classes) %}
+
+{% set has_url = url is not empty %}
+
+{# Print the HTML. #}
+{% if has_url %}
+  {% set taxonomy_link_classes = base_classes|merge(['text-decoration-none']) %}
+  {% set attributes = attributes.addClass(taxonomy_link_classes) %}
+  <a
+    href="{{ url|e }}"
+    {{ attributes }}
+    {% if target == '_blank' %}
+      target="_blank" rel="noopener noreferrer"
+    {% endif %}
+  >
+    {{ label|e }}
+  </a>
+{% else %}
+  {% set attributes = attributes.addClass(base_classes) %}
+  <span{{ attributes }}>
+    {{ label|e }}
+  </span>
+{% endif %}

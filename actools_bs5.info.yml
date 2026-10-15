@@ -1,0 +1,24 @@
+name: Actools BS5
+description: 'Bootstrap 5 base theme for Drupal, built with SASS and Single Directory Components. Standalone build adapted from the Varbase theme by Vardot for use on any Drupal site (no Varbase distribution required).'
+core_version_requirement: ^11.3
+engine: twig
+type: theme
+base theme: false
+screenshot: screenshot.png
+alt text: Screenshot of the Actools BS5 theme.
+
+regions:
+  content: Content
+  header: Header
+  footer: Footer
+libraries:
+  - actools_bs5/framework
+
+ckeditor_stylesheets: false
+ckeditor5-stylesheets:
+  - css/base/ckeditor5.bootstrap.base.css
+enforce_prop_schemas: false
+
+# Standalone Actools fork; version inherited from the source build.
+version: '5.0.0-beta1'
+# Custom release: maintained outside Drupal.org's project release service.

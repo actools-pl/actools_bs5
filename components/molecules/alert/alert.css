@@ -1,0 +1,170 @@
+.alert {
+  --bs-alert-bg: transparent;
+  --bs-alert-padding-x: 0.9375rem;
+  --bs-alert-padding-y: 0.9375rem;
+  --bs-alert-margin-bottom: 1rem;
+  --bs-alert-color: inherit;
+  --bs-alert-border-color: transparent;
+  --bs-alert-border: 0 solid var(--bs-alert-border-color);
+  --bs-alert-border-radius: 0.125rem;
+  --bs-alert-link-color: inherit;
+
+  position: relative;
+  margin-bottom: var(--bs-alert-margin-bottom);
+  padding: var(--bs-alert-padding-y) var(--bs-alert-padding-x);
+  color: var(--bs-alert-color);
+  border: var(--bs-alert-border);
+  border-radius: var(--bs-alert-border-radius);
+  background-color: var(--bs-alert-bg);
+}
+
+.alert-heading {
+  color: inherit;
+}
+
+.alert-link {
+  color: var(--bs-alert-link-color);
+  font-weight: 700;
+}
+
+.alert-dismissible {
+  padding-right: 3rem;
+}
+
+[dir="rtl"] .alert-dismissible {
+  padding-right: 0;
+  padding-left: 3rem;
+}
+
+.alert-dismissible .btn-close {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  padding: 1.171875rem 0.9375rem;
+}
+
+[dir="rtl"] .alert-dismissible .btn-close {
+  right: auto;
+  left: 0;
+}
+
+.alert-primary {
+  --bs-alert-color: var(--bs-primary-text-emphasis);
+  --bs-alert-bg: var(--bs-primary-bg-subtle);
+  --bs-alert-border-color: var(--bs-primary-border-subtle);
+  --bs-alert-link-color: var(--bs-primary-text-emphasis);
+}
+
+.alert-secondary {
+  --bs-alert-color: var(--bs-secondary-text-emphasis);
+  --bs-alert-bg: var(--bs-secondary-bg-subtle);
+  --bs-alert-border-color: var(--bs-secondary-border-subtle);
+  --bs-alert-link-color: var(--bs-secondary-text-emphasis);
+}
+
+.alert-success {
+  --bs-alert-color: var(--bs-success-text-emphasis);
+  --bs-alert-bg: var(--bs-success-bg-subtle);
+  --bs-alert-border-color: var(--bs-success-border-subtle);
+  --bs-alert-link-color: var(--bs-success-text-emphasis);
+}
+
+.alert-info {
+  --bs-alert-color: var(--bs-info-text-emphasis);
+  --bs-alert-bg: var(--bs-info-bg-subtle);
+  --bs-alert-border-color: var(--bs-info-border-subtle);
+  --bs-alert-link-color: var(--bs-info-text-emphasis);
+}
+
+.alert-warning {
+  --bs-alert-color: var(--bs-warning-text-emphasis);
+  --bs-alert-bg: var(--bs-warning-bg-subtle);
+  --bs-alert-border-color: var(--bs-warning-border-subtle);
+  --bs-alert-link-color: var(--bs-warning-text-emphasis);
+}
+
+.alert-danger {
+  --bs-alert-color: var(--bs-danger-text-emphasis);
+  --bs-alert-bg: var(--bs-danger-bg-subtle);
+  --bs-alert-border-color: var(--bs-danger-border-subtle);
+  --bs-alert-link-color: var(--bs-danger-text-emphasis);
+}
+
+.alert-light {
+  --bs-alert-color: var(--bs-light-text-emphasis);
+  --bs-alert-bg: var(--bs-light-bg-subtle);
+  --bs-alert-border-color: var(--bs-light-border-subtle);
+  --bs-alert-link-color: var(--bs-light-text-emphasis);
+}
+
+.alert-dark {
+  --bs-alert-color: var(--bs-dark-text-emphasis);
+  --bs-alert-bg: var(--bs-dark-bg-subtle);
+  --bs-alert-border-color: var(--bs-dark-border-subtle);
+  --bs-alert-link-color: var(--bs-dark-text-emphasis);
+}
+
+.alert-tertiary {
+  --bs-alert-color: var(--bs-tertiary-text-emphasis);
+  --bs-alert-bg: var(--bs-tertiary-bg-subtle);
+  --bs-alert-border-color: var(--bs-tertiary-border-subtle);
+  --bs-alert-link-color: var(--bs-tertiary-text-emphasis);
+}
+
+.alert-accent {
+  --bs-alert-color: var(--bs-accent-text-emphasis);
+  --bs-alert-bg: var(--bs-accent-bg-subtle);
+  --bs-alert-border-color: var(--bs-accent-border-subtle);
+  --bs-alert-link-color: var(--bs-accent-text-emphasis);
+}
+
+.alert-dismissible .btn-close {
+  --bs-btn-close-opacity: 1;
+
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+  margin: 1.22rem !important;
+  padding: 0.225rem !important;
+  mask-image: var(--bs-btn-close-bg) !important;
+}
+
+.alert-primary.alert-dismissible .btn-close {
+  background: #0d6efd;
+}
+
+.alert-secondary.alert-dismissible .btn-close {
+  background: #ebe8e5;
+}
+
+.alert-success.alert-dismissible .btn-close {
+  background: #198754;
+}
+
+.alert-info.alert-dismissible .btn-close {
+  background: #0dcaf0;
+}
+
+.alert-warning.alert-dismissible .btn-close {
+  background: rgb(255, 205.4, 56.6);
+}
+
+.alert-danger.alert-dismissible .btn-close {
+  background: rgb(176, 42.4, 55.2);
+}
+
+.alert-light.alert-dismissible .btn-close {
+  background: rgb(198.4, 199.2, 200);
+}
+
+.alert-dark.alert-dismissible .btn-close {
+  background: rgb(51, 74.2, 95.8);
+}
+
+.alert-tertiary.alert-dismissible .btn-close {
+  background: #f5f9fe;
+}
+
+.alert-accent.alert-dismissible .btn-close {
+  background: #e4dcff;
+}
