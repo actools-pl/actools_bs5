@@ -19,6 +19,8 @@ use Drupal\Tests\BrowserTestBase;
 #[Group('actools_bs5')]
 final class TokenFileLifecycleFunctionalTest extends BrowserTestBase {
 
+  use FunctionalResponseDiagnosticsTrait;
+
   /**
    * {@inheritdoc}
    */
@@ -38,6 +40,7 @@ final class TokenFileLifecycleFunctionalTest extends BrowserTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
+    $this->config('system.logging')->set('error_level', 'verbose')->save();
     $this->container->get('theme_installer')->install(['actools_bs5']);
     $this->config('system.theme')->set('default', 'actools_bs5')->save();
     $theme_path = $this->container->get('extension.list.theme')->getPath('actools_bs5');
@@ -57,7 +60,7 @@ final class TokenFileLifecycleFunctionalTest extends BrowserTestBase {
   public function testSupersededTokenFileIsRetainedForCacheCoherence(): void {
     $this->setTokens('#123456');
     $this->drupalGet('');
-    $this->assertSession()->statusCodeEquals(200);
+    $this->assertResponseStatus(200);
     $first = $this->getGeneratedTokenFiles();
     $this->assertNotEmpty($first, 'A token file exists after the first change.');
     $old = reset($first);
@@ -65,7 +68,7 @@ final class TokenFileLifecycleFunctionalTest extends BrowserTestBase {
 
     $this->setTokens('#654321');
     $this->drupalGet('');
-    $this->assertSession()->statusCodeEquals(200);
+    $this->assertResponseStatus(200);
     $second = $this->getGeneratedTokenFiles();
     $this->assertNotEmpty($second, 'A token file exists after the second change.');
     $added = array_values(array_diff($second, $first));
@@ -113,7 +116,7 @@ final class TokenFileLifecycleFunctionalTest extends BrowserTestBase {
   public function testDarkBrandColorStillRenders(): void {
     $this->setTokens('#0b1020');
     $this->drupalGet('');
-    $this->assertSession()->statusCodeEquals(200);
+    $this->assertResponseStatus(200);
     $this->assertSession()->responseContains('actools_bs5/tokens-');
   }
 
@@ -123,14 +126,14 @@ final class TokenFileLifecycleFunctionalTest extends BrowserTestBase {
   public function testStickyHeaderSettingControlsLibrary(): void {
     // Default (enabled): the sticky-header assets are attached.
     $this->drupalGet('');
-    $this->assertSession()->statusCodeEquals(200);
+    $this->assertResponseStatus(200);
     $this->assertSession()->responseContains('sticky-header');
 
     // Disabled: the sticky-header assets must not be attached.
     $this->config('actools_bs5.settings')->set('sticky_header', FALSE)->save();
     drupal_flush_all_caches();
     $this->drupalGet('');
-    $this->assertSession()->statusCodeEquals(200);
+    $this->assertResponseStatus(200);
     $this->assertSession()->responseNotContains('sticky-header');
   }
 

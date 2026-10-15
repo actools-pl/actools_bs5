@@ -15,6 +15,8 @@ use Drupal\Tests\BrowserTestBase;
 #[Group('actools_bs5')]
 final class ThemeSettingsFormFunctionalTest extends BrowserTestBase {
 
+  use FunctionalResponseDiagnosticsTrait;
+
   /**
    * {@inheritdoc}
    */
@@ -34,6 +36,7 @@ final class ThemeSettingsFormFunctionalTest extends BrowserTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
+    $this->config('system.logging')->set('error_level', 'verbose')->save();
     $this->container->get('theme_installer')->install(['actools_bs5']);
     $this->config('system.theme')->set('default', 'actools_bs5')->save();
   }
@@ -43,10 +46,12 @@ final class ThemeSettingsFormFunctionalTest extends BrowserTestBase {
    */
   public function testThemeSettingsFormSavesDesignTokens(): void {
     $account = $this->drupalCreateUser(['administer themes']);
+    $this->drupalGet('user/login');
+    $this->assertResponseStatus(200);
     $this->drupalLogin($account);
 
     $this->drupalGet('admin/appearance/settings/actools_bs5');
-    $this->assertSession()->statusCodeEquals(200);
+    $this->assertResponseStatus(200);
     $this->assertSession()->fieldExists('tokens_brand_color');
     $this->assertSession()->fieldExists('tokens_body_font');
     $this->assertSession()->fieldExists('tokens_base_font_size');
