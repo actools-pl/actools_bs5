@@ -24,6 +24,10 @@ function actools_bs5_test_block_content_view_alter(array &$build, EntityInterfac
   $heading['#access_callback'] = [HeadingAccessProbe::class, 'access'];
   $heading['#actools_heading_access_mode'] = $probe['mode'];
   $heading['#cache']['tags'][] = 'actools_heading_element:probe';
-  $heading['#attached']['library'][] = 'core/drupal.debounce';
-  $heading['#attached']['drupalSettings']['actoolsRestrictedHeading'] = 'Private heading setting';
+  // Formatter descendants may contribute their own attachments. Core must
+  // not render those descendants when the parent field is denied. Deliberately
+  // avoid attaching this private probe to the field root: Drupal bubbles a
+  // denied AccessResult element's own attachments along with its metadata.
+  $heading[0]['#attached']['library'][] = 'core/drupal.debounce';
+  $heading[0]['#attached']['drupalSettings']['actoolsRestrictedHeading'] = 'Private heading setting';
 }

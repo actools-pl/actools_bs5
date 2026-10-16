@@ -78,7 +78,9 @@ final class TopicStarterImageDeliveryKernelTest extends KernelTestBase {
         $link = $xpath->query('//a[.//img[@alt="Uncropped physics diagram"]]')->item(0);
         $this->assertInstanceOf(\DOMElement::class, $link);
         $original_url = $this->container->get('file_url_generator')->generateString($file->getFileUri());
-        $this->assertSame(parse_url($original_url, PHP_URL_PATH), parse_url($link->getAttribute('href'), PHP_URL_PATH));
+        // The link generator encodes the colon in Kernel's virtual public
+        // filesystem path; compare the decoded paths, not encoding variants.
+        $this->assertSame(rawurldecode((string) parse_url($original_url, PHP_URL_PATH)), rawurldecode((string) parse_url($link->getAttribute('href'), PHP_URL_PATH)));
         $this->assertStringNotContainsString('/styles/', $link->getAttribute('href'));
         $this->assertContains('config:responsive_image.styles.actools_diagram', $metadata->getCacheTags());
       }

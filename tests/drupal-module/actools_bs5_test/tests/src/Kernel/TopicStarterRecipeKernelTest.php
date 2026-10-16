@@ -386,7 +386,7 @@ final class TopicStarterRecipeKernelTest extends KernelTestBase {
   }
 
   /**
-   * Deferred decisions run on the original heading field, never its raw value.
+   * Deferred decisions gate heading markup and descendant formatter settings.
    */
   public function testPresentationMappingPreservesElementAccessAndMetadata(): void {
     foreach (['actools_text_image', 'actools_resource_cards'] as $bundle) {
@@ -412,7 +412,7 @@ final class TopicStarterRecipeKernelTest extends KernelTestBase {
             $this->assertSame('Private heading setting', $metadata->getAttachments()['drupalSettings']['actoolsRestrictedHeading'] ?? NULL);
           }
           else {
-            $this->assertStringNotContainsString($heading, $html, 'A denied heading cannot reappear through its block label.');
+            $this->assertStringNotContainsString($heading, $html, 'A denied heading cannot reappear through its block label (' . $bundle . ', ' . $mode . ').');
             $this->assertDoesNotMatchRegularExpression('/<h2\b/', $html, 'Denied fields produce no empty heading.');
             $this->assertNotContains('core/drupal.debounce', $metadata->getAttachments()['library'] ?? []);
             $this->assertArrayNotHasKey('actoolsRestrictedHeading', $metadata->getAttachments()['drupalSettings'] ?? []);
