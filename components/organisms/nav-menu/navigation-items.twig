@@ -13,6 +13,12 @@
       'data-actools-submenu-toggle': '', 'aria-controls': submenu_id, 'aria-expanded': 'true',
     }) %}
   {% endif %}
+  {# Url::mergeOptions merges class arrays, but a legacy string class value
+     would otherwise be replaced by our array. Keep that authored value too. #}
+  {% set configured_classes = item.url.options.attributes.class|default([]) %}
+  {% if configured_classes and configured_classes is not iterable %}
+    {% set link_attributes = link_attributes|merge({class: [configured_classes]|merge(link_attributes.class)}) %}
+  {% endif %}
   <li{{ item_attributes.addClass(item_classes) }}>
     <div class="actools-navigation__item-row">
       {{ link(item.title, item.url, link_attributes) }}

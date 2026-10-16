@@ -71,6 +71,11 @@ final class NavigationRenderingKernelTest extends KernelTestBase {
       $target = $xpath->query('//*[@id="' . $control->getAttribute('aria-controls') . '"]');
       $this->assertSame(1, $target->length);
     }
+    // Older menu alters sometimes supply a class string rather than an array.
+    $items['parent']['url']->setOption('attributes', ['class' => 'legacy-one legacy-two']);
+    $build = $this->menu($items, 'header', 'string-classes');
+    $legacy = $this->document((string) $this->container->get('renderer')->renderRoot($build));
+    $this->assertStringContainsString('legacy-one legacy-two', $legacy->evaluate('string(//a[text()="Topics landing page"]/@class)'));
   }
 
   /**
