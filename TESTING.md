@@ -73,7 +73,10 @@ operator checks.
 
 Publishing regressions also exercise the optional plain-text figure caption
 and resource kind/level fields through native formatters, including empty and
-denied output and cache metadata. The real-site browser fixture includes a
+denied output and cache metadata. Image-item regressions cover direct and
+deferred denial, hidden image displays and alternating viewers over warm
+caches; denied items must leave no image field wrapper, figure or caption.
+The real-site browser fixture includes a
 complete Surface tension Topic with separately named resource groups. Its
 desktop and phone screenshots are retained in the
 `layout-builder-editor-browser` artifact for visual review; an assertion pass
