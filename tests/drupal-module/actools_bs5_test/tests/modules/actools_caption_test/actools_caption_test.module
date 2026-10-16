@@ -32,4 +32,22 @@ function actools_caption_test_block_content_view_alter(array &$build, EntityInte
     $image['#cache']['tags'][] = 'actools_image_element:caption_probe';
     $image[0]['#attached']['drupalSettings']['actoolsImageProbe'] = 'Image-only attachment';
   }
+  $image_item_probe = \Drupal::state()->get('actools_caption_test.image_item_access_probe', []);
+  if ((string) ($image_item_probe['block_id'] ?? '') === (string) $entity->id() && isset($build['field_actools_image'][0])) {
+    // A formatter item can be denied while its parent field remains allowed.
+    // Core still supplies that item to the field template in this case.
+    $item = &$build['field_actools_image'][0];
+    unset($item['#access']);
+    if ($image_item_probe['mode'] === 'explicit_boolean_denied') {
+      $item['#access'] = FALSE;
+    }
+    else {
+      $item['#access_callback'] = [CaptionAccessProbe::class, 'access'];
+      $item['#actools_caption_access_mode'] = $image_item_probe['mode'];
+    }
+    $item['#cache']['tags'][] = 'actools_image_item:caption_probe';
+    // The separately accessible caption must not render when its image item
+    // disappears, including its formatter descendant's attachments.
+    $build['field_actools_caption'][0]['#attached']['drupalSettings']['actoolsPairedCaptionProbe'] = 'Caption paired with an image';
+  }
 }

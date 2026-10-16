@@ -122,6 +122,22 @@ final class TopicStarterCaptionKernelTest extends KernelTestBase {
   }
 
   /**
+   * A display-hidden image also hides its caption and leaves a text-only block.
+   */
+  public function testDisplayHiddenImageSuppressesFigureAndCaption(): void {
+    $block = $this->captionBlock('Caption of a display-hidden image');
+    $display = EntityViewDisplay::load('block_content.actools_text_image.default');
+    $display->removeComponent('field_actools_image')->save();
+    foreach ([1, 2] as $render) {
+      [$html] = $this->renderCaptionBlock($block, new AnonymousUserSession());
+      $this->assertSame(0, $this->captionDocument($html)->query('//figure | //figcaption | //img')->length);
+      $this->assertStringNotContainsString('Caption of a display-hidden image', $html);
+      $this->assertStringContainsString('actools-text-image--text-only', $html);
+      $this->assertStringContainsString('Explain the meniscus.', $html);
+    }
+  }
+
+  /**
    * Deferred access checks gate markup and descendants before the field template.
    */
   public function testDeferredCaptionAccessControlsMarkupAndAttachments(): void {
@@ -196,6 +212,67 @@ final class TopicStarterCaptionKernelTest extends KernelTestBase {
       }
       $this->assertContains('user', $metadata->getCacheContexts());
       $this->assertContains('actools_image_element:caption_probe', $metadata->getCacheTags());
+    }
+  }
+
+  /**
+   * Item denial must not leave an empty image field wrapper and orphan caption.
+   */
+  public function testDeniedImageItemsSuppressFigureAndCaption(): void {
+    foreach (['allowed', 'forbidden', 'neutral', 'boolean_denied', 'explicit_boolean_denied'] as $mode) {
+      $caption = 'Caption paired with image item ' . $mode;
+      $block = $this->captionBlock($caption);
+      $this->container->get('state')->set('actools_caption_test.image_item_access_probe', ['block_id' => $block->id(), 'mode' => $mode]);
+      foreach ([1, 2] as $render) {
+        [$html, $metadata] = $this->renderCaptionBlock($block, new AnonymousUserSession());
+        $xpath = $this->captionDocument($html);
+        if ($mode === 'allowed') {
+          $this->assertSame(1, $xpath->query('//figure[contains(@class, "actools-text-image__media")]//img')->length);
+          $this->assertSame(1, $xpath->query('//figure[contains(@class, "actools-text-image__media")]/figcaption')->length);
+          $this->assertStringContainsString($caption, $html);
+          $this->assertSame('Caption paired with an image', $metadata->getAttachments()['drupalSettings']['actoolsPairedCaptionProbe'] ?? NULL);
+        }
+        else {
+          $this->assertSame(0, $xpath->query('//figure | //figcaption | //img')->length, 'A denied image item cannot leave a figure or caption: ' . $mode);
+          $this->assertSame(0, $xpath->query('//*[contains(concat(" ", normalize-space(@class), " "), " field--name-field-actools-image ")]')->length);
+          $this->assertStringNotContainsString($caption, $html);
+          $this->assertStringContainsString('actools-text-image--text-only', $html);
+          $this->assertArrayNotHasKey('actoolsPairedCaptionProbe', $metadata->getAttachments()['drupalSettings'] ?? []);
+        }
+        if (!in_array($mode, ['boolean_denied', 'explicit_boolean_denied'], TRUE)) {
+          $this->assertContains('actools_image_item:caption_probe', $metadata->getCacheTags());
+          $this->assertContains('actools_caption_access:' . $mode, $metadata->getCacheTags());
+        }
+        $this->assertStringContainsString('Explain the meniscus.', $html);
+      }
+    }
+  }
+
+  /**
+   * An item's user-varying denial still bubbles after its wrapper is suppressed.
+   */
+  public function testImageItemAccessVariesByViewerAcrossWarmCaches(): void {
+    $allowed = User::create(['uid' => 2, 'name' => 'Allowed image item reader', 'status' => 1]);
+    $allowed->save();
+    $denied = User::create(['uid' => 3, 'name' => 'Denied image item reader', 'status' => 1]);
+    $denied->save();
+    $block = $this->captionBlock('Viewer-specific image item caption');
+    $this->container->get('state')->set('actools_caption_test.image_item_access_probe', ['block_id' => $block->id(), 'mode' => 'viewer']);
+    foreach ([$allowed, $denied, $allowed, $denied] as $viewer) {
+      [$html, $metadata] = $this->renderCaptionBlock($block, $viewer);
+      $xpath = $this->captionDocument($html);
+      $visible = (int) $viewer->id() === 2;
+      $this->assertSame($visible ? 1 : 0, $xpath->query('//figure[contains(@class, "actools-text-image__media")]//img')->length);
+      $this->assertSame($visible ? 1 : 0, $xpath->query('//figure[contains(@class, "actools-text-image__media")]/figcaption')->length);
+      if (!$visible) {
+        $this->assertSame(0, $xpath->query('//figure | //figcaption')->length);
+        $this->assertStringNotContainsString('Viewer-specific image item caption', $html);
+        $this->assertStringContainsString('actools-text-image--text-only', $html);
+        $this->assertArrayNotHasKey('actoolsPairedCaptionProbe', $metadata->getAttachments()['drupalSettings'] ?? []);
+      }
+      $this->assertContains('user', $metadata->getCacheContexts());
+      $this->assertContains('actools_image_item:caption_probe', $metadata->getCacheTags());
+      $this->assertContains('actools_caption_access:viewer', $metadata->getCacheTags());
     }
   }
 
