@@ -97,18 +97,20 @@ async function login(page) {
   await page.getByLabel('Password', { exact: true }).fill(process.env.ACTOOLS_NAV_EDITOR_PASSWORD);
   await page.getByRole('button', { name: 'Log in', exact: true }).click();
 }
-async function assertHeadingClearsHeader(page, id) {
+async function assertHeadingClearsHeader(page, id, { aligned = true } = {}) {
   await expect(page.locator(`#${id}`)).toBeInViewport({ ratio: 1 });
   await expect.poll(async () => {
     const heading = await page.locator(`#${id}`).boundingBox();
     const banner = await header(page).boundingBox();
     return heading.y - (banner.y + banner.height);
-  }).toBeGreaterThanOrEqual(6);
-  await expect.poll(async () => {
-    const heading = await page.locator(`#${id}`).boundingBox();
-    const banner = await header(page).boundingBox();
-    return heading.y - (banner.y + banner.height);
-  }).toBeLessThanOrEqual(32);
+  }).toBeGreaterThanOrEqual(aligned ? 6 : 0);
+  if (aligned) {
+    await expect.poll(async () => {
+      const heading = await page.locator(`#${id}`).boundingBox();
+      const banner = await header(page).boundingBox();
+      return heading.y - (banner.y + banner.height);
+    }).toBeLessThanOrEqual(32);
+  }
 }
 async function assertReadable(locator) {
   const painted = await locator.evaluate(element => {
@@ -220,7 +222,10 @@ test('native hash navigation, history and skip links clear the measured sticky h
     await assertHeadingClearsHeader(page, 'practice-assignments');
     await page.goBack();
     await expect(page).toHaveURL(new RegExp(`${fixture.currentTopicPath}#worked-examples$`));
-    await assertHeadingClearsHeader(page, 'worked-examples');
+    // History restores the browser's recorded reading position, including
+    // changes made while a menu was expanded. Keep that native restoration;
+    // the heading must be visible and unobscured, without forcing it to top.
+    await assertHeadingClearsHeader(page, 'worked-examples', { aligned: false });
   }
   await visit(page, fixture.currentTopicPath);
   await page.keyboard.press('Tab');
@@ -242,6 +247,10 @@ test('native hash navigation, history and skip links clear the measured sticky h
   expect(skipGeometry.bottom).toBeLessThanOrEqual(skipGeometry.viewport);
   try {
     scenario('sticky-off', testInfo.project.use.baseURL);
+    // A different hash alone reuses the old document and attached libraries.
+    // Reload for a real response containing the changed server-side setting.
+    const fresh = await page.reload();
+    expect(fresh?.status()).toBe(200);
     await visit(page, `${fixture.currentTopicPath}#practice-assignments`);
     await expect(page.locator('html')).not.toHaveClass(/\bactools-sticky-header-active\b/);
     expect(await header(page).evaluate(element => getComputedStyle(element).position)).not.toBe('sticky');
