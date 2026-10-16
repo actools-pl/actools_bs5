@@ -339,7 +339,12 @@ foreach ($preview_groups as $group) {
     $values = [
       'type' => 'actools_resource', 'title' => $title, 'status' => 1, 'uid' => $editor->id(),
       'field_actools_summary' => $summary,
-      'field_actools_body' => ['value' => $summary, 'format' => 'plain_text'],
+      'field_actools_body' => [
+        'value' => isset($preview_downloads[$title])
+          ? 'Download the accompanying file to work through the questions and compare your reasoning with the explanations.'
+          : 'The explanation and accompanying problems develop the topic step by step. Use the examples to identify the assumptions before attempting the exercises.',
+        'format' => 'plain_text',
+      ],
       'field_actools_kind' => $kind,
       'field_actools_level' => $level,
     ];

@@ -117,7 +117,8 @@
   padding: clamp(1rem, 2vw, 1.5rem);
   border: 1px solid rgba(var(--bs-body-color-rgb, 33, 37, 41), 0.15);
   border-radius: var(--bs-border-radius-lg, 0.75rem);
-  background: var(--bs-tertiary-bg, #f8f9fa);
+  color: var(--bs-body-color, #212529);
+  background: var(--bs-body-bg, #fff);
 }
 
 .actools-resource-downloads__label {

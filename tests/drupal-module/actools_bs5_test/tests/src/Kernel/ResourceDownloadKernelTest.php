@@ -71,6 +71,17 @@ final class ResourceDownloadKernelTest extends KernelTestBase {
       $file = $this->file($extension, $mime, 4096);
       $description = 'Surface tension <script>bad()</script> & practice';
       $resource = $this->resource($file, $description);
+      // Use the real core formatter item before the field template opts it
+      // into the scoped suggestion. Core may normalise a stored description;
+      // the theme must preserve that output rather than invent its own filter.
+      $native_fields = EntityViewDisplay::load('node.actools_resource.default')->build($resource);
+      $native = $native_fields['field_actools_download'][0];
+      $this->assertSame('file_link', $native['#theme']);
+      $native_html = (string) $this->container->get('renderer')->renderRoot($native);
+      $native_xpath = $this->document($native_html);
+      $native_link = $native_xpath->query('//a')->item(0);
+      $this->assertInstanceOf(\DOMElement::class, $native_link);
+      $this->assertSame(0, $native_xpath->query('//script')->length);
       foreach ([1, 2] as $pass) {
         [$html, $metadata] = $this->renderResource($resource);
         $xpath = $this->document($html);
@@ -78,7 +89,7 @@ final class ResourceDownloadKernelTest extends KernelTestBase {
         $this->assertSame('Download', trim($xpath->evaluate('string(//*[contains(@class, "actools-resource-downloads__label")])')));
         $link = $xpath->query('//*[contains(@class, "actools-resource-downloads__link")]/a')->item(0);
         $this->assertInstanceOf(\DOMElement::class, $link);
-        $this->assertSame($description, $link->textContent);
+        $this->assertSame($native_link->textContent, $link->textContent, 'Authored descriptions keep core file-link filtering and escaping.');
         $this->assertSame($mime, $link->getAttribute('type'));
         $this->assertSame($file->getFilename(), $link->getAttribute('title'));
         $original = $this->container->get('file_url_generator')->generateString($file->getFileUri());

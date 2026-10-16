@@ -234,6 +234,46 @@ test('editor creates, edits, reorders and saves inline blocks through Layout Bui
   expect(errors).toEqual([]);
 });
 
+// Measure text against its actual painted panel, including inherited rgba
+// secondary colours. Resolve transparent ancestor backgrounds from the browser
+// canvas inward, then composite the text colour before applying WCAG sRGB.
+async function expectReadableDownloadText(downloads) {
+  for (const selector of [
+    '.actools-resource-downloads__label',
+    '.actools-resource-downloads__type',
+    '.actools-resource-downloads__size',
+    '.actools-resource-downloads__link a',
+  ]) {
+    const text = downloads.locator(selector);
+    await expect(text).toBeVisible();
+    const painted = await text.evaluate(element => {
+      const rgba = value => {
+        const channels = value.match(/[\d.]+/g).map(Number);
+        return [...channels.slice(0, 3), channels.length > 3 ? channels[3] : 1];
+      };
+      const over = (foreground, background) => {
+        const alpha = foreground[3] + background[3] * (1 - foreground[3]);
+        return [0, 1, 2].map(index => (foreground[index] * foreground[3] + background[index] * background[3] * (1 - foreground[3])) / alpha).concat(alpha);
+      };
+      const ancestors = [];
+      for (let current = element; current; current = current.parentElement) ancestors.unshift(current);
+      let background = [255, 255, 255, 1];
+      for (const ancestor of ancestors) background = over(rgba(getComputedStyle(ancestor).backgroundColor), background);
+      return { background, foreground: over(rgba(getComputedStyle(element).color), background) };
+    });
+    const luminance = colour => {
+      const values = colour.slice(0, 3).map(channel => {
+        const srgb = channel / 255;
+        return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
+      });
+      return values[0] * 0.2126 + values[1] * 0.7152 + values[2] * 0.0722;
+    };
+    const foreground = luminance(painted.foreground), background = luminance(painted.background);
+    const ratio = (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+    expect(ratio, `${selector}: ${JSON.stringify(painted)}`).toBeGreaterThanOrEqual(4.5);
+  }
+}
+
 async function waitForPublishingImages(page) {
   await page.evaluate(async () => { await document.fonts.ready; });
   // Let native lazy loading fetch real Drupal image derivatives by scrolling
@@ -367,6 +407,7 @@ test('published Surface tension topic presents grouped resources on desktop and 
         await expect(downloads.locator('.actools-resource-downloads__type')).toHaveText(download.type);
         await expect(downloads.locator('.actools-resource-downloads__size')).toHaveText(download.sizeLabel);
         await expect(downloads.locator('.actools-resource-downloads__metadata')).toBeVisible();
+        await expectReadableDownloadText(downloads);
         const bounds = await downloads.evaluate(element => {
           const box = element.getBoundingClientRect();
           return { left: box.left, right: box.right, viewport: innerWidth, scroll: document.documentElement.scrollWidth };
