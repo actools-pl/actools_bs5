@@ -261,6 +261,8 @@ test('published Surface tension topic presents grouped resources on desktop and 
       expect(response.status()).toBe(200);
       await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Surface tension');
+      await expect(page.getByText(fixture.previewIntroduction, { exact: true })).toHaveCount(1);
+      await expect(page.getByText(fixture.previewIntroduction, { exact: true })).toBeVisible();
       await expect(page.getByRole('heading', { level: 2 })).toHaveText(fixture.previewHeadings);
       await expect(page.locator('.actools-resource-card__heading')).toHaveText(fixture.previewResources.map(resource => resource.title));
       await expect(page.locator('h3.actools-resource-card__heading')).toHaveCount(9);
@@ -278,6 +280,10 @@ test('published Surface tension topic presents grouped resources on desktop and 
     }
 
     await waitForPublishingImages(page);
+    const titleBox = await page.getByRole('heading', { level: 1 }).boundingBox();
+    const introductionBox = await page.getByText(fixture.previewIntroduction, { exact: true }).boundingBox();
+    expect(Math.abs(titleBox.x - introductionBox.x)).toBeLessThanOrEqual(1);
+    expect(introductionBox.y).toBeGreaterThanOrEqual(titleBox.y + titleBox.height);
     const layout = await page.evaluate(() => ({
       width: innerWidth,
       scrollWidth: document.documentElement.scrollWidth,

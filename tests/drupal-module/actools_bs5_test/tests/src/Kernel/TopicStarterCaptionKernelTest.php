@@ -140,8 +140,10 @@ final class TopicStarterCaptionKernelTest extends KernelTestBase {
         $this->assertStringNotContainsString('Protected caption ' . $mode, $html);
         $this->assertArrayNotHasKey('actoolsCaptionProbe', $metadata->getAttachments()['drupalSettings'] ?? []);
       }
-      $this->assertContains('actools_caption_element:probe', $metadata->getCacheTags());
       if ($mode !== 'boolean_denied') {
+        // Core bubbles denied AccessResult metadata, but a literal FALSE
+        // returns before the element's own cache metadata is collected.
+        $this->assertContains('actools_caption_element:probe', $metadata->getCacheTags());
         $this->assertContains('actools_caption_access:' . $mode, $metadata->getCacheTags());
       }
     }

@@ -280,20 +280,35 @@ foreach ($preview_groups as $group) {
   $cards->save();
   $preview_blocks[] = $cards;
 }
-$preview_components = [];
+$preview_components = [(new SectionComponent(\Drupal::service('uuid')->generate(), 'content', [
+  'id' => 'field_block:node:actools_topic:field_actools_body',
+  'label' => 'Introduction', 'label_display' => FALSE,
+  'provider' => 'layout_builder',
+  'context_mapping' => ['entity' => 'layout_builder.entity'],
+  'formatter' => [
+    'type' => 'text_default', 'label' => 'hidden',
+    'settings' => [], 'third_party_settings' => [],
+  ],
+]))->setWeight(0)];
 foreach ($preview_blocks as $weight => $block) {
   $preview_components[] = (new SectionComponent($block->uuid(), 'content', [
     'id' => 'inline_block:' . $block->bundle(),
     'label' => $block->label(), 'label_display' => FALSE,
     'provider' => 'layout_builder', 'view_mode' => 'default',
     'block_id' => $block->id(), 'block_revision_id' => $block->getRevisionId(), 'block_serialized' => NULL,
-  ]))->setWeight($weight);
+  ]))->setWeight($weight + 1);
 }
+$preview_introduction = 'Surface tension links the force along a liquid surface with the work needed to increase its area. This topic connects that idea to droplets, pressure differences and capillary rise.';
 $preview_topic = Node::create([
   'type' => 'actools_topic', 'title' => 'Surface tension', 'uid' => $editor->id(), 'status' => 1,
+  'field_actools_body' => ['value' => $preview_introduction, 'format' => 'plain_text'],
   'layout_builder__layout' => [new Section('actools_bs5_onecol_contained', [], $preview_components)],
 ]);
 $preview_topic->save();
+$preview_violations = $preview_topic->validate();
+if (count($preview_violations) !== 0) {
+  throw new RuntimeException('The native Topic preview failed validation: ' . (string) $preview_violations);
+}
 
 file_put_contents($fixture_path, json_encode([
   'username' => $editor->getAccountName(),
@@ -302,6 +317,7 @@ file_put_contents($fixture_path, json_encode([
   'resources' => $resources,
   'imagePath' => $image_path,
   'previewTopicPath' => '/node/' . $preview_topic->id(),
+  'previewIntroduction' => $preview_introduction,
   'previewHeadings' => ['Capillary rise in a glass tube', 'Concepts and notes', 'Worked examples', 'Practice assignments'],
   'previewResources' => $preview_resources,
 ], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
