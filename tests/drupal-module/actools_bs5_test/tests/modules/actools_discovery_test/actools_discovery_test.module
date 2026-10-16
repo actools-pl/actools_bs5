@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Test-only node grants; never installed by a production recipe.
+ */
+
+use Drupal\Core\Session\AccountInterface;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_node_grants().
+ */
+function actools_discovery_test_node_grants(AccountInterface $account, string $op): array {
+  return ['actools_discovery_reader' => [0, (int) $account->id()]];
+}
+
+/**
+ * Implements hook_node_access_records().
+ */
+function actools_discovery_test_node_access_records(NodeInterface $node): array {
+  // Restricted fixtures have an owner-specific grant, with identical role
+  // permissions for allowed and denied readers. Other fixture nodes are public.
+  $restricted = str_starts_with($node->label(), 'Restricted ');
+  return [[
+    'realm' => 'actools_discovery_reader',
+    'gid' => $restricted ? (int) $node->getOwnerId() : 0,
+    'grant_view' => $node->isPublished() ? 1 : 0,
+    'grant_update' => 0,
+    'grant_delete' => 0,
+  ]];
+}

@@ -7,7 +7,7 @@ features:
   node_user_picture: true
 logo:
   use_default: true
-container_header: no-container
+container_header: container
 container_content: container
 container_footer: no-container
 sticky_header: true

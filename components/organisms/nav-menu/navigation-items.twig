@@ -1,0 +1,41 @@
+{# Recursive list semantics; no Bootstrap dropdown handlers or application roles. #}
+{% for item in items %}
+  {% set has_children = item.below is not empty %}
+  {% set submenu_id = item.actools_submenu_id|default(prefix ~ '-branch-' ~ loop.index) %}
+  {% set item_classes = ['nav-item', has_children ? 'menu-item--expanded' : '',
+    item.in_active_trail ? 'is-active-trail' : ''] %}
+  {% set item_attributes = item.attributes|default(create_attribute()) %}
+  {% set link_attributes = {class: ['nav-link', 'actools-navigation__link']} %}
+  {% set button_parent = item.actools_is_button|default(false) %}
+  {% if enhance and has_children and button_parent %}
+    {% set link_attributes = link_attributes|merge({
+      class: ['nav-link', 'actools-navigation__link', 'actools-navigation__disclosure', 'actools-navigation__disclosure--label'],
+      'data-actools-submenu-toggle': '', 'aria-controls': submenu_id, 'aria-expanded': 'true',
+    }) %}
+  {% endif %}
+  {# Url::mergeOptions merges class arrays, but a legacy string class value
+     would otherwise be replaced by our array. Keep that authored value too. #}
+  {% set configured_classes = item.url.options.attributes.class|default([]) %}
+  {% if configured_classes and configured_classes is not iterable %}
+    {% set link_attributes = link_attributes|merge({class: [configured_classes]|merge(link_attributes.class)}) %}
+  {% endif %}
+  <li{{ item_attributes.addClass(item_classes) }}>
+    <div class="actools-navigation__item-row">
+      {{ link(item.title, item.url, link_attributes) }}
+      {% if enhance and has_children and not button_parent %}
+        <button class="actools-navigation__disclosure" type="button" hidden
+                data-actools-submenu-toggle aria-controls="{{ submenu_id }}" aria-expanded="true"
+                aria-label="{{ 'Toggle @title submenu'|t({'@title': item.title}) }}">
+          <span aria-hidden="true"></span>
+        </button>
+      {% endif %}
+    </div>
+    {% if has_children %}
+      <ul class="actools-navigation__submenu level-{{ level + 1 }}"{% if enhance %} id="{{ submenu_id }}" data-actools-submenu{% endif %}>
+        {% include '@actools_bs5/components/organisms/nav-menu/navigation-items.twig' with {
+          items: item.below, enhance: enhance, level: level + 1, prefix: submenu_id,
+        } only %}
+      </ul>
+    {% endif %}
+  </li>
+{% endfor %}

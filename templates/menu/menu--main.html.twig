@@ -1,28 +1,22 @@
-{#
-/**
- * Template for the main menu.
- *
- * Wraps the menu in a Bootstrap 5.3 navbar so the hamburger + collapse
- * behavior is handled by stock BS classes on tablet/mobile (< lg), while
- * items render inline from the lg breakpoint up. The footer neutralizes
- * the toggler/collapse via CSS so the same template works in both regions.
- */
-#}
-{% set collapse_id = 'main-menu-collapse'|clean_unique_id %}
-<nav class="navbar navbar-expand-lg w-100 p-0">
-  <button class="navbar-toggler ms-auto" type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#{{ collapse_id }}"
-          aria-controls="{{ collapse_id }}"
-          aria-expanded="false"
-          aria-label="{{ 'Toggle navigation'|t }}">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div id="{{ collapse_id }}" class="collapse navbar-collapse">
-    {% include 'actools_bs5:nav-menu' with {
-      nav_menu_utility_classes: [
-        'navbar-nav',
-      ],
-    } %}
-  </div>
-</nav>
+{# The surrounding native menu block supplies the named navigation landmark. #}
+{% set is_header = actools_navigation_header|default(false) %}
+{% set instance = actools_navigation_instance|default('main-navigation'|clean_unique_id) %}
+{% set panel_id = instance ~ '-panel' %}
+{% if is_header %}{{ attach_library('actools_bs5/navigation') }}{% endif %}
+<div class="actools-primary-navigation{{ is_header ? '' : ' actools-static-navigation' }}"
+     data-actools-navigation data-actools-nav-region="{{ actools_navigation_region|default('content') }}">
+  {% if is_header %}
+    {# No-JS lists are visible. Buttons appear after successful enhancement. #}
+    <button class="actools-navigation__toggle" type="button" hidden
+            data-actools-nav-toggle aria-controls="{{ panel_id }}" aria-expanded="true">
+      <span class="actools-navigation__toggle-icon" aria-hidden="true"></span>
+      <span>{{ 'Menu'|t }}</span>
+    </button>
+    <div id="{{ panel_id }}" class="actools-navigation__panel" data-actools-nav-panel>
+  {% endif %}
+  {% include 'actools_bs5:nav-menu' with {
+    actools_navigation_enhance: is_header,
+    actools_navigation_instance: instance,
+  } %}
+  {% if is_header %}</div>{% endif %}
+</div>

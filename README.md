@@ -12,7 +12,7 @@ require Node or a build step.
 - Drupal constraint: `^11.3` (includes Drupal 11.4; excludes Drupal 12).
 - PHP: follow the requirements of the installed Drupal core release (8.3+ for
   the targeted Drupal 11 releases).
-- 99 Single Directory Components, 75 standard Drupal Twig overrides and six
+- 99 Single Directory Components, 78 standard Drupal Twig overrides and six
   registered Layout Discovery sections.
 - English/LTR styling. Complete RTL styling is not supplied or certified.
 
@@ -24,13 +24,15 @@ Topic layouts, with optional figure captions and resource kind/level labels.
 Theme installation alone does not apply it or create content
 types. Use a test site before adopting this new feature on BOA.
 
+**Header and navigation setup:** [HEADER_NAVIGATION.md](docs/HEADER_NAVIGATION.md)
+
 **GitHub/Composer installation:** see [INSTALL.md](INSTALL.md) for the package
 repository, exact-lock/commit workflow and BOA platform instructions. The theme
 code is at this repository's root. Main is a test candidate with no tagged
 release yet; the source version 5.0.0-beta1 is inherited from the supplied fork.
 
 CI runs Composer validation, PHP syntax checks on 8.3/8.4, the static asset/YAML/JS
-audit, three layout source regressions and nine CSS publication-guard tests.
+audit, three layout source regressions and eleven CSS publication-guard tests.
 The separate **Drupal runtime and browser tests** workflow builds disposable
 Drupal 11.4.10 projects on PHP 8.3/8.4 for Kernel/Functional coverage. Its Chromium
 job checks large and small content diagrams at four viewport widths using the
@@ -169,11 +171,15 @@ npm run build
 npm run check:css
 ```
 
-Builds stage ten base/layout/theme CSS files under `.build/css/`. They never
+Full builds stage eleven base/layout/theme CSS files under `.build/css/`. They never
 silently overwrite `css/`. A report in `.build/css-build-report.json` records
 hashes and selector differences. A build/check exits nonzero if selectors would
 be lost. This is expected for the inherited source drift until the pipeline is
 fully reconciled.
+
+For the maintained header/navigation entries, use the scoped build and publish
+commands in [TESTING.md](TESTING.md#headernavigation-and-discovery-acceptance).
+These leave the inherited Bootstrap and RTL bundles intact.
 
 After reviewing staged output and testing its appearance, publish explicitly:
 

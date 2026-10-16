@@ -73,6 +73,73 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  navigation-ui:
+    name: Native navigation in Chromium (core ${{ matrix.admin_interface }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        admin_interface: ['toolbar', 'navigation']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea # v2
+        with:
+          php-version: '8.4'
+          extensions: sqlite3, pdo_sqlite, gd, mbstring, xml, curl
+          ini-values: memory_limit=-1
+          coverage: none
+          tools: composer:v2
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Install isolated Drupal and navigation browser tooling
+        run: |
+          composer create-project drupal/recommended-project:11.4.10 "$RUNNER_TEMP/actools-navigation-drupal" --no-interaction --no-install
+          cd "$RUNNER_TEMP/actools-navigation-drupal"
+          composer require drush/drush:13.8.0 --update-no-dev --no-interaction --prefer-dist
+          mkdir -p web/themes/custom/actools_bs5 "$RUNNER_TEMP/actools-navigation-results"
+          git -C "$GITHUB_WORKSPACE" archive HEAD | tar -x -C web/themes/custom/actools_bs5
+          npm install --prefix "$RUNNER_TEMP/actools-navigation-browser-tools" --no-save --package-lock=false @playwright/test@1.64.1
+          "$RUNNER_TEMP/actools-navigation-browser-tools/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Exercise real menus, sticky offsets and resource discovery
+        env:
+          ACTOOLS_NAV_UI_FIXTURE: '1'
+          ACTOOLS_NAV_ADMIN_INTERFACE: ${{ matrix.admin_interface }}
+          ACTOOLS_NAV_BASE_URL: http://127.0.0.1:8891
+          ACTOOLS_NAV_FIXTURE: ${{ runner.temp }}/actools-navigation-results/fixture.json
+          ACTOOLS_NAV_BROWSER_OUTPUT: ${{ runner.temp }}/actools-navigation-results/browser
+          ACTOOLS_NAV_PROJECT: ${{ runner.temp }}/actools-navigation-drupal
+          ACTOOLS_NAV_DRUSH: ${{ runner.temp }}/actools-navigation-drupal/vendor/bin/drush
+        run: |
+          export ACTOOLS_NAV_EDITOR_PASSWORD="$(openssl rand -hex 24)"
+          export NODE_PATH="$RUNNER_TEMP/actools-navigation-browser-tools/node_modules"
+          cd "$ACTOOLS_NAV_PROJECT"
+          vendor/bin/drush site:install minimal --yes --db-url="sqlite://localhost/$RUNNER_TEMP/actools-navigation-drupal/site.sqlite" --account-name="actools-disposable-administrator" --account-pass="$(openssl rand -hex 24)" --site-name="Actools disposable navigation test"
+          vendor/bin/drush --uri="$ACTOOLS_NAV_BASE_URL" recipe "$ACTOOLS_NAV_PROJECT/web/themes/custom/actools_bs5/recipes/actools_topic_starter"
+          vendor/bin/drush --uri="$ACTOOLS_NAV_BASE_URL" recipe "$ACTOOLS_NAV_PROJECT/web/themes/custom/actools_bs5/recipes/actools_resource_discovery"
+          vendor/bin/drush --uri="$ACTOOLS_NAV_BASE_URL" php:script "$GITHUB_WORKSPACE/tests/browser/navigation-ui/seed-navigation-site.php"
+          vendor/bin/drush --uri="$ACTOOLS_NAV_BASE_URL" cache:rebuild
+          cd web
+          php -S 127.0.0.1:8891 .ht.router.php > "$RUNNER_TEMP/actools-navigation-results/php-server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --output /dev/null "$ACTOOLS_NAV_BASE_URL/user/login"; then break; fi
+            sleep 1
+          done
+          curl --fail --silent --output /dev/null "$ACTOOLS_NAV_BASE_URL/user/login"
+          cd "$GITHUB_WORKSPACE"
+          "$RUNNER_TEMP/actools-navigation-browser-tools/node_modules/.bin/playwright" test --config tests/browser/navigation-ui/playwright.config.cjs
+      - name: Keep native navigation browser evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: native-navigation-${{ matrix.admin_interface }}
+          path: ${{ runner.temp }}/actools-navigation-results
+          if-no-files-found: ignore
+          retention-days: 7
+
   content-media:
     name: Content diagrams in Chromium
     runs-on: ubuntu-24.04

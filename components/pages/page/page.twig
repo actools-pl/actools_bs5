@@ -56,13 +56,9 @@
 
   {% if page.header %}
     <header role="banner">
-      {% if container_header and container_header != 'no-container' %}
-        <div class="{{ container_header }}">
-      {% endif %}
-      {{ page.header }}
-      {% if container_header and container_header != 'no-container' %}
-        </div>
-      {% endif %}
+      <div class="actools-site-header__inner{% if container_header and container_header != 'no-container' %} {{ container_header }}{% endif %}">
+        {{ page.header }}
+      </div>
     </header>
   {% endif %}
 
