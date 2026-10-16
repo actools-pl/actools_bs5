@@ -1,0 +1,7 @@
+name: Actools resource discovery
+description: Optional published-resource finder using core Views and native Resource cards. Apply the Actools topic starter first.
+type: Site feature
+install:
+  - views
+config:
+  strict: true

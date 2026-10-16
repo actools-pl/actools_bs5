@@ -18,6 +18,21 @@ use Drupal\Core\File\FileExists;
  */
 function actools_bs5_preprocess_block(array &$variables) {
   $content = &$variables['content'];
+  if (($variables['base_plugin_id'] ?? NULL) === 'system_menu_block' && is_array($content)) {
+    // Menu markup is also rendered in footers and can be render-cached. Carry
+    // its actual placement, without rewriting already rendered HTML in JS.
+    $block_id = $variables['elements']['#id'] ?? '';
+    $placement = $block_id ? \Drupal\block\Entity\Block::load($block_id) : NULL;
+    $region = $placement ? $placement->getRegion() : 'content';
+    $instance = $block_id ?: (string) ($variables['attributes']['id'] ?? \Drupal\Component\Utility\Html::getUniqueId('menu-block'));
+    $content['#attributes']['data-actools-menu-region'] = $region;
+    $content['#attributes']['data-actools-menu-instance'] = $instance;
+    // Contributed menu builders may add inner render-cache keys. They must
+    // not reuse another placement's IDs or header disclosure controls.
+    if (!empty($content['#cache']['keys'])) {
+      $content['#cache']['keys'] = array_merge($content['#cache']['keys'], ['actools_navigation', $instance, $region]);
+    }
+  }
   $block = $content['#block_content'] ?? NULL;
   if (!$block instanceof \Drupal\block_content\BlockContentInterface
     || !in_array($block->bundle(), ['actools_text_image', 'actools_resource_cards'], TRUE)) {
@@ -171,6 +186,29 @@ function actools_bs5_preprocess_file_link(array &$variables): void {
 function actools_bs5_preprocess_menu(&$variables, $hook, $info) {
   // Checks the nested level of a menu.
   actools_bs5_process_menu_level($variables['items']);
+  $attributes = $variables['attributes'];
+  $instance = isset($attributes['data-actools-menu-instance']) ? (string) $attributes['data-actools-menu-instance'] : \Drupal\Component\Utility\Html::getUniqueId('menu-' . ($variables['menu_name'] ?? 'navigation'));
+  $variables['actools_navigation_region'] = isset($attributes['data-actools-menu-region']) ? (string) $attributes['data-actools-menu-region'] : 'content';
+  $variables['actools_navigation_instance'] = 'actools-navigation-' . substr(hash('sha256', $instance . ':' . ($variables['menu_name'] ?? '')), 0, 16);
+  $variables['actools_navigation_header'] = ($variables['menu_name'] ?? '') === 'main' && $variables['actools_navigation_region'] === 'header';
+  $attributes->removeAttribute('data-actools-menu-region')->removeAttribute('data-actools-menu-instance');
+  actools_bs5_prepare_navigation_items($variables['items'], $variables['actools_navigation_instance']);
+}
+
+/**
+ * Adds presentation identities without replacing core menu links or access.
+ */
+function actools_bs5_prepare_navigation_items(array &$items, string $instance, array $parents = []): void {
+  foreach ($items as $key => &$item) {
+    $path = array_merge($parents, [(string) $key]);
+    $item['actools_submenu_id'] = $instance . '-branch-' . substr(hash('sha256', serialize($path)), 0, 12);
+    $url = $item['url'] ?? NULL;
+    $item['actools_is_button'] = $url instanceof \Drupal\Core\Url && $url->isRouted() && $url->getRouteName() === '<button>';
+    if (!empty($item['below'])) {
+      actools_bs5_prepare_navigation_items($item['below'], $instance, $path);
+    }
+  }
+  unset($item);
 }
 
 /**

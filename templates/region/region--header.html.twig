@@ -1,0 +1,6 @@
+{# Keep native blocks and their render metadata inside the actual header layout. #}
+{% if content %}
+  <div{{ attributes.addClass('actools-site-header__row') }}>
+    {{ content }}
+  </div>
+{% endif %}

@@ -1,0 +1,7 @@
+name: Actools discovery access fixtures
+type: module
+description: Test-only per-reader node grants for the Resource finder.
+package: Testing
+core_version_requirement: ^11.3
+dependencies:
+  - drupal:node

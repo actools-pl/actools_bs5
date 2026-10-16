@@ -14,7 +14,8 @@
     image_path: site_logo,
     height: 'auto',
     path: path('<front>'),
-    alt: elements.content.site_name['#markup'] ~ ' logo' ,
+    alt: 'Home'|t,
+    attributes: create_attribute({rel: 'home'}),
   } %}
 	{% endblock %}
 

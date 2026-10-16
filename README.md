@@ -12,13 +12,15 @@ require Node or a build step.
 - Drupal constraint: `^11.3` (includes Drupal 11.4; excludes Drupal 12).
 - PHP: follow the requirements of the installed Drupal core release (8.3+ for
   the targeted Drupal 11 releases).
-- 99 Single Directory Components, 75 standard Drupal Twig overrides and six
+- 99 Single Directory Components, 78 standard Drupal Twig overrides and six
   registered Layout Discovery sections.
 - English/LTR styling. Complete RTL styling is not supplied or certified.
 
 ## Install or update
 
 **Optional editable Topic pages:** [PAGE_BUILDING.md](docs/PAGE_BUILDING.md)
+
+**Header and navigation setup:** [HEADER_NAVIGATION.md](docs/HEADER_NAVIGATION.md)
 describes the separate recipe for resource cards, text/image blocks, and shared
 Topic layouts, with optional figure captions and resource kind/level labels.
 Theme installation alone does not apply it or create content

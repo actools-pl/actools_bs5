@@ -69,7 +69,7 @@ async function fixture(t) {
   const entries = [
     'base/bootstrap.base', 'base/tokens.base', 'base/actools.base', 'base/ckeditor5.bootstrap.base',
     'layout/edge2edge.layout', 'layout/equal-height.layout', 'layout/print.layout', 'layout/builder.layout',
-    'theme/content-moderation.theme', 'theme/sticky-header.theme',
+    'theme/content-moderation.theme', 'theme/sticky-header.theme', 'theme/navigation.theme',
   ];
   for (const name of entries) {
     await writeFile(path.join(directory, 'css', `${name}.css`), '.kept{color:red}.removed{display:block}\n');
@@ -117,4 +117,26 @@ test('publishing rejects stale candidates after source edits', async t => {
   const result = run('publish', '--allow-selector-removal');
   assert.equal(result.status, 1);
   assert.match(result.stderr, /sources or dependency definitions changed/);
+});
+
+
+test('scoped publishing preserves every unselected shipped bundle', async t => {
+  const {directory, run} = await fixture(t);
+  const original = await readFile(path.join(directory, 'css/base/bootstrap.base.css'), 'utf8');
+  const result = run('publish', '--entry=theme/navigation.theme', '--allow-selector-removal');
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(await readFile(path.join(directory, 'css/theme/navigation.theme.css'), 'utf8'), '.kept{color:blue}\n');
+  assert.equal(await readFile(path.join(directory, 'css/base/bootstrap.base.css'), 'utf8'), original);
+  const report = JSON.parse(await readFile(path.join(directory, '.build/css-build-report.json'), 'utf8'));
+  assert.deepEqual(report.files.map(file => file.file), ['theme/navigation.theme.css']);
+});
+
+test('scoped publishing still blocks removals and rejects unknown entry paths', async t => {
+  const {directory, run} = await fixture(t);
+  assert.equal(run('publish', '--entry=theme/navigation.theme').status, 1);
+  const original = await readFile(path.join(directory, 'css/theme/navigation.theme.css'), 'utf8');
+  const result = run('publish', '--entry=../../outside', '--allow-selector-removal');
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Usage:/);
+  assert.equal(await readFile(path.join(directory, 'css/theme/navigation.theme.css'), 'utf8'), original);
 });
