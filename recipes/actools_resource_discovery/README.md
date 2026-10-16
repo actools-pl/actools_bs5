@@ -11,6 +11,10 @@ it provides no relevance ranking. No search index, cron indexing, Search API or
 external search service is required. Empty metadata is allowed and remains
 discoverable when its filter is set to Any.
 
+Text uses core Views' database contains matching. Case and punctuation matching
+follow the site's database; wildcard-like punctuation is not portable search
+syntax across databases.
+
 The View uses native core field handlers and a Rendered entity field with the
 existing Resource card view mode. Results have a heading above the cards, a
 responsive grid, 12 items per page and stable title/node-ID ordering. Core node

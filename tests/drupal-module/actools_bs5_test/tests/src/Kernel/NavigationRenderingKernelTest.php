@@ -62,7 +62,8 @@ final class NavigationRenderingKernelTest extends KernelTestBase {
     $this->assertSame($original_options, $items['parent']['url']->getOptions(), 'Rendering does not mutate the source Url.');
     $this->assertSame(1, $xpath->query('//li[@data-item="preserved" and contains(@class, "configured-item") and contains(@class, "is-active-trail")]')->length);
     $this->assertSame(1, $xpath->query('//button[@aria-label="Toggle Topics landing page submenu"]')->length);
-    $this->assertSame(1, $xpath->query('//a[text()="Grandchild resource"]')->length);
+    $this->assertSame(1, $xpath->query('//li[@data-item="preserved"]/ul/li/ul/li/div/a[text()="Grandchild resource"]')->length, 'The third menu level remains reachable below its original parent.');
+    $this->assertSame(3, $xpath->query('//a[text()="Grandchild resource"]')->length, 'The resource appears under the linked, non-link and button parents in this fixture.');
     $this->assertSame(1, $xpath->query('//span[text()="Non-link group"]')->length);
     $this->assertSame(0, $xpath->query('//a[text()="Non-link group"]')->length);
     $this->assertSame(1, $xpath->query('//button[normalize-space(.)="Button group" and @data-actools-submenu-toggle]')->length);
@@ -114,7 +115,8 @@ final class NavigationRenderingKernelTest extends KernelTestBase {
       $this->assertSame(1, $xpath->query('//nav[@aria-label="Footer navigation"]')->length);
       $this->assertSame(2, $xpath->query('//*[@data-actools-nav-toggle]')->length);
       $this->assertSame(0, $xpath->query('//nav[@aria-label="Footer navigation"]//*[@data-actools-submenu-toggle or @data-actools-nav-toggle or @data-actools-nav-panel]')->length);
-      $this->assertSame(1, $xpath->query('//nav[@aria-label="Footer navigation"]//a[text()="Grandchild resource"]')->length);
+      $this->assertSame(3, $xpath->query('//nav[@aria-label="Footer navigation"]//a[text()="Grandchild resource"]')->length);
+      $this->assertSame(1, $xpath->query('//nav[@aria-label="Footer navigation"]//li[@data-item="preserved"]/ul/li/ul/li/div/a[text()="Grandchild resource"]')->length, 'The footer retains all three levels without disclosure controls.');
       $ids = [];
       foreach ($xpath->query('//*[@id]') as $element) {
         $id = $element->getAttribute('id');

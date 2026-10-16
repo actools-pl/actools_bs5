@@ -39,8 +39,20 @@ test.afterEach(async ({ page }, testInfo) => {
 });
 
 async function visit(page, url) {
+  const previous = new URL(page.url());
   const response = await page.goto(url);
-  expect(response?.status(), `Drupal page ${url}`).toBe(200);
+  if (response) expect(response.status(), `Drupal page ${url}`).toBe(200);
+  else {
+    // Playwright has no HTTP response for a native same-document hash jump.
+    // Accept that case only: different paths, queries and origins still fail.
+    const current = new URL(page.url());
+    expect(current.href).toBe(new URL(url, previous.href).href);
+    expect(current.protocol).toBe('http:');
+    expect(current.origin).toBe(previous.origin);
+    expect(current.pathname).toBe(previous.pathname);
+    expect(current.search).toBe(previous.search);
+    expect(current.hash).not.toBe('');
+  }
   return response;
 }
 async function openMenu(page) {
@@ -228,7 +240,7 @@ test('installed core admin interface stays above the header and Layout Builder d
   for (const width of [390, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await visit(page, fixture.currentTopicPath);
-    if (fixture.adminInterface === 'toolbar') await expect(page.locator('#toolbar-administration')).toBeVisible();
+    if (fixture.adminInterface === 'toolbar') await expect(page.locator('#toolbar-administration .toolbar-bar')).toBeVisible();
     else await expect(page.locator('#admin-toolbar')).toHaveCount(1);
     await page.evaluate(() => window.scrollTo(0, 600));
     await expect.poll(() => header(page).evaluate(element => element.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
@@ -246,6 +258,7 @@ test('installed core admin interface stays above the header and Layout Builder d
   await page.setViewportSize({ width: 1440, height: 900 });
   if (fixture.adminInterface === 'toolbar') {
     await visit(page, fixture.currentTopicPath);
+    await page.evaluate(() => window.scrollTo(0, 600));
     const manage = page.locator('#toolbar-item-administration');
     await expect(manage).toBeVisible();
     if (await manage.getAttribute('aria-pressed') !== 'true') await manage.click();
@@ -254,6 +267,8 @@ test('installed core admin interface stays above the header and Layout Builder d
     }
     await expect(page.locator('body')).toHaveClass(/\btoolbar-horizontal\b/);
     await expect(manage).toHaveAttribute('aria-pressed', 'true');
+    const trayBottom = await page.locator('.toolbar-tray.is-active').evaluate(element => element.getBoundingClientRect().bottom);
+    await expect.poll(() => header(page).evaluate(element => element.getBoundingClientRect().top)).toBeGreaterThanOrEqual(trayBottom - 1);
     const expandedTop = await header(page).evaluate(element => element.getBoundingClientRect().top);
     await manage.click();
     await expect(manage).toHaveAttribute('aria-pressed', 'false');

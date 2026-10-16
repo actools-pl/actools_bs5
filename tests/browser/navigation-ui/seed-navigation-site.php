@@ -114,11 +114,11 @@ $add_link('Restricted teaching draft', 'entity:node/' . $resource_fixtures['Rest
 $add_link('Resources', 'internal:/resources', 1);
 $support = $add_link('Study support', 'route:<nolink>', 2);
 $add_link('A practical guide to reading diagrams and checking long worked solutions', 'entity:node/' . $resource_fixtures['Surface tension concept notes']['id'], 0, $support);
-$add_link('Jump to worked examples', 'entity:node/' . $topic->id(), 1, $support, [
+$add_link('Jump to worked examples', 'entity:node/' . $resource_fixtures['Surface tension concept notes']['id'], 1, $support, [
   'query' => ['ref' => 'navigation'], 'fragment' => 'worked-examples',
   'attributes' => ['data-publisher-link' => 'preserved', 'title' => 'Read the worked examples', 'rel' => ['help'], 'class' => ['fixture-native-url']],
 ]);
-$add_link('Continue to practice assignments', 'entity:node/' . $topic->id(), 2, $support, ['fragment' => 'practice-assignments']);
+$add_link('Continue to practice assignments', 'route:<current>', 2, $support, ['fragment' => 'practice-assignments']);
 
 foreach (Block::loadMultiple() as $block) {
   if ($block->getTheme() === 'actools_bs5') {
@@ -126,7 +126,7 @@ foreach (Block::loadMultiple() as $block) {
   }
 }
 $placements = [
-  ['branding', 'header', 'system_branding_block', -20, ['use_site_logo' => TRUE, 'use_site_name' => TRUE, 'use_site_slogan' => FALSE]],
+  ['branding', 'header', 'system_branding_block', -20, ['use_site_logo' => FALSE, 'use_site_name' => TRUE, 'use_site_slogan' => FALSE]],
   ['header_menu', 'header', 'system_menu_block:main', 0, ['label' => 'Primary navigation', 'level' => 1, 'depth' => 0, 'expand_all_items' => TRUE]],
   ['messages', 'content', 'system_messages_block', -30, []],
   ['tasks', 'content', 'local_tasks_block', -20, []],

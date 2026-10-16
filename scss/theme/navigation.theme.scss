@@ -205,7 +205,10 @@
     max-block-size: var(--actools-nav-panel-max-height, calc(100dvh - 5rem));
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding-block: 0.25rem;
+    // Keep the full focus outline inside the scrolling panel, while links
+    // retain the same visible alignment as the branding/content container.
+    padding: 0.3125rem;
+    margin-inline: -0.3125rem;
   }
 
   .actools-navigation__item-row > .actools-navigation__link {
@@ -243,7 +246,8 @@
     [data-actools-nav-enhanced] .actools-navigation__panel {
       max-block-size: none;
       overflow: visible;
-      padding-block: 0;
+      padding: 0;
+      margin-inline: 0;
     }
 
     .actools-navigation__list > li {
