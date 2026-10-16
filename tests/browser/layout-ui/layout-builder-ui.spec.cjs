@@ -65,12 +65,21 @@ async function openInlineBlock(page, label) {
 }
 
 async function contextualAction(page, block, label) {
-  await expect(block.locator('.contextual .trigger')).toHaveCount(1);
+  const trigger = block.locator('.contextual .trigger');
+  await expect(trigger).toHaveCount(1);
   // Core contextual triggers become visible on keyboard focus. Focusing is a
   // real editor interaction and does not remove classes or force-click links.
-  await block.locator('.contextual .trigger').focus();
-  await block.locator('.contextual .trigger').press('Enter');
-  await clickAjaxLink(block.getByRole('link', { name: label, exact: true }));
+  await trigger.focus();
+  await trigger.press('Enter');
+  await expect(trigger).toHaveAttribute('aria-pressed', 'true');
+  const action = block.getByRole('link', { name: label, exact: true });
+  await expect(action).toBeVisible();
+  await expect(action).toHaveAttribute('data-once', /\bajax\b/);
+  // Stay on the keyboard after opening the contextual menu. A synthetic
+  // pointer jump from its old off-canvas position can cross another region
+  // and legitimately close this menu via core's mouseleave handler.
+  await action.focus();
+  await action.press('Enter');
   await expect(page.locator('#drupal-off-canvas')).toBeVisible();
   return page.locator('#drupal-off-canvas');
 }
