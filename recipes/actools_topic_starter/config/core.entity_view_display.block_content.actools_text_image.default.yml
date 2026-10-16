@@ -1,0 +1,57 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - block_content.type.actools_text_image
+  - field.field.block_content.actools_text_image.field_actools_body
+  - field.field.block_content.actools_text_image.field_actools_caption
+  - field.field.block_content.actools_text_image.field_actools_heading
+  - field.field.block_content.actools_text_image.field_actools_image
+  - field.field.block_content.actools_text_image.field_actools_position
+  - responsive_image.styles.actools_diagram
+  module:
+  - file
+  - responsive_image
+  - options
+  - text
+id: block_content.actools_text_image.default
+targetEntityType: block_content
+bundle: actools_text_image
+mode: default
+content:
+  field_actools_heading:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {}
+    weight: 0
+    region: content
+  field_actools_body:
+    type: text_default
+    label: hidden
+    settings: {}
+    third_party_settings: {}
+    weight: 1
+    region: content
+  field_actools_image:
+    type: responsive_image
+    label: hidden
+    settings:
+      image_link: file
+      responsive_image_style: actools_diagram
+      image_loading:
+        attribute: lazy
+    third_party_settings: {}
+    weight: 2
+    region: content
+  field_actools_caption:
+    type: basic_string
+    label: hidden
+    settings: {}
+    third_party_settings: {}
+    weight: 3
+    region: content
+hidden:
+  langcode: true
+  field_actools_position: true

@@ -1,0 +1,34 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - block_content.type.actools_resource_cards
+  - core.entity_view_mode.node.actools_resource_card
+  - field.field.block_content.actools_resource_cards.field_actools_heading
+  - field.field.block_content.actools_resource_cards.field_actools_resources
+  module:
+  - node
+id: block_content.actools_resource_cards.default
+targetEntityType: block_content
+bundle: actools_resource_cards
+mode: default
+content:
+  field_actools_heading:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {}
+    weight: 0
+    region: content
+  field_actools_resources:
+    type: entity_reference_entity_view
+    label: hidden
+    settings:
+      view_mode: actools_resource_card
+      link: false
+    third_party_settings: {}
+    weight: 1
+    region: content
+hidden:
+  langcode: true

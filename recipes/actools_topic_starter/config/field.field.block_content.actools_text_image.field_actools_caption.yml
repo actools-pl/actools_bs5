@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - block_content.type.actools_text_image
+  - field.storage.block_content.field_actools_caption
+id: block_content.actools_text_image.field_actools_caption
+field_name: field_actools_caption
+entity_type: block_content
+bundle: actools_text_image
+label: Image caption
+description: Optional plain-text explanation or image credit. Displayed below the image when an image is present.
+required: false
+translatable: true
+default_value: []
+default_value_callback: ''
+settings: {}
+field_type: string_long

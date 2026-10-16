@@ -1,0 +1,8 @@
+{# The field renderer runs access callbacks before this template is reached. #}
+{% if items %}
+  {% set heading_class = element['#bundle'] == 'actools_text_image'
+    ? 'actools-text-image__heading' : 'actools-resource-cards__heading' %}
+  <h2{{ attributes.addClass('field', 'field--name-field-actools-heading', 'field--type-' ~ field_type|clean_class, heading_class) }}>
+    {% for item in items %}<span{{ item.attributes.addClass('field__item') }}>{{ item.content }}</span>{% endfor %}
+  </h2>
+{% endif %}

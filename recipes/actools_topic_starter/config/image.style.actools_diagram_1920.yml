@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies:
+  module:
+  - image
+name: actools_diagram_1920
+label: Actools diagram (maximum width 1920px)
+effects:
+  a1999b59-77f5-53ef-9010-0d3c13fb9697:
+    uuid: a1999b59-77f5-53ef-9010-0d3c13fb9697
+    id: image_scale
+    weight: 0
+    data:
+      width: 1920
+      height: null
+      upscale: false

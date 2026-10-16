@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+  - node
+id: node.actools_resource_card
+label: Actools resource card
+description: Compact teaching resource with a title, optional image and summary.
+targetEntityType: node
+cache: true

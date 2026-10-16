@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="420" viewBox="0 0 620 420" role="img" aria-labelledby="title desc">
+  <title id="title">Capillary rise in a wetting liquid</title>
+  <desc id="desc">Water rises inside a narrow vertical tube. The concave meniscus is above the water surface in the reservoir by a height h. The tube has internal radius r.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#17344b"/></marker>
+  </defs>
+  <rect width="620" height="420" rx="10" fill="#fff"/>
+  <path d="M112 250H508V369H112Z" fill="#e9f2ff"/>
+  <path d="M289 114Q310 135 331 114V251H289Z" fill="#e9f2ff"/>
+  <path d="M112 220V370H508V220" fill="none" stroke="#17344b" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M112 250H285M335 250H508" fill="none" stroke="#4783c2" stroke-width="2.5"/>
+  <path d="M285 57V316M335 57V316" fill="none" stroke="#17344b" stroke-width="3.5"/>
+  <path d="M289 114Q310 135 331 114" fill="none" stroke="#1764b4" stroke-width="3"/>
+  <path d="M310 58V101M340 124H420M340 250H420" fill="none" stroke="#8b9ca9" stroke-width="1.5" stroke-dasharray="6 6"/>
+  <path d="M407 130V244" stroke="#17344b" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M311 85H329" stroke="#17344b" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <g fill="#17344b" font-family="Figtree,Arial,sans-serif" font-size="22">
+    <text x="425" y="194" font-style="italic">h</text>
+    <text x="313" y="74" font-style="italic">r</text>
+    <text x="150" y="327" font-size="21">Water</text>
+    <text x="366" y="72" font-size="18">Capillary tube</text>
+    <text x="125" y="234" font-size="17">Reservoir surface</text>
+  </g>
+</svg>

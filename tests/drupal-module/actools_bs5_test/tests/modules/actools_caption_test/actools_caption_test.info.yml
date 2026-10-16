@@ -1,0 +1,7 @@
+name: 'Actools caption access fixtures'
+type: module
+description: 'Test-only deferred access fixtures for image captions.'
+package: Testing
+core_version_requirement: ^11.3
+dependencies:
+  - drupal:block_content

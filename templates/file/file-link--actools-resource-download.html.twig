@@ -1,0 +1,9 @@
+{# Keep the core-created link render array: a nested deferred denial must also
+   suppress its associated metadata. The size is core's ByteSizeMarkup. #}
+{% set link_markup %}{{ link }}{% endset %}
+{% if link_markup|striptags|trim is not empty %}
+  <span{{ attributes.addClass('actools-resource-downloads__link') }}>{{ link_markup }}</span>
+  <span class="actools-resource-downloads__metadata">
+    <span class="actools-resource-downloads__type">{{ actools_download_type }}</span>{% if file_size %}<span class="actools-resource-downloads__separator" aria-hidden="true"> · </span><span class="actools-resource-downloads__size">{{ file_size }}</span>{% endif %}
+  </span>
+{% endif %}

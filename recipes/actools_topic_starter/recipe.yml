@@ -1,0 +1,22 @@
+name: Actools topic starter
+description: Optional teaching resource and topic content types, with native text/image
+  and resource-card blocks for Layout Builder.
+type: Site feature
+install:
+- block_content
+- node
+- text
+- filter
+- image
+- responsive_image
+- file
+- options
+- layout_builder
+- layout_discovery
+- actools_bs5
+config:
+  strict: true
+  actions:
+    core.entity_view_display.node.actools_topic.default:
+      # Use core's action so it creates/reuses its managed override field.
+      allowLayoutOverrides: true

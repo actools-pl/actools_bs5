@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies:
+  module:
+  - image
+name: actools_diagram_1440
+label: Actools diagram (maximum width 1440px)
+effects:
+  895e6589-4aed-571b-b317-5d157d0ef7ef:
+    uuid: 895e6589-4aed-571b-b317-5d157d0ef7ef
+    id: image_scale
+    weight: 0
+    data:
+      width: 1440
+      height: null
+      upscale: false

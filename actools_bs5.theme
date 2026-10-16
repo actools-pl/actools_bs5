@@ -10,6 +10,71 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\File\FileExists;
 
 /**
+ * Implements hook_preprocess_block().
+ *
+ * Maps only the hidden presentation control. Visible fields remain render
+ * arrays: core's renderer must run deferred access checks before their markup
+ * or attachments are allowed to appear.
+ */
+function actools_bs5_preprocess_block(array &$variables) {
+  $content = &$variables['content'];
+  $block = $content['#block_content'] ?? NULL;
+  if (!$block instanceof \Drupal\block_content\BlockContentInterface
+    || !in_array($block->bundle(), ['actools_text_image', 'actools_resource_cards'], TRUE)) {
+    return;
+  }
+
+  $variables['actools_position'] = 'right';
+  $variables['actools_has_image'] = FALSE;
+  $metadata = \Drupal\Core\Cache\CacheableMetadata::createFromRenderArray($content)
+    ->addCacheableDependency($block);
+  foreach (['field_actools_heading', 'field_actools_position', 'field_actools_image'] as $name) {
+    if (!$block->hasField($name)) {
+      continue;
+    }
+    $field = $block->get($name);
+    $access = $field->access('view', NULL, TRUE);
+    $metadata->addCacheableDependency($access);
+    $element = $content[$name] ?? NULL;
+    $element_allowed = TRUE;
+    if (is_array($element)) {
+      // Cacheability may bubble even for denied fields. Attachments may not:
+      // only the original element's normal rendering can authorise those.
+      $metadata = $metadata->merge(\Drupal\Core\Cache\CacheableMetadata::createFromRenderArray($element));
+      if (isset($element['#access'])) {
+        $element_access = $element['#access'];
+        if ($element_access instanceof \Drupal\Core\Access\AccessResultInterface) {
+          $metadata->addCacheableDependency($element_access);
+          $element_allowed = $element_access->isAllowed();
+        }
+        else {
+          $element_allowed = (bool) $element_access;
+        }
+      }
+    }
+    // Never extract a heading's raw value. The wrappers render the original
+    // field, preserving #access_callback, formatters and bubbled metadata.
+    if ($name === 'field_actools_heading' || !$access->isAllowed() || !$element_allowed) {
+      continue;
+    }
+    if ($name === 'field_actools_position') {
+      // Position is intentionally hidden in the recipe's view display. If an
+      // alter adds a deferred-access display element, do not consume its raw
+      // value before core has authorised it.
+      if (!is_array($element) || isset($element['#access']) || !isset($element['#access_callback'])) {
+        $variables['actools_position'] = $field->value === 'left' ? 'left' : 'right';
+      }
+    }
+    elseif (is_array($element)) {
+      // This chooses a layout only. The image element itself still renders
+      // normally, so any deferred callback controls its markup/attachments.
+      $variables['actools_has_image'] = !$field->isEmpty();
+    }
+  }
+  $metadata->applyTo($content);
+}
+
+/**
  * Implements hook_library_info_alter().
  */
 function actools_bs5_library_info_alter(array &$libraries, $module) {
@@ -56,6 +121,48 @@ function actools_bs5_preprocess_field(&$variables) {
     // Attach the library to the field.
     $variables['#attached']['library'][] = 'actools_bs5/ckeditor5-styles';
   }
+
+  // Keep the file formatter's original item, including its access callback,
+  // description, URL generation, attributes and file cache tags. Only this
+  // starter field opts into the additional file type/size presentation.
+  $element = $variables['element'];
+  if (($element['#entity_type'] ?? NULL) === 'node'
+    && ($element['#bundle'] ?? NULL) === 'actools_resource'
+    && ($element['#field_name'] ?? NULL) === 'field_actools_download') {
+    foreach ($variables['items'] as &$item) {
+      if (is_array($item['content']) && ($item['content']['#theme'] ?? NULL) === 'file_link') {
+        $item['content']['#theme'] = 'file_link__actools_resource_download';
+      }
+    }
+    unset($item);
+  }
+}
+
+/**
+ * Implements hook_preprocess_file_link().
+ */
+function actools_bs5_preprocess_file_link(array &$variables): void {
+  if (($variables['theme_hook_original'] ?? NULL) !== 'file_link__actools_resource_download'
+    || !$variables['file'] instanceof \Drupal\file\FileInterface) {
+    return;
+  }
+  // Core has already checked the original formatter item's access before
+  // reaching this hook. Its FileThemeHooks supplies the original link and a
+  // translated ByteSizeMarkup file_size; neither is rebuilt from raw strings.
+  $file = $variables['file'];
+  $variables['actools_download_type'] = match ($file->getMimeType()) {
+    'application/pdf' => 'PDF',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'DOCX',
+    default => t('File'),
+  };
+  if (trim((string) ($variables['description'] ?? '')) === '') {
+    // Keep the core-created URL, access callback and link attributes. Only its
+    // empty-description label gets a useful translated fallback.
+    $variables['link']['#title'] = t('Download @type', ['@type' => $variables['actools_download_type']]);
+  }
+  \Drupal\Core\Cache\CacheableMetadata::createFromRenderArray($variables)
+    ->addCacheableDependency($file)
+    ->applyTo($variables);
 }
 
 /**

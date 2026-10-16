@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies:
+  module:
+  - image
+name: actools_diagram_480
+label: Actools diagram (maximum width 480px)
+effects:
+  586f6ff6-c0b2-51f0-a703-4ad68a98733e:
+    uuid: 586f6ff6-c0b2-51f0-a703-4ad68a98733e
+    id: image_scale
+    weight: 0
+    data:
+      width: 480
+      height: null
+      upscale: false

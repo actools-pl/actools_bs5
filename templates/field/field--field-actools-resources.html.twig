@@ -1,0 +1,18 @@
+{# Shared by the Topic and resource-cards bundles; entities remain render arrays. #}
+{{ attach_library('actools_bs5/resource-card-grid') }}
+{% set classes = [
+  'field',
+  'field--name-field-actools-resources',
+  'field--type-' ~ field_type|clean_class,
+  'field--label-' ~ label_display,
+] %}
+<div{{ attributes.addClass(classes) }}>
+  {% if not label_hidden %}
+    <h2{{ title_attributes.addClass('field__label', 'actools-resource-cards__heading', label_display == 'visually_hidden' ? 'visually-hidden') }}>{{ label }}</h2>
+  {% endif %}
+  <ul class="actools-resource-cards__items">
+    {% for item in items %}
+      <li{{ item.attributes.addClass('field__item', 'actools-resource-cards__item') }}>{{ item.content }}</li>
+    {% endfor %}
+  </ul>
+</div>

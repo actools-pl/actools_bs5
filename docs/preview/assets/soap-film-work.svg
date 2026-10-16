@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="420" viewBox="0 0 620 420" role="img" aria-labelledby="title desc">
+  <title id="title">Work done in stretching a soap film</title>
+  <desc id="desc">A soap film fills a rectangular wire frame. A movable wire of length l is pulled to the right by force F through a distance delta x. The film has two free surfaces.</desc>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#17344b"/></marker></defs>
+  <rect width="620" height="420" rx="10" fill="#fff"/>
+  <rect x="145" y="106" width="285" height="198" fill="#edf4ff"/>
+  <rect x="350" y="106" width="80" height="198" fill="#d9e8ff"/>
+  <path d="M455 103H142V307H455" fill="none" stroke="#17344b" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M430 87V323" stroke="#17344b" stroke-width="6" stroke-linecap="round"/>
+  <path d="M350 105V306" stroke="#7a95b1" stroke-width="1.5" stroke-dasharray="6 6"/>
+  <path d="M437 205H534" stroke="#0d6efd" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M109 111V299" stroke="#17344b" stroke-width="1.8" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M356 348H424" stroke="#17344b" stroke-width="1.8" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <g fill="#17344b" font-family="Figtree,Arial,sans-serif" font-size="22">
+    <text x="486" y="185" font-style="italic">F</text>
+    <text x="89" y="213" font-style="italic">l</text>
+    <text x="377" y="382">Δx</text>
+    <text x="194" y="214" font-size="20">Soap film</text>
+    <text x="185" y="244" font-size="17">Two free surfaces</text>
+  </g>
+</svg>

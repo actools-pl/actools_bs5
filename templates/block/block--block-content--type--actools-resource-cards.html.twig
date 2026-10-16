@@ -1,0 +1,10 @@
+{# A fielded custom block; its reference formatter renders accessible resource nodes. #}
+<div{{ attributes.addClass('block', 'block-block-content', 'actools-resource-cards') }}>
+  {{ title_prefix }}
+  {{ content.field_actools_heading }}
+  {{ title_suffix }}
+  <div{{ content_attributes }}>
+    {{ content.field_actools_resources }}
+    {{ content|without('field_actools_heading', 'field_actools_resources') }}
+  </div>
+</div>

@@ -1,0 +1,6 @@
+{# Core authorises this field and escapes the plain-string formatter's items. #}
+{% if items %}
+  <figcaption{{ attributes.addClass('field', 'field--name-field-actools-caption', 'actools-text-image__caption') }}>
+    {% for item in items %}<span{{ item.attributes.addClass('field__item') }}>{{ item.content }}</span>{% endfor %}
+  </figcaption>
+{% endif %}

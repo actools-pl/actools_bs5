@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - block_content.type.actools_resource_cards
+  - field.storage.block_content.field_actools_heading
+id: block_content.actools_resource_cards.field_actools_heading
+field_name: field_actools_heading
+entity_type: block_content
+bundle: actools_resource_cards
+label: Heading
+description: ''
+required: true
+translatable: true
+default_value: []
+default_value_callback: ''
+settings: {}
+field_type: string

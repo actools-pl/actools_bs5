@@ -1,0 +1,17 @@
+{# Render each original formatter item before adding field wrappers. Drupal
+   still evaluates item access and bubbles its cache metadata, including a
+   denied AccessResult. An empty item must not leave a div which makes the
+   text/image component display a figure and orphaned caption. #}
+{% set rendered_items = [] %}
+{% for item in items %}
+  {% set item_markup %}{{ item.content }}{% endset %}
+  {% if item_markup|trim is not empty %}
+    {% set rendered_items = rendered_items|merge([{
+      attributes: item.attributes,
+      content: item_markup,
+    }]) %}
+  {% endif %}
+{% endfor %}
+{% if rendered_items %}
+  {% include '@actools_bs5/components/atoms/field/field.twig' with {items: rendered_items} %}
+{% endif %}

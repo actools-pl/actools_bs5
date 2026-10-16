@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies:
+  module:
+  - image
+name: actools_diagram_960
+label: Actools diagram (maximum width 960px)
+effects:
+  998aa23c-e627-5197-aff3-eff66aa95dcb:
+    uuid: 998aa23c-e627-5197-aff3-eff66aa95dcb
+    id: image_scale
+    weight: 0
+    data:
+      width: 960
+      height: null
+      upscale: false
