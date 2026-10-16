@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\actools_bs5_test\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
 use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests token stylesheet attachment and file output on rendered pages.
  *
- * @group actools_bs5
  */
+#[Group('actools_bs5')]
+#[RunTestsInSeparateProcesses]
 final class TokenStylesheetFunctionalTest extends BrowserTestBase {
+
+  use FunctionalResponseDiagnosticsTrait;
 
   /**
    * {@inheritdoc}
@@ -32,6 +38,7 @@ final class TokenStylesheetFunctionalTest extends BrowserTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
+    $this->config('system.logging')->set('error_level', 'verbose')->save();
     $this->container->get('theme_installer')->install(['actools_bs5']);
     $this->config('system.theme')->set('default', 'actools_bs5')->save();
     $this->drupalPlaceBlock('system_main_block', ['region' => 'content']);
@@ -43,7 +50,7 @@ final class TokenStylesheetFunctionalTest extends BrowserTestBase {
   public function testDefaultSettingsDoNotAttachGeneratedTokenCss(): void {
     $this->drupalGet('');
 
-    $this->assertSession()->statusCodeEquals(200);
+    $this->assertResponseStatus(200);
     $this->assertSession()->responseContains('css/base/bootstrap.base.css');
     $this->assertSession()->responseContains('css/base/tokens.base.css');
     $this->assertSession()->responseNotContains('actools_bs5/tokens-');
@@ -64,7 +71,7 @@ final class TokenStylesheetFunctionalTest extends BrowserTestBase {
 
     $this->drupalGet('');
 
-    $this->assertSession()->statusCodeEquals(200);
+    $this->assertResponseStatus(200);
     $this->assertSession()->responseContains('actools_bs5/tokens-');
     $this->assertSession()->responseNotContains('<style id="actools-bs5-tokens"');
 
@@ -93,7 +100,7 @@ final class TokenStylesheetFunctionalTest extends BrowserTestBase {
 
     $this->drupalGet('');
 
-    $this->assertSession()->statusCodeEquals(200);
+    $this->assertResponseStatus(200);
     $this->assertSession()->responseNotContains('background:red');
     $this->assertSession()->responseNotContains('font-family:evil');
     $this->assertSession()->responseNotContains('999px');

@@ -1,5 +1,35 @@
 # Testing Actools BS5
 
+## Isolated GitHub runtime checks
+
+The `Drupal runtime and browser tests` workflow builds fresh Drupal 11.4.10
+projects with core-dev in GitHub-hosted temporary directories. It runs Kernel
+and Functional suites on PHP 8.3 and 8.4 with SQLite; the Functional server binds
+to loopback only. No production database, BOA credentials or live-site test
+helpers are used. Read each job's result and retained reports before accepting
+a revision. Source checks are a separate workflow.
+
+LayoutBuilderIntegrationKernelTest exercises all six native sections through
+core Section/SectionComponent rendering, serialized settings, preview attributes,
+block ordering and cache metadata. UserActionsCacheabilityTest switches viewers
+over warm entity render caches and checks both allowed and denied action output.
+
+The browser job installs pinned Playwright 1.64.1 in an isolated temporary
+directory and tests the committed CSS in Chromium at 320, 375, 768 and 1440px.
+It covers ordinary image fields, captioned text images and Layout Builder-style
+columns, including aspect ratios and small authored widths. This is an asset
+test against representative HTML, not a claim of live Drupal drag/drop coverage.
+The same job reads the real page template's skip-link classes and checks keyboard
+visibility and activation using the bundled Bootstrap CSS.
+
+To run the browser fixtures locally with Playwright installed:
+
+```sh
+npx playwright test --config tests/browser/playwright.config.cjs
+```
+
+The complete future acceptance sequence is in docs/IMPROVEMENT_PLAN.md.
+
 The test pack distinguishes source/asset checks from actual Drupal rendering.
 A skipped check is not a pass.
 
@@ -44,11 +74,12 @@ database. Install the theme at a normal theme path. Copy the test-only helper:
 cp -a tests/drupal-module/actools_bs5_test /path/to/drupal/web/modules/custom/
 ```
 
-From the Drupal project root:
+From the Drupal web root, with the test database and base URL configured:
 
 ```sh
-vendor/bin/phpunit web/modules/custom/actools_bs5_test/tests/src/Kernel
-vendor/bin/phpunit web/modules/custom/actools_bs5_test/tests/src/Functional
+mkdir -p sites/simpletest/browser_output
+../vendor/bin/phpunit -c core/phpunit.xml.dist modules/custom/actools_bs5_test/tests/src/Kernel
+../vendor/bin/phpunit -c core/phpunit.xml.dist modules/custom/actools_bs5_test/tests/src/Functional
 ```
 
 ComponentRenderingRegressionTest renders real component templates for hostile

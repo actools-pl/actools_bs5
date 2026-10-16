@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\actools_bs5_test\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Core\Template\Attribute;
 use Drupal\Component\Serialization\Yaml;
@@ -11,8 +14,9 @@ use Drupal\Component\Serialization\Yaml;
 /**
  * Renders components to test URL filtering, HTML safety and slide wiring.
  *
- * @group actools_bs5
  */
+#[Group('actools_bs5')]
+#[RunTestsInSeparateProcesses]
 final class ComponentRenderingRegressionTest extends KernelTestBase {
 
   protected static $modules = ['system', 'file', 'user'];
@@ -51,11 +55,11 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
     ];
     foreach (['link' => 'url', 'button' => 'href', 'badge' => 'url', 'taxonomy' => 'url', 'list-group' => 'items', 'dynamic-responsive-image' => 'url', 'navbar-brand' => 'path'] as $component => $prop) {
       foreach ($unsafe as $url) {
-        $xpath = $this->xpath($this->componentTemplate($component, $this->urlProps($component, $prop, $url)));
+        $xpath = $this->componentXpath($this->componentTemplate($component, $this->urlProps($component, $prop, $url)));
         $this->assertSame('#', $xpath->evaluate('string((//a)[1]/@href)'), $component . ' rejects ' . json_encode($url));
       }
       foreach ($safe as $url) {
-        $xpath = $this->xpath($this->componentTemplate($component, $this->urlProps($component, $prop, $url)));
+        $xpath = $this->componentXpath($this->componentTemplate($component, $this->urlProps($component, $prop, $url)));
         $this->assertSame($url, $xpath->evaluate('string((//a)[1]/@href)'), $component . ' preserves ' . $url);
       }
     }
@@ -76,7 +80,7 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
       ['hero-side-by-side', ['text' => $html]],
     ];
     foreach ($cases as [$component, $props]) {
-      $xpath = $this->xpath($this->component($component, $props));
+      $xpath = $this->componentXpath($this->component($component, $props));
       $this->assertSame(0, $xpath->query('//script')->length, $component);
       $this->assertSame(0, $xpath->query('//@*[starts-with(translate(name(), "ON", "on"), "on")]')->length, $component);
       $this->assertSame(0, $xpath->query('//a[starts-with(@href, "javascript:")]')->length, $component);
@@ -97,7 +101,7 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
       'trim_units' => 'words',
       'suffix' => '<img src=x onerror=alert(1)>',
     ]);
-    $xpath = $this->xpath($result);
+    $xpath = $this->componentXpath($result);
     $this->assertSame(0, $xpath->query('//a | //p | //img')->length);
     $this->assertStringContainsString('Read the&lt;img', $result);
     $this->assertStringNotContainsString('full article', $result);
@@ -124,7 +128,7 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
    */
   public function testNativeImageUsesNormalizedSource(): void {
     foreach ([['url' => '/example.jpg'], ['uri' => '/example.jpg'], ['value' => '/example.jpg'], '/example.jpg'] as $src) {
-      $xpath = $this->xpath($this->componentTemplate('image', [
+      $xpath = $this->componentXpath($this->componentTemplate('image', [
         'media' => ['src' => $src, 'alt' => 'Example', 'width' => 400, 'height' => 200],
       ]));
       $this->assertSame('/example.jpg', $xpath->evaluate('string((//img)[1]/@src)'));
@@ -147,7 +151,7 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
       ]],
     ];
     $result = $this->renderInline("{{ include('actools_bs5:carousel', props, false) }}{{ include('actools_bs5:carousel', props, false) }}", ['props' => $this->withDefaults('carousel', $props)]);
-    $xpath = $this->xpath($result);
+    $xpath = $this->componentXpath($result);
     $carousels = $xpath->query('//div[contains(concat(" ", normalize-space(@class), " "), " carousel ")]');
     $this->assertSame(2, $carousels->length);
     $ids = [];
@@ -171,11 +175,11 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
    */
   public function testStandardMediaComponentsRenderWithoutCanvas(): void {
     $this->assertFalse($this->container->get('module_handler')->moduleExists('canvas'));
-    $image = $this->xpath($this->component('image', [
+    $image = $this->componentXpath($this->component('image', [
       'media' => ['src' => '/example.jpg', 'alt' => 'Example', 'width' => 400, 'height' => 200],
     ]));
     $this->assertSame('/example.jpg', $image->evaluate('string((//img)[1]/@src)'));
-    $video = $this->xpath($this->component('video', [
+    $video = $this->componentXpath($this->component('video', [
       'video_file' => ['src' => '/example.mp4', 'poster' => '/poster.jpg'],
     ]));
     $this->assertSame('/example.mp4', $video->evaluate('string((//source)[1]/@src)'));
@@ -186,7 +190,7 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
    * A card without a button label links its title to the requested URL.
    */
   public function testCardWithoutButtonHasLinkedTitle(): void {
-    $xpath = $this->xpath($this->component('card', [
+    $xpath = $this->componentXpath($this->component('card', [
       'heading_text' => 'Physics course',
       'url' => '/courses/physics',
       'button_label' => '',
@@ -200,7 +204,7 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
    * A card with a button exposes one usable link, with no duplicate title link.
    */
   public function testCardWithButtonHasOneLink(): void {
-    $xpath = $this->xpath($this->component('card', [
+    $xpath = $this->componentXpath($this->component('card', [
       'heading_text' => 'Physics course',
       'url' => '/courses/physics',
       'button_label' => 'View course',
@@ -213,11 +217,25 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
   }
 
   /**
+   * A hero has no placeholder action; configured fragments pass real SDC checks.
+   */
+  public function testHeroButtonDefaultsAndFragmentPassComponentValidation(): void {
+    $default = $this->componentXpath($this->component('card-hero', []));
+    $this->assertSame(0, $default->query('//a[contains(concat(" ", normalize-space(@class), " "), " btn ")]')->length);
+    $configured = $this->componentXpath($this->component('card-hero', [
+      'button_1_label' => 'Browse courses',
+      'button_1_url' => '#courses',
+    ]));
+    $this->assertSame(1, $configured->query('//a[@href="#courses"]')->length);
+    $this->assertSame('Browse courses', trim($configured->evaluate('string(//a[@href="#courses"])')));
+  }
+
+  /**
    * Two navbars each control their own collapse container.
    */
   public function testRepeatedNavbarsHaveDistinctMatchingTargets(): void {
     $result = $this->renderInline("{{ include('actools_bs5:navbar', props, false) }}{{ include('actools_bs5:navbar', props, false) }}", ['props' => $this->withDefaults('navbar', [])]);
-    $xpath = $this->xpath($result);
+    $xpath = $this->componentXpath($result);
     $navbars = $xpath->query('//nav');
     $this->assertSame(2, $navbars->length);
     $ids = [];
@@ -238,7 +256,7 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
    * Drupal block labels remain visible as a level-two heading.
    */
   public function testBlockLabelRendersAsHeading(): void {
-    $xpath = $this->xpath($this->component('block', [
+    $xpath = $this->componentXpath($this->component('block', [
       'label' => 'Latest teaching resources',
       'html_tag' => 'section',
       'plugin_id' => 'test_block',
@@ -270,7 +288,7 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
         'content' => ['user_picture' => ['#markup' => '<img src="/author.png" alt="Author picture">']],
         'attributes' => new Attribute(),
       ]);
-      $xpath = $this->xpath($result);
+      $xpath = $this->componentXpath($result);
       $this->assertSame(0, $xpath->query('//h2[contains(@class, "user__name")]')->length, $mode);
       $this->assertSame($profile_elements, $xpath->query('//nav[contains(@class, "user__actions")]')->length, $mode);
       $this->assertSame(1, $xpath->query('//img[@src="/author.png"]')->length, $mode);
@@ -332,7 +350,7 @@ final class ComponentRenderingRegressionTest extends KernelTestBase {
     return (string) $this->container->get('renderer')->renderRoot($build);
   }
 
-  private function xpath(string $html): \DOMXPath {
+  private function componentXpath(string $html): \DOMXPath {
     $previous = libxml_use_internal_errors(TRUE);
     $document = new \DOMDocument();
     $document->loadHTML('<!DOCTYPE html><html><body>' . $html . '</body></html>');

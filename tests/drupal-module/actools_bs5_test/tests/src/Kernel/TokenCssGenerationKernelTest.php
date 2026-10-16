@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\actools_bs5_test\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
 use Drupal\KernelTests\KernelTestBase;
 
 /**
  * Tests Actools BS5 design-token generation without a browser.
  *
- * @group actools_bs5
  */
+#[Group('actools_bs5')]
+#[RunTestsInSeparateProcesses]
 final class TokenCssGenerationKernelTest extends KernelTestBase {
 
   /**
@@ -111,8 +115,10 @@ final class TokenCssGenerationKernelTest extends KernelTestBase {
       'tokens_corner_radius' => 'default',
     ]);
 
-    $this->assertMatchesRegularExpression('/\.link-primary:hover,\.link-primary:focus\{[^}]*color:/', $css);
-    $this->assertMatchesRegularExpression('/\.link-primary:hover,\.link-primary:focus\{[^}]*text-decoration-color:/', $css);
+    // Prefixes such as :root:root are intentional specificity guards. Check
+    // declarations in the actual paired-selector rule without rejecting them.
+    $this->assertMatchesRegularExpression('/\.link-primary:hover,[^{}]*\.link-primary:focus\{(?:[^}]*;)?color:/', $css);
+    $this->assertMatchesRegularExpression('/\.link-primary:hover,[^{}]*\.link-primary:focus\{(?:[^}]*;)?text-decoration-color:/', $css);
   }
 
   /**

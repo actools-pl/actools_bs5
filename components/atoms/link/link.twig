@@ -66,8 +66,8 @@
 
 {# Print the HTML. #}
 {% set attributes = attributes.addClass(link_classes) %}
-<a{{ attributes }}>{% apply spaceless %}
-  {% block content %}
+<a{{ attributes }}>
+  {%- block content -%}
     {{ content }}
-  {% endblock %}
-{% endapply %}</a>
+  {%- endblock -%}
+</a>

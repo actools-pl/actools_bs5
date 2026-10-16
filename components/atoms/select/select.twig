@@ -30,7 +30,6 @@
 %}
 
 {# Print the HTML. #}
-{% apply spaceless %}
   {% set attributes = attributes.addClass(classes) %}
   <select{{ attributes }}>
     {% for option in options %}
@@ -45,4 +44,3 @@
       {% endif %}
     {% endfor %}
   </select>
-{% endapply %}

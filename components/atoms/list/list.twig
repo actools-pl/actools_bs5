@@ -28,7 +28,6 @@
  #   concatenation) to avoid duplicate classes and data type conflicts.
  #}
 
-{% apply spaceless %}
 {% if items is iterable %}
   {# Variables: scalar props with schema defaults. #}
   {% set type = type ?? 'ul' %}
@@ -50,4 +49,3 @@
     {% endfor %}
   </{{ type }}>
 {% endif %}
-{% endapply %}
