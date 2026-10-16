@@ -7,6 +7,7 @@ namespace Drupal\Tests\actools_bs5_test\Kernel;
 use Drupal\block_content\Entity\BlockContent;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\Plugin\Context\EntityContext;
 use Drupal\Core\Recipe\Recipe;
 use Drupal\Core\Recipe\RecipeRunner;
 use Drupal\Core\Session\AccountInterface;
@@ -46,6 +47,7 @@ final class TopicStarterRecipeKernelTest extends KernelTestBase {
     $this->installSchema('user', ['users_data']);
     $this->installSchema('file', ['file_usage']);
     $this->installSchema('node', ['node_access']);
+    $this->installSchema('layout_builder', ['inline_block_usage']);
     $this->installConfig(['system', 'user', 'node', 'file', 'image', 'filter', 'block_content']);
 
     // Installing this theme is a fixture choice, not a side effect permitted to
@@ -147,7 +149,8 @@ final class TopicStarterRecipeKernelTest extends KernelTestBase {
       'field_actools_body' => ['value' => '<p>Keep <strong>curvature</strong>.</p><script>alert("probe")</script>', 'format' => 'actools_test_html'],
       'field_actools_position' => 'left',
     ]);
-    $this->container->get('file_system')->prepareDirectory('public://actools-tests', FileSystemInterface::CREATE_DIRECTORY);
+    $directory = 'public://actools-tests';
+    $this->container->get('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY);
     $uri = 'public://actools-tests/diagram.png';
     file_put_contents($uri, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAFElEQVR4nGP8//8/AwwwMSAB3BwAlm4DBfIlvvkAAAAASUVORK5CYII='));
     $file = File::create(['uri' => $uri, 'status' => 1]);
@@ -199,11 +202,113 @@ final class TopicStarterRecipeKernelTest extends KernelTestBase {
     $this->assertStringNotContainsString('Unpublished teacher answer', $updated_html);
 
     $published->setUnpublished()->save();
+    // Access decisions are memoized within one PHP request. Simulate a new
+    // request while retaining the render caches under test.
+    $this->container->get('entity_type.manager')->getAccessControlHandler('node')->resetCache();
     [$hidden_html] = $this->renderBlockAs($block, new AnonymousUserSession());
     $this->assertStringNotContainsString('Updated capillarity lesson', $hidden_html, 'Unpublishing also invalidates previously warm cards.');
     $published->setPublished()->save();
+    $this->container->get('entity_type.manager')->getAccessControlHandler('node')->resetCache();
     [$restored_html] = $this->renderBlockAs($block, new AnonymousUserSession());
     $this->assertStringContainsString('Updated capillarity lesson', $restored_html);
+  }
+
+  /**
+   * Native inline blocks keep fields and access after a saved layout reload.
+   */
+  public function testNativeInlineBlocksPersistAndRenderWithParentAccess(): void {
+    $resource = $this->resource('Inline capillarity worksheet', 'Resource selected in an inline block.');
+    $draft = $this->resource('Inline private answer key', 'Do not expose this draft.', FALSE);
+    $text = BlockContent::create([
+      'type' => 'actools_text_image', 'info' => 'Inline introduction',
+      'status' => 1, 'reusable' => FALSE,
+      'field_actools_heading' => 'Inline surface forces',
+      'field_actools_body' => ['value' => '<p>Explore <strong>capillary pressure</strong>.</p>', 'format' => 'actools_test_html'],
+      'field_actools_position' => 'right',
+    ]);
+    $text->save();
+    $cards = BlockContent::create([
+      'type' => 'actools_resource_cards', 'info' => 'Inline resources',
+      'status' => 1, 'reusable' => FALSE,
+      'field_actools_heading' => 'Inline practice resources',
+      'field_actools_resources' => [['target_id' => $resource->id()], ['target_id' => $draft->id()]],
+    ]);
+    $cards->save();
+
+    $topic = Node::create([
+      'type' => 'actools_topic', 'title' => 'Topic with inline custom blocks',
+      'status' => 1,
+      'field_actools_body' => ['value' => 'Topic overview.', 'format' => 'plain_text'],
+    ]);
+    $topic->save();
+    $components = [];
+    foreach ([$text, $cards] as $weight => $block) {
+      // These are the same derivative plugins and revision configuration used
+      // by Layout Builder's "Create custom block" operation.
+      $plugin_id = 'inline_block:' . $block->bundle();
+      $this->assertTrue($this->container->get('plugin.manager.block')->hasDefinition($plugin_id));
+      $components[] = (new SectionComponent($block->uuid(), 'content', [
+        'id' => $plugin_id, 'label' => $block->label(), 'label_display' => FALSE,
+        'provider' => 'layout_builder', 'view_mode' => 'default',
+        'block_id' => $block->id(),
+        'block_revision_id' => $block->getRevisionId(),
+        'block_serialized' => NULL,
+      ]))->setWeight($weight);
+    }
+    $topic->set('layout_builder__layout', [new Section('actools_bs5_onecol_contained', [], $components)]);
+    $topic->save();
+    $node_storage = $this->container->get('entity_type.manager')->getStorage('node');
+    $node_storage->resetCache([$topic->id()]);
+    $topic = $node_storage->load($topic->id());
+    $section = Section::fromArray($topic->get('layout_builder__layout')->first()->section->toArray());
+    $saved_components = array_values($section->getComponents());
+    $this->assertCount(2, $saved_components);
+    $block_storage = $this->container->get('entity_type.manager')->getStorage('block_content');
+    foreach ($saved_components as $component) {
+      $configuration = $component->toArray()['configuration'];
+      $saved_block = $block_storage->loadRevision($configuration['block_revision_id']);
+      $this->assertFalse($saved_block->isReusable());
+      if ($saved_block->bundle() === 'actools_text_image') {
+        $this->assertSame('Inline surface forces', $saved_block->get('field_actools_heading')->value);
+        $this->assertStringContainsString('<strong>capillary pressure</strong>', $saved_block->get('field_actools_body')->value);
+      }
+      else {
+        $this->assertSame('actools_resource_cards', $saved_block->bundle());
+        $this->assertSame([(string) $resource->id(), (string) $draft->id()], array_map('strval', array_column($saved_block->get('field_actools_resources')->getValue(), 'target_id')));
+      }
+    }
+
+    $switcher = $this->container->get('account_switcher');
+    $switcher->switchTo(new AnonymousUserSession());
+    try {
+      foreach ([1, 2] as $pass) {
+        // Core sets each InlineBlock's access dependency from this context.
+        $build = Section::fromArray($section->toArray())->toRenderArray([
+          'layout_builder.entity' => EntityContext::fromEntity($topic),
+        ], FALSE);
+        $html = (string) $this->container->get('renderer')->renderRoot($build);
+        $this->assertStringContainsString('actools-text-image--text-only', $html);
+        $this->assertStringContainsString('Inline surface forces', $html);
+        $this->assertStringContainsString('<strong>capillary pressure</strong>', $html);
+        $this->assertStringContainsString('actools-resource-cards__items', $html);
+        $this->assertStringContainsString('Inline capillarity worksheet', $html);
+        $this->assertStringNotContainsString('Inline private answer key', $html);
+      }
+      $topic->setUnpublished()->save();
+      // A real request has fresh access-handler memoization. Keep the render
+      // cache warm while discarding only that per-request decision cache.
+      $this->container->get('entity_type.manager')->getAccessControlHandler('node')->resetCache();
+      $this->container->get('entity_type.manager')->getAccessControlHandler('block_content')->resetCache();
+      $build = Section::fromArray($section->toArray())->toRenderArray([
+        'layout_builder.entity' => EntityContext::fromEntity($topic),
+      ], FALSE);
+      $html = (string) $this->container->get('renderer')->renderRoot($build);
+      $this->assertStringNotContainsString('Inline surface forces', $html, 'An inline block follows its parent topic access.');
+      $this->assertStringNotContainsString('Inline capillarity worksheet', $html);
+    }
+    finally {
+      $switcher->switchBack();
+    }
   }
 
   private function resource(string $title, string $summary, bool $published = TRUE): NodeInterface {

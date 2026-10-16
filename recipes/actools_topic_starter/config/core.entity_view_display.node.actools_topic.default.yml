@@ -19,7 +19,7 @@ mode: default
 third_party_settings:
   layout_builder:
     enabled: true
-    allow_custom: true
+    allow_custom: false
     sections:
     - layout_id: actools_bs5_onecol_contained
       layout_settings:

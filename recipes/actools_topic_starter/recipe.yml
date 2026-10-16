@@ -15,3 +15,7 @@ install:
 - actools_bs5
 config:
   strict: true
+  actions:
+    core.entity_view_display.node.actools_topic.default:
+      # Use core's action so it creates/reuses its managed override field.
+      allowLayoutOverrides: true

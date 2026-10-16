@@ -63,7 +63,8 @@ final class TopicStarterEditorFunctionalTest extends BrowserTestBase {
     $this->assertSession()->optionExists('field_actools_position', 'left');
     $this->assertSession()->optionExists('field_actools_position', 'right');
 
-    $this->container->get('file_system')->prepareDirectory('public://actools-editor-fixture', FileSystemInterface::CREATE_DIRECTORY);
+    $directory = 'public://actools-editor-fixture';
+    $this->container->get('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY);
     $uri = 'public://actools-editor-fixture/diagram.png';
     file_put_contents($uri, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAFElEQVR4nGP8//8/AwwwMSAB3BwAlm4DBfIlvvkAAAAASUVORK5CYII='));
     $this->submitForm([
