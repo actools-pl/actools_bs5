@@ -83,6 +83,17 @@ desktop and phone screenshots are retained in the
 alone does not certify the appearance. The static specimen in
 `docs/preview/topic.html` is a separate reference using the same committed CSS.
 
+Resource-download Kernel regressions retain the native file-link render array,
+checking descriptions, friendly fallbacks, file types/sizes, escaping, whole-field,
+formatter-item and nested-link access, warm viewer caches and file/node edits.
+Unrelated file links keep their normal rendering. The browser fixture opens
+real PDF/DOCX Resource pages and fetches the actual files, checking their labels,
+MIME types, sizes and signatures. It retains desktop and phone Resource captures.
+
+Browser asset regressions also check text-first cards with mixed image/no-image
+content, figure/caption alignment for small and large diagrams, and wrapping
+download information in light/dark modes, on phones and in print media.
+
 ## Checks without Drupal
 
 In a Git checkout, run the packaging/static audit against an exported tree so

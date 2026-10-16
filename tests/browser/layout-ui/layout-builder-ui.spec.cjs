@@ -276,6 +276,10 @@ test('published Surface tension topic presents grouped resources on desktop and 
       for (const [index, resource] of fixture.previewResources.entries()) {
         const card = page.locator('.actools-resource-card').nth(index);
         await expect(card.locator('img')).toHaveCount(resource.hasImage ? 1 : 0);
+        await expect(card.locator('.actools-resource-card__media')).toHaveCount(resource.hasImage ? 1 : 0);
+        const order = await card.evaluate(element => [...element.children].map(child => child.className));
+        expect(order[0]).toBe('actools-resource-card__content');
+        if (resource.hasImage) expect(order[1]).toBe('actools-resource-card__media');
       }
     }
 
@@ -300,6 +304,33 @@ test('published Surface tension topic presents grouped resources on desktop and 
     }
     expect(layout.headings).toEqual([1, 2, 2, 3, 3, 3, 2, 3, 3, 3, 2, 3, 3, 3]);
 
+    // A picture in the middle card must not push its identifying text below
+    // its image-free neighbours. Metadata, title and summary lead every card.
+    if (width === 1440) {
+      const firstRowTitles = await page.locator('.actools-resource-card__heading').evaluateAll(elements => elements.slice(0, 3).map(element => element.getBoundingClientRect().top));
+      expect(Math.max(...firstRowTitles) - Math.min(...firstRowTitles)).toBeLessThanOrEqual(1);
+    }
+    for (const card of await page.locator('.actools-resource-card').all()) {
+      const image = card.locator('img');
+      if (await image.count()) {
+        const summary = await card.locator('.actools-resource-card__summary').boundingBox();
+        const media = await card.locator('.actools-resource-card__media').boundingBox();
+        expect(media.y).toBeGreaterThanOrEqual(summary.y + summary.height - 1);
+      }
+    }
+
+    // This is a genuine 300 px native diagram in a wider desktop column; its
+    // caption follows the figure's bounds rather than the available column.
+    const figure = page.locator('figure.actools-text-image__media');
+    const figureBox = await figure.boundingBox();
+    const diagramBox = await figure.locator('img').boundingBox();
+    const captionBox = await figure.locator('figcaption').boundingBox();
+    expect(Math.abs(captionBox.x - figureBox.x)).toBeLessThanOrEqual(1);
+    expect(Math.abs(captionBox.width - figureBox.width)).toBeLessThanOrEqual(1);
+    expect(Math.abs(figureBox.width - diagramBox.width)).toBeLessThanOrEqual(1);
+    expect(captionBox.y).toBeGreaterThanOrEqual(diagramBox.y + diagramBox.height);
+    expect(diagramBox.width).toBeLessThanOrEqual(301);
+
     // Every visible native diagram keeps its complete aspect ratio. Both the
     // long-title and image-free cards remain in the real page under test.
     for (const image of await page.locator('main img').all()) {
@@ -317,8 +348,46 @@ test('published Surface tension topic presents grouped resources on desktop and 
     await page.emulateMedia({ media: 'screen' });
     await waitForPublishingImages(page);
     await page.screenshot({ path: path.join(outputDirectory, filename), fullPage: true });
+    await testInfo.attach(filename.replace('.png', '.html'), { body: await page.content(), contentType: 'text/html' });
+
+    // Full Resource pages use the real native file formatter, public files and
+    // anonymously warmed page cache. Descriptions identify the material while
+    // type and size remain adjacent, readable information beside the link.
+    for (const resource of fixture.previewResources.filter(resource => resource.download)) {
+      const download = resource.download;
+      for (let pass = 0; pass < 2; pass++) {
+        const response = await page.goto(resource.path);
+        expect(response.status()).toBe(200);
+        const downloads = page.locator('.actools-resource-downloads');
+        await expect(downloads).toHaveCount(1);
+        await expect(downloads.locator('.actools-resource-downloads__item')).toHaveCount(1);
+        const link = downloads.locator('.actools-resource-downloads__link a');
+        await expect(link).toHaveText(download.description);
+        expect(new URL(await link.getAttribute('href'), testInfo.project.use.baseURL).pathname).toBe(new URL(download.path, testInfo.project.use.baseURL).pathname);
+        await expect(downloads.locator('.actools-resource-downloads__type')).toHaveText(download.type);
+        await expect(downloads.locator('.actools-resource-downloads__size')).toHaveText(download.sizeLabel);
+        await expect(downloads.locator('.actools-resource-downloads__metadata')).toBeVisible();
+        const bounds = await downloads.evaluate(element => {
+          const box = element.getBoundingClientRect();
+          return { left: box.left, right: box.right, viewport: innerWidth, scroll: document.documentElement.scrollWidth };
+        });
+        expect(bounds.left).toBeGreaterThanOrEqual(-1);
+        expect(bounds.right).toBeLessThanOrEqual(bounds.viewport + 1);
+        expect(bounds.scroll).toBeLessThanOrEqual(bounds.viewport);
+      }
+      const fileUrl = new URL(download.path, testInfo.project.use.baseURL);
+      expect(fileUrl.origin).toBe(new URL(testInfo.project.use.baseURL).origin);
+      const fileResponse = await page.request.get(fileUrl.href);
+      expect(fileResponse.status()).toBe(200);
+      expect(fileResponse.headers()['content-type'].split(';')[0]).toBe(download.mime);
+      const bytes = await fileResponse.body();
+      expect(bytes.length).toBe(download.size);
+      expect(bytes.subarray(0, download.type === 'PDF' ? 5 : 2).toString('ascii')).toBe(download.type === 'PDF' ? '%PDF-' : 'PK');
+      await waitForPublishingImages(page);
+      await page.screenshot({ path: path.join(outputDirectory, `resource-${download.type.toLowerCase()}-${width === 1440 ? 'desktop' : 'phone'}.png`), fullPage: true });
+      await testInfo.attach(`resource-${download.type.toLowerCase()}-${width}.html`, { body: await page.content(), contentType: 'text/html' });
+    }
   }
 
-  await testInfo.attach('published-surface-tension-topic.html', { body: await page.content(), contentType: 'text/html' });
   expect(errors).toEqual([]);
 });

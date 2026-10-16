@@ -110,6 +110,61 @@
   vertical-align: top;
 }
 
+/* Native Resource file links remain ordinary links, with quiet supporting
+   information beside them. Long labels and phone widths can wrap naturally. */
+.actools-resource-downloads {
+  margin-block: 2rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid rgba(var(--bs-body-color-rgb, 33, 37, 41), 0.15);
+  border-radius: var(--bs-border-radius-lg, 0.75rem);
+  background: var(--bs-tertiary-bg, #f8f9fa);
+}
+
+.actools-resource-downloads__label {
+  margin-block-end: 0.75rem;
+  color: var(--bs-emphasis-color, #212529);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.actools-resource-downloads__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  min-inline-size: 0;
+}
+
+.actools-resource-downloads__item + .actools-resource-downloads__item {
+  margin-block-start: 1rem;
+}
+
+.actools-resource-downloads__link {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+.actools-resource-downloads__link a {
+  font-weight: 600;
+  text-underline-offset: 0.15em;
+}
+
+.actools-resource-downloads__metadata {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  color: var(--bs-secondary-color, #495057);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.actools-resource-downloads__type,
+.actools-resource-downloads__size {
+  white-space: nowrap;
+}
+
 @media print {
   .page-node-type-actools-topic .block-page-title-block {
     padding-block-start: 0;
@@ -118,5 +173,11 @@
   .actools-topic--publishing .actools-text-image-block {
     padding: 1rem;
     border-color: #777;
+  }
+
+  .actools-resource-downloads {
+    background: transparent;
+    border-color: #777;
+    break-inside: avoid;
   }
 }

@@ -19,6 +19,10 @@ Updating a resource updates its cards. Drupal's entity-reference formatter
 controls access to referenced resources. Card summaries use plain text; longer
 formatted explanations belong in the resource body.
 
+Cards put their metadata, title and summary first. An optional diagram follows
+the text, so cards with and without pictures share a clear reading order. A
+card without an image has no reserved thumbnail area.
+
 Resource kind and study level are optional native select fields. Kind offers
 Lesson, Notes, Worked examples and Assignment; level offers Foundation,
 JEE Advanced and Olympiad. A resource without these values remains a normal
@@ -31,6 +35,17 @@ semantic figure caption. For example, "Figure 1. Capillary rise in a narrow
 glass tube." Figure numbering is editorial, not automatic. Alternative text
 still describes the image for readers who cannot see it. A caption without a
 displayed image is retained for editing but is not printed on the page.
+
+The figure and caption align together within the available column. Small
+diagrams keep their natural size while their captions retain a readable width;
+larger diagrams scale down without cropping. For dense labels, use a wider
+section and keep the full-resolution original available through the image link.
+
+For a Resource download, enter a useful **Description** in the file widget, such
+as “Capillary rise: worked examples”. This becomes the download link text. The
+file type and size appear beside the link automatically, for example
+**PDF · 420 KB**. Empty descriptions use “Download PDF” or “Download DOCX”.
+These details come from the stored file; editors do not need to type its size.
 
 The supplied image widget is a standard core image upload with required
 alternative text, not a Media Library selector. Existing site text formats
@@ -161,6 +176,10 @@ phone screenshots in its `layout-builder-editor-browser` Actions artifact.
   resources are absent. Check anonymous file access separately.
 - Check formatted text uses its configured filter, image alternative text is
   retained, and PDF/DOCX links and printing work.
+- Check a Resource with a described PDF and another with a DOCX download. Their
+  labels, file types and sizes must remain readable on phones and after edits;
+  confirm the links open the intended files. Empty or access-denied downloads
+  must leave no download label, information row or filename behind.
 - Edit a caption and both metadata selections through their native forms. Check
   the saved caption, kind and level on a warm public page and after reload.
   Empty or access-denied optional fields must leave no heading, badge or
