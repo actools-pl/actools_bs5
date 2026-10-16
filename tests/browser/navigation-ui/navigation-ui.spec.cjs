@@ -254,7 +254,7 @@ test('native hash navigation, history and skip links clear the measured sticky h
     await visit(page, `${fixture.currentTopicPath}#practice-assignments`);
     await expect(page.locator('html')).not.toHaveClass(/\bactools-sticky-header-active\b/);
     expect(await header(page).evaluate(element => getComputedStyle(element).position)).not.toBe('sticky');
-    expect((await header(page).boundingBox()).y).toBeLessThan(0);
+    await expect.poll(async () => (await header(page).boundingBox()).y).toBeLessThan(0);
     const padding = await page.locator('html').evaluate(element => parseFloat(getComputedStyle(element).scrollPaddingBlockStart) || 0);
     expect(padding).toBeLessThanOrEqual(1);
   }
