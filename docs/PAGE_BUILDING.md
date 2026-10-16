@@ -26,6 +26,12 @@ create new text formats. Hero and FAQ editing blocks are later additions.
 The site must already have an enabled text format that the intended editor may
 use (for example, core Plain text or an existing restricted HTML format).
 
+Full Resource pages and text/image blocks use core responsive image derivatives
+at 480, 960, 1440 and 1920 pixel widths. Scaling preserves the whole diagram and
+never enlarges a smaller original. Displayed images link to the original file
+for full-resolution inspection. Lazy loading and responsive size selection
+reduce initial downloads; the original upload is fetched when its link is opened.
+
 ## Apply on a test site first
 
 Use the same reviewed code revision for both the theme and its recipe. Keep a
@@ -103,6 +109,10 @@ to the shared default; use them intentionally.
   resources are absent. Check anonymous file access separately.
 - Check formatted text uses its configured filter, image alternative text is
   retained, and PDF/DOCX links and printing work.
+- Check card-title contrast in light/dark mode and with the selected brand
+  colour. Titles use the theme's readable link colours, including hover/focus.
+- Check image `srcset` selects derivatives rather than loading the original by
+  default, and that opening the image still reaches the complete original.
 - On BOA, run site **Verify**, confirm the original content/image still work,
   and take a fresh full site backup after acceptance.
 

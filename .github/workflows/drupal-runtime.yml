@@ -82,14 +82,22 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
+      - uses: shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea # v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: none
       - name: Install isolated browser test tooling
         run: |
           npm install --prefix "$RUNNER_TEMP/actools-browser-tools" --no-save --package-lock=false @playwright/test@1.64.1
           "$RUNNER_TEMP/actools-browser-tools/node_modules/.bin/playwright" install --with-deps chromium
       - name: Test compiled CSS at phone, tablet and desktop widths
+        env:
+          ACTOOLS_TOKEN_FIXTURES: ${{ runner.temp }}/actools-token-fixtures.json
         run: |
           export NODE_PATH="$RUNNER_TEMP/actools-browser-tools/node_modules"
           export ACTOOLS_BROWSER_OUTPUT="$RUNNER_TEMP/actools-browser-results"
+          php tests/browser/build-token-fixtures.php "$ACTOOLS_TOKEN_FIXTURES"
           "$RUNNER_TEMP/actools-browser-tools/node_modules/.bin/playwright" test --config tests/browser/playwright.config.cjs
       - name: Keep browser failure evidence
         if: ${{ failure() }}
@@ -97,5 +105,64 @@ jobs:
         with:
           name: content-media-browser
           path: ${{ runner.temp }}/actools-browser-results
+          if-no-files-found: ignore
+          retention-days: 7
+
+  layout-builder-ui:
+    name: Layout Builder editor in Chromium (PHP 8.4)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea # v2
+        with:
+          php-version: '8.4'
+          extensions: sqlite3, pdo_sqlite, gd, mbstring, xml, curl
+          ini-values: memory_limit=-1
+          coverage: none
+          tools: composer:v2
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Install isolated Drupal and Chromium test tooling
+        run: |
+          composer create-project drupal/recommended-project:11.4.10 "$RUNNER_TEMP/actools-layout-drupal" --no-interaction --no-install
+          cd "$RUNNER_TEMP/actools-layout-drupal"
+          composer require drush/drush:13.8.0 --update-no-dev --no-interaction --prefer-dist
+          mkdir -p web/themes/custom/actools_bs5 "$RUNNER_TEMP/actools-layout-results"
+          git -C "$GITHUB_WORKSPACE" archive HEAD | tar -x -C web/themes/custom/actools_bs5
+          npm install --prefix "$RUNNER_TEMP/actools-layout-browser-tools" --no-save --package-lock=false @playwright/test@1.64.1
+          "$RUNNER_TEMP/actools-layout-browser-tools/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Create disposable site and exercise the complete editing interface
+        env:
+          ACTOOLS_LAYOUT_UI_FIXTURE: '1'
+          ACTOOLS_LAYOUT_BASE_URL: http://127.0.0.1:8890
+          ACTOOLS_LAYOUT_FIXTURE: ${{ runner.temp }}/actools-layout-results/fixture.json
+          ACTOOLS_LAYOUT_BROWSER_OUTPUT: ${{ runner.temp }}/actools-layout-results/browser
+        run: |
+          export ACTOOLS_LAYOUT_EDITOR_PASSWORD="$(openssl rand -hex 24)"
+          export NODE_PATH="$RUNNER_TEMP/actools-layout-browser-tools/node_modules"
+          cd "$RUNNER_TEMP/actools-layout-drupal"
+          vendor/bin/drush site:install minimal --yes --db-url="sqlite:///$RUNNER_TEMP/actools-layout-drupal/site.sqlite" --account-pass="$(openssl rand -hex 24)" --site-name="Actools disposable Layout Builder test"
+          vendor/bin/drush --uri="$ACTOOLS_LAYOUT_BASE_URL" recipe "$RUNNER_TEMP/actools-layout-drupal/web/themes/custom/actools_bs5/recipes/actools_topic_starter"
+          vendor/bin/drush --uri="$ACTOOLS_LAYOUT_BASE_URL" php:script "$GITHUB_WORKSPACE/tests/browser/layout-ui/seed-layout-site.php"
+          vendor/bin/drush --uri="$ACTOOLS_LAYOUT_BASE_URL" cache:rebuild
+          cd web
+          php -S 127.0.0.1:8890 .ht.router.php > "$RUNNER_TEMP/actools-layout-results/php-server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --output /dev/null "$ACTOOLS_LAYOUT_BASE_URL/user/login"; then break; fi
+            sleep 1
+          done
+          curl --fail --silent --output /dev/null "$ACTOOLS_LAYOUT_BASE_URL/user/login"
+          cd "$GITHUB_WORKSPACE"
+          "$RUNNER_TEMP/actools-layout-browser-tools/node_modules/.bin/playwright" test --config tests/browser/layout-ui/playwright.config.cjs
+      - name: Keep Layout Builder browser evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: layout-builder-editor-browser
+          path: ${{ runner.temp }}/actools-layout-results
           if-no-files-found: ignore
           retention-days: 7

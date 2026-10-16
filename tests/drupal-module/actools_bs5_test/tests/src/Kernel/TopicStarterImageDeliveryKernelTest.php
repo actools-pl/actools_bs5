@@ -51,7 +51,8 @@ final class TopicStarterImageDeliveryKernelTest extends KernelTestBase {
     $this->container->get('theme.manager')->setActiveTheme($this->container->get('theme.initialization')->getActiveThemeByName('actools_bs5'));
     $this->container->get('theme.registry')->reset();
     $this->container->get('router.builder')->rebuild();
-    $this->container->get('file_system')->prepareDirectory('public://actools-image-tests', FileSystemInterface::CREATE_DIRECTORY);
+    $directory = 'public://actools-image-tests';
+    $this->assertTrue($this->container->get('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY));
   }
 
   /**
