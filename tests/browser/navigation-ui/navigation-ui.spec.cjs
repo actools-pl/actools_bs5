@@ -98,11 +98,17 @@ async function login(page) {
   await page.getByRole('button', { name: 'Log in', exact: true }).click();
 }
 async function assertHeadingClearsHeader(page, id) {
+  await expect(page.locator(`#${id}`)).toBeInViewport({ ratio: 1 });
   await expect.poll(async () => {
     const heading = await page.locator(`#${id}`).boundingBox();
     const banner = await header(page).boundingBox();
     return heading.y - (banner.y + banner.height);
   }).toBeGreaterThanOrEqual(6);
+  await expect.poll(async () => {
+    const heading = await page.locator(`#${id}`).boundingBox();
+    const banner = await header(page).boundingBox();
+    return heading.y - (banner.y + banner.height);
+  }).toBeLessThanOrEqual(32);
 }
 async function assertReadable(locator) {
   const painted = await locator.evaluate(element => {
@@ -221,8 +227,19 @@ test('native hash navigation, history and skip links clear the measured sticky h
   await expect(page.locator('.skip-link')).toBeFocused();
   await page.locator('.skip-link').press('Enter');
   await expect(page).toHaveURL(/#main-content$/);
-  const clearance = await page.locator('#main-content').evaluate(element => element.getBoundingClientRect().top - document.querySelector('.page > header[role="banner"]').getBoundingClientRect().bottom);
-  expect(clearance).toBeGreaterThanOrEqual(6);
+  const mainTarget = page.locator('#main-content');
+  await expect(mainTarget).toBeFocused();
+  const skipGeometry = await mainTarget.evaluate(element => ({
+    top: element.getBoundingClientRect().top,
+    bottom: element.getBoundingClientRect().bottom,
+    headerBottom: document.querySelector('.page > header[role="banner"]').getBoundingClientRect().bottom,
+    viewport: innerHeight,
+  }));
+  // At the start of the document, main immediately follows the normal-flow
+  // header. Native scrolling cannot create an extra gap above scrollY=0.
+  expect(skipGeometry.top - skipGeometry.headerBottom).toBeGreaterThanOrEqual(0);
+  expect(skipGeometry.top).toBeGreaterThanOrEqual(0);
+  expect(skipGeometry.bottom).toBeLessThanOrEqual(skipGeometry.viewport);
   try {
     scenario('sticky-off', testInfo.project.use.baseURL);
     await visit(page, `${fixture.currentTopicPath}#practice-assignments`);
@@ -241,7 +258,31 @@ test('installed core admin interface stays above the header and Layout Builder d
     await page.setViewportSize({ width, height: 900 });
     await visit(page, fixture.currentTopicPath);
     if (fixture.adminInterface === 'toolbar') await expect(page.locator('#toolbar-administration .toolbar-bar')).toBeVisible();
-    else await expect(page.locator('#admin-toolbar')).toHaveCount(1);
+    else {
+      await expect(page.locator('#admin-toolbar')).toHaveCount(1);
+      if (width === 390) {
+        const trigger = page.locator('[data-drupal-selector="admin-toolbar-mobile-trigger"]');
+        await expect(trigger).toBeVisible();
+        await trigger.click();
+        await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        await expect(page.locator('html')).toHaveAttribute('data-admin-toolbar', 'expanded');
+        await expect(page.locator('html[data-admin-toolbar-animating]')).toHaveCount(0);
+        await expect(page.locator('.admin-toolbar-overlay')).toBeVisible();
+        expect(await header(page).evaluate(element => Boolean(element.closest('[inert]')))).toBe(true);
+        // The real core overlay/sidebar must receive pointer hits above the
+        // themed header; checking only a child z-index would miss stacking bugs.
+        const overlayReceivesPointer = await page.evaluate(() => {
+          const element = document.elementFromPoint(innerWidth - 5, 80);
+          return Boolean(element?.closest('.admin-toolbar-overlay, #admin-toolbar'));
+        });
+        expect(overlayReceivesPointer).toBe(true);
+        await screenshot(page, testInfo, 'core-navigation-mobile-overlay');
+        await page.locator('#admin-toolbar .admin-toolbar__close-button').click();
+        await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        await expect(page.locator('html[data-admin-toolbar-animating]')).toHaveCount(0);
+        expect(await header(page).evaluate(element => Boolean(element.closest('[inert]')))).toBe(false);
+      }
+    }
     await page.evaluate(() => window.scrollTo(0, 600));
     await expect.poll(() => header(page).evaluate(element => element.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
     const offsets = await page.evaluate(() => {
