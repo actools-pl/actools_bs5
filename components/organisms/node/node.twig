@@ -37,7 +37,7 @@
   {{ title_suffix }}
 
   {% block content %}
-    {% if not page %}
+    {% if view_mode != 'full' %}
       <h2{{ title_attributes }}>
         <a href="{{ url }}" rel="bookmark">{{ label }}</a>
       </h2>

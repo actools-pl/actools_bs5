@@ -78,8 +78,7 @@ Core Layout Builder creates its standard `layout_builder__layout` storage and a
 field instance on **Actools topic** when per-page overrides are enabled. This
 recipe uses core's `allowLayoutOverrides` configuration action for that step;
 merely importing an `allow_custom` flag does not create the field on a new site.
-The
-core-managed field intentionally keeps its standard name; it is not a field on
+The core-managed field intentionally keeps its standard name; it is not a field on
 any pre-existing content type. No pre-existing layout is changed.
 
 The feature adds configuration only. No sample nodes, blocks, files, permissions,

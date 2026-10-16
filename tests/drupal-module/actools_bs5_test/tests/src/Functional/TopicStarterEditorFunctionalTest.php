@@ -79,7 +79,13 @@ final class TopicStarterEditorFunctionalTest extends BrowserTestBase {
     // recipe setting alone is insufficient: prove the real form enforces it.
     $alt = $this->assertSession()->fieldExists('field_actools_image[0][alt]');
     $this->assertTrue($alt->hasAttribute('required'));
-    $this->assertSession()->statusMessageContains('Alternative text', 'error');
+    // Submit the uploaded image again without alt text. Check persistence,
+    // rather than assuming a front-end theme uses core's message CSS/ARIA DOM.
+    $this->submitForm([], 'Save');
+    $this->assertResponseStatus(200);
+    $this->assertSession()->fieldExists('field_actools_image[0][alt]');
+    $unsaved = $this->container->get('entity_type.manager')->getStorage('block_content')->loadByProperties(['info' => 'Meniscus introduction']);
+    $this->assertCount(0, $unsaved, 'An image block cannot be saved without required alternative text.');
     $this->submitForm(['field_actools_image[0][alt]' => 'Concave water meniscus'], 'Save');
     $this->assertResponseStatus(200);
     $blocks = $this->container->get('entity_type.manager')->getStorage('block_content')->loadByProperties(['info' => 'Meniscus introduction']);
@@ -135,6 +141,7 @@ final class TopicStarterEditorFunctionalTest extends BrowserTestBase {
     foreach ([1, 2] as $pass) {
       $this->drupalGet($topic->toUrl());
       $this->assertResponseStatus(200);
+      $this->assertSession()->elementsCount('css', 'h1', 1);
       $this->assertSession()->pageTextContains('Understanding a meniscus');
       $this->assertSession()->pageTextContains('Revised introduction after reviewing the diagram.');
       $this->assertSession()->pageTextNotContains('First introduction written by an editor.');
