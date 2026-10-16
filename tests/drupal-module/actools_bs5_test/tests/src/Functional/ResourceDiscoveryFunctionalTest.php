@@ -59,19 +59,19 @@ final class ResourceDiscoveryFunctionalTest extends BrowserTestBase {
     $this->assertSession()->elementTextContains('css', '.view-actools-resources h2', 'Resources');
     $form = $this->assertSession()->elementExists('css', 'form.views-exposed-form');
     $this->assertSame('get', strtolower($form->getAttribute('method')));
-    foreach (['q', 'kind', 'level'] as $name) {
+    foreach (['keywords', 'kind', 'level'] as $name) {
       $this->assertSession()->fieldExists($name);
     }
-    $this->submitForm(['q' => 'capillary', 'kind' => 'notes', 'level' => 'foundation'], 'Apply filters');
+    $this->submitForm(['keywords' => 'capillary', 'kind' => 'notes', 'level' => 'foundation'], 'Apply filters');
     $this->assertResponseStatus(200);
     $this->assertSession()->elementsCount('css', '.actools-resource-card', 12);
-    $this->assertSession()->fieldValueEquals('q', 'capillary');
+    $this->assertSession()->fieldValueEquals('keywords', 'capillary');
     $this->assertSession()->fieldValueEquals('kind', 'notes');
     $this->assertSession()->fieldValueEquals('level', 'foundation');
     $this->assertSession()->pageTextNotContains('Unpublished capillary answer');
     $next = $this->assertSession()->elementExists('css', '.pager__item--next a');
     parse_str((string) parse_url($next->getAttribute('href'), PHP_URL_QUERY), $query);
-    $this->assertSame('capillary', $query['q']);
+    $this->assertSame('capillary', $query['keywords']);
     $this->assertSame('notes', $query['kind']);
     $this->assertSame('foundation', $query['level']);
     $next->click();
@@ -81,17 +81,17 @@ final class ResourceDiscoveryFunctionalTest extends BrowserTestBase {
     $this->assertSession()->pageTextContains('Capillary notes 13');
     $this->submitForm([], 'Reset');
     $this->assertResponseStatus(200);
-    $this->assertSession()->fieldValueEquals('q', '');
+    $this->assertSession()->fieldValueEquals('keywords', '');
     $this->assertSession()->elementsCount('css', '.actools-resource-card', 12);
-    $this->submitForm(['q' => 'capillary', 'kind' => 'worked_examples', 'level' => 'jee_advanced'], 'Apply filters');
+    $this->submitForm(['keywords' => 'capillary', 'kind' => 'worked_examples', 'level' => 'jee_advanced'], 'Apply filters');
     $this->assertResponseStatus(200);
     $this->assertSession()->elementsCount('css', '.actools-resource-card', 1);
     $this->assertSession()->pageTextContains('Water meniscus examples');
-    $this->submitForm(['q' => 'unmatched query'], 'Apply filters');
+    $this->submitForm(['keywords' => 'unmatched query'], 'Apply filters');
     $this->assertResponseStatus(200);
     $this->assertSession()->pageTextContains('No resources match your filters.');
     $this->assertSession()->elementNotExists('css', '.actools-resource-card');
-    $this->assertSession()->fieldValueEquals('q', 'unmatched query');
+    $this->assertSession()->fieldValueEquals('keywords', 'unmatched query');
   }
 
   /**
@@ -111,25 +111,27 @@ final class ResourceDiscoveryFunctionalTest extends BrowserTestBase {
     $translation->save();
     $english_only = $this->resource('English only pressure', 'No French translation.', 'notes', 'foundation');
     drupal_flush_all_caches();
+    $french = ConfigurableLanguage::load('fr');
+    $english = ConfigurableLanguage::load('en');
     foreach ([1, 2] as $pass) {
-      $this->drupalGet('fr/resources', ['query' => ['q' => 'pression', 'kind' => 'worked_examples']]);
+      $this->drupalGet('resources', ['language' => $french, 'query' => ['keywords' => 'pression', 'kind' => 'worked_examples']]);
       $this->assertResponseStatus(200);
       $this->assertSession()->elementsCount('css', '.actools-resource-card', 1);
       $this->assertSession()->pageTextContains('Tension superficielle');
       $this->assertSession()->pageTextContains('Diagrammes de pression.');
       $this->assertSession()->pageTextNotContains($english_only->label());
       $this->assertSession()->pageTextNotContains('Surface tension notes');
-      $this->drupalGet('en/resources', ['query' => ['q' => 'pressure', 'kind' => 'notes']]);
+      $this->drupalGet('resources', ['language' => $english, 'query' => ['keywords' => 'pressure', 'kind' => 'notes']]);
       $this->assertResponseStatus(200);
       $this->assertSession()->elementsCount('css', '.actools-resource-card', 2);
       $this->assertSession()->pageTextNotContains('Tension superficielle');
     }
     $translation->setUnpublished()->save();
-    $this->drupalGet('fr/resources', ['query' => ['q' => 'pression']]);
+    $this->drupalGet('resources', ['language' => $french, 'query' => ['keywords' => 'pression']]);
     $this->assertResponseStatus(200);
     $this->assertSession()->elementNotExists('css', '.actools-resource-card');
     $this->assertSession()->pageTextContains('No resources match your filters.');
-    $this->drupalGet('en/resources', ['query' => ['q' => 'pressure']]);
+    $this->drupalGet('resources', ['language' => $english, 'query' => ['keywords' => 'pressure']]);
     $this->assertResponseStatus(200);
     $this->assertSession()->elementsCount('css', '.actools-resource-card', 2);
   }

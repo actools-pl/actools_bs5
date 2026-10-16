@@ -75,20 +75,20 @@ final class ResourceDiscoveryKernelTest extends KernelTestBase {
     ]);
     $topic->save();
 
-    [$html, $ids, $total] = $this->find(['q' => 'capillary']);
+    [$html, $ids, $total] = $this->find(['keywords' => 'capillary']);
     $this->assertSame([(int) $title->id(), (int) $summary->id()], $ids);
     $this->assertSame(2, $total);
     $this->assertStringContainsString('actools-resource-card__heading', $html);
     $this->assertStringContainsString('<h2>Resources</h2>', $html);
     $this->assertStringNotContainsString($draft->label(), $html);
     $this->assertStringNotContainsString($topic->label(), $html);
-    [, $ids, $total] = $this->find(['q' => 'capillary', 'kind' => 'worked_examples', 'level' => 'jee_advanced']);
+    [, $ids, $total] = $this->find(['keywords' => 'capillary', 'kind' => 'worked_examples', 'level' => 'jee_advanced']);
     $this->assertSame([(int) $summary->id()], $ids);
     $this->assertSame(1, $total);
     [$html, $ids] = $this->find(['kind' => 'notes', 'level' => 'olympiad']);
     $this->assertSame([], $ids);
     $this->assertStringContainsString('No resources match your filters.', $html);
-    [, $ids] = $this->find(['q' => 'no metadata']);
+    [, $ids] = $this->find(['keywords' => 'no metadata']);
     $this->assertSame([(int) $empty->id()], $ids, 'Empty optional metadata never removes an unfiltered resource.');
   }
 
@@ -98,13 +98,13 @@ final class ResourceDiscoveryKernelTest extends KernelTestBase {
   public function testNonLatinAndWildcardSearchesUseLiteralText(): void {
     $resource = $this->resource('Поверхностное натяжение', 'Work with 100%_complete data.');
     $this->resource('Other resource', 'Work with 1000xcomplete data.');
-    [, $ids, $total] = $this->find(['q' => 'натяжение']);
+    [, $ids, $total] = $this->find(['keywords' => 'натяжение']);
     $this->assertSame([(int) $resource->id()], $ids);
     $this->assertSame(1, $total);
-    [, $ids, $total] = $this->find(['q' => '100%_complete']);
+    [, $ids, $total] = $this->find(['keywords' => '100%_complete']);
     $this->assertSame([(int) $resource->id()], $ids);
     $this->assertSame(1, $total);
-    [$html, $ids] = $this->find(['q' => "' OR 1=1 --"]);
+    [$html, $ids] = $this->find(['keywords' => "' OR 1=1 --"]);
     $this->assertSame([], $ids);
     $this->assertStringContainsString('No resources match your filters.', $html);
   }
@@ -120,7 +120,7 @@ final class ResourceDiscoveryKernelTest extends KernelTestBase {
     $public = $this->resource('Public pressure notes', 'Public pressure summary.');
     $restricted = $this->resource('Restricted pressure answers', 'Private pressure answer summary.', owner: 2);
     foreach ([$allowed, $denied, $allowed, $denied, new AnonymousUserSession()] as $viewer) {
-      [$html, $ids, $total, $metadata] = $this->find(['q' => 'pressure'], $viewer);
+      [$html, $ids, $total, $metadata] = $this->find(['keywords' => 'pressure'], $viewer);
       $expected = (int) $viewer->id() === 2 ? [(int) $public->id(), (int) $restricted->id()] : [(int) $public->id()];
       $this->assertSame($expected, $ids);
       $this->assertSame(count($expected), $total, 'Pager totals must not disclose inaccessible results.');
@@ -131,15 +131,15 @@ final class ResourceDiscoveryKernelTest extends KernelTestBase {
       }
     }
     $public->setTitle('Public energy notes')->set('field_actools_summary', 'An energy summary.')->save();
-    [, $ids, $total] = $this->find(['q' => 'pressure']);
+    [, $ids, $total] = $this->find(['keywords' => 'pressure']);
     $this->assertSame([], $ids, 'Saved edits remove stale matches while view caches remain warm.');
     $this->assertSame(0, $total);
-    [, $ids, $total] = $this->find(['q' => 'energy']);
+    [, $ids, $total] = $this->find(['keywords' => 'energy']);
     $this->assertSame([(int) $public->id()], $ids);
     $this->assertSame(1, $total);
     $public->setUnpublished()->save();
     $this->container->get('entity_type.manager')->getAccessControlHandler('node')->resetCache();
-    [, $ids, $total] = $this->find(['q' => 'energy']);
+    [, $ids, $total] = $this->find(['keywords' => 'energy']);
     $this->assertSame([], $ids);
     $this->assertSame(0, $total);
   }
@@ -154,10 +154,10 @@ final class ResourceDiscoveryKernelTest extends KernelTestBase {
     }
     $this->resource('Restricted Paging answer', 'Pager fixture.', owner: 2);
     $this->resource('Paging draft', 'Pager fixture.', published: FALSE);
-    [, $first, $total] = $this->find(['q' => 'Pager fixture.']);
+    [, $first, $total] = $this->find(['keywords' => 'Pager fixture.']);
     $this->assertSame(array_slice($expected, 0, 12), $first);
     $this->assertSame(14, $total);
-    [, $second, $total] = $this->find(['q' => 'Pager fixture.'], page: 1);
+    [, $second, $total] = $this->find(['keywords' => 'Pager fixture.'], page: 1);
     $this->assertSame(array_slice($expected, 12), $second);
     $this->assertSame(14, $total);
     $this->assertSame([], array_intersect($first, $second));
@@ -194,7 +194,11 @@ final class ResourceDiscoveryKernelTest extends KernelTestBase {
       $view->setDisplay('page_resources');
       $view->setExposedInput($input);
       $view->setCurrentPage($page);
-      $this->assertSame([], $view->validate(), 'The exported View must validate as native core configuration.');
+      $errors = [];
+      foreach ($view->validate() as $display => $messages) {
+        $errors[$display] = array_map(static fn ($message): string => (string) $message, $messages);
+      }
+      $this->assertSame([], $errors, 'The exported View must validate as native core configuration.');
       // Execute the real query (including its result cache) before rendering.
       // A warm render-cache hit can otherwise legitimately skip pre_render and
       // leave this fresh View object's result property unpopulated.

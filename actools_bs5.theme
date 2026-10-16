@@ -186,6 +186,11 @@ function actools_bs5_preprocess_file_link(array &$variables): void {
 function actools_bs5_preprocess_menu(&$variables, $hook, $info) {
   // Checks the nested level of a menu.
   actools_bs5_process_menu_level($variables['items']);
+  // Core menu variables are still arrays at this preprocess stage; SDC
+  // consumers can also pass an Attribute object. Preserve either shape.
+  $variables['attributes'] = $variables['attributes'] instanceof \Drupal\Core\Template\Attribute
+    ? $variables['attributes']
+    : new \Drupal\Core\Template\Attribute($variables['attributes'] ?? []);
   $attributes = $variables['attributes'];
   $instance = isset($attributes['data-actools-menu-instance']) ? (string) $attributes['data-actools-menu-instance'] : \Drupal\Component\Utility\Html::getUniqueId('menu-' . ($variables['menu_name'] ?? 'navigation'));
   $variables['actools_navigation_region'] = isset($attributes['data-actools-menu-region']) ? (string) $attributes['data-actools-menu-region'] : 'content';

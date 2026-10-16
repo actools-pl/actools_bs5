@@ -207,12 +207,12 @@ display:
           group: 1
           exposed: true
           expose:
-            operator_id: q_op
+            operator_id: keywords_op
             label: Search titles and summaries
             description: Searches resource titles and short summaries, not full text or downloads.
             use_operator: false
-            operator: q_op
-            identifier: q
+            operator: keywords_op
+            identifier: keywords
             required: false
             remember: false
             multiple: false

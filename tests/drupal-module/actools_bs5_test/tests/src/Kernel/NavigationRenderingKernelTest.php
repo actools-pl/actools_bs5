@@ -21,11 +21,12 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[RunTestsInSeparateProcesses]
 final class NavigationRenderingKernelTest extends KernelTestBase {
 
-  protected static $modules = ['system', 'user', 'file', 'block'];
+  protected static $modules = ['system', 'user', 'file', 'block', 'path_alias'];
 
   protected function setUp(): void {
     parent::setUp();
     $this->installEntitySchema('user');
+    $this->installEntitySchema('path_alias');
     $this->installSchema('user', ['users_data']);
     $this->installConfig(['system', 'user', 'block']);
     if (!Menu::load('main')) {
@@ -74,6 +75,7 @@ final class NavigationRenderingKernelTest extends KernelTestBase {
     // Older menu alters sometimes supply a class string rather than an array.
     $items['parent']['url']->setOption('attributes', ['class' => 'legacy-one legacy-two']);
     $build = $this->menu($items, 'header', 'string-classes');
+    $build['#attributes'] = new Attribute($build['#attributes']);
     $legacy = $this->document((string) $this->container->get('renderer')->renderRoot($build));
     $this->assertStringContainsString('legacy-one legacy-two', $legacy->evaluate('string(//a[text()="Topics landing page"]/@class)'));
   }

@@ -110,7 +110,14 @@
         }
         if (focusedOwner) focusedOwner.focus();
         if (desktop && focusOnToggle) {
-          panel.querySelector('.actools-navigation__link')?.focus();
+          // A first <nolink> item is a span, and its descendants may have
+          // just been hidden. Transfer focus only to a usable visible item.
+          const visibleFocusable = (element) => !element.matches(':disabled, [hidden], [aria-disabled="true"]')
+            && !element.closest('[hidden]') && element.getClientRects().length > 0
+            && getComputedStyle(element).visibility === 'visible';
+          const next = [...panel.querySelectorAll('a[href], button')].find(visibleFocusable)
+            || [...header.querySelectorAll('.block-system-branding-block a[href]')].find(visibleFocusable);
+          next?.focus();
         }
         firstMode = false;
       }

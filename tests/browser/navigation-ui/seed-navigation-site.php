@@ -150,6 +150,8 @@ file_put_contents($fixture_path, json_encode([
   'username' => $editor->getAccountName(), 'adminInterface' => $admin_interface,
   'currentTopicPath' => '/node/' . $topic->id(), 'currentTopicTitle' => $topic->label(),
   'parentTitle' => $parent_title, 'childTitle' => $child_title,
+  'parentMenuLinkId' => (int) $parent->id(),
+  'renamedParentTitle' => 'Physics topics and learning materials',
   'parentPath' => $resource_fixtures[$parent_title]['path'],
   'childPath' => $resource_fixtures[$child_title]['path'],
   'sectionIds' => $section_ids, 'resources' => $resource_fixtures,

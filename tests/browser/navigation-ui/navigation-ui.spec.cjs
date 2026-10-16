@@ -38,6 +38,11 @@ test.afterEach(async ({ page }, testInfo) => {
   }
 });
 
+async function visit(page, url) {
+  const response = await page.goto(url);
+  expect(response?.status(), `Drupal page ${url}`).toBe(200);
+  return response;
+}
 async function openMenu(page) {
   const toggle = menuToggle(page);
   if (await toggle.isVisible() && await toggle.getAttribute('aria-expanded') !== 'true') await toggle.click();
@@ -68,12 +73,14 @@ function scenario(name, baseURL) {
     env: { ...process.env, ACTOOLS_NAV_SCENARIO: name },
     timeout: 30000, stdio: 'pipe',
   });
-  execFileSync(process.env.ACTOOLS_NAV_DRUSH, [`--uri=${baseURL}`, 'cache:rebuild'], {
-    cwd: process.env.ACTOOLS_NAV_PROJECT, env: process.env, timeout: 30000, stdio: 'pipe',
-  });
+  if (!name.startsWith('menu-')) {
+    execFileSync(process.env.ACTOOLS_NAV_DRUSH, [`--uri=${baseURL}`, 'cache:rebuild'], {
+      cwd: process.env.ACTOOLS_NAV_PROJECT, env: process.env, timeout: 30000, stdio: 'pipe',
+    });
+  }
 }
 async function login(page) {
-  await page.goto('/user/login');
+  await visit(page, '/user/login');
   await page.getByLabel('Username', { exact: true }).fill(fixture.username);
   await page.getByLabel('Password', { exact: true }).fill(process.env.ACTOOLS_NAV_EDITOR_PASSWORD);
   await page.getByRole('button', { name: 'Log in', exact: true }).click();
@@ -112,7 +119,7 @@ async function assertReadable(locator) {
 test('real header and footer menus preserve native links and fit all viewport boundaries', async ({ page }, testInfo) => {
   for (const width of [320, 390, 768, 991, 992, 1023, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto(fixture.currentTopicPath);
+    await visit(page, fixture.currentTopicPath);
     await expect(navigation(page)).toHaveCount(1);
     await expect(page.getByRole('navigation', { name: 'Primary navigation', exact: true })).toHaveCount(1);
     await expect(page.getByRole('navigation', { name: 'Footer topic navigation', exact: true })).toHaveCount(1);
@@ -150,7 +157,7 @@ test('real header and footer menus preserve native links and fit all viewport bo
 
 test('keyboard disclosures, Escape focus and resized panels remain usable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 850 });
-  await page.goto(fixture.currentTopicPath);
+  await visit(page, fixture.currentTopicPath);
   await menuToggle(page).focus();
   await menuToggle(page).press('Enter');
   await expect(panel(page)).toBeVisible();
@@ -171,7 +178,7 @@ test('keyboard disclosures, Escape focus and resized panels remain usable', asyn
   await expect(menuToggle(page)).toBeHidden();
   await expect(panel(page)).toBeVisible();
   await openBranch(page, fixture.parentTitle);
-  await page.getByRole('heading', { level: 1 }).click();
+  await page.getByRole('heading', { name: 'Concepts and notes', exact: true }).click();
   await page.setViewportSize({ width: 390, height: 850 });
   await expect(menuToggle(page)).toBeVisible();
   await expect(panel(page)).toBeHidden();
@@ -184,7 +191,7 @@ test('keyboard disclosures, Escape focus and resized panels remain usable', asyn
 test('native hash navigation, history and skip links clear the measured sticky header', async ({ page }, testInfo) => {
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto(`${fixture.currentTopicPath}#worked-examples`);
+    await visit(page, `${fixture.currentTopicPath}#worked-examples`);
     await expect(page.locator('html')).toHaveClass(/\bactools-sticky-header-active\b/);
     await assertHeadingClearsHeader(page, 'worked-examples');
     await openMenu(page);
@@ -197,7 +204,7 @@ test('native hash navigation, history and skip links clear the measured sticky h
     await expect(page).toHaveURL(new RegExp(`${fixture.currentTopicPath}#worked-examples$`));
     await assertHeadingClearsHeader(page, 'worked-examples');
   }
-  await page.goto(fixture.currentTopicPath);
+  await visit(page, fixture.currentTopicPath);
   await page.keyboard.press('Tab');
   await expect(page.locator('.skip-link')).toBeFocused();
   await page.locator('.skip-link').press('Enter');
@@ -206,7 +213,7 @@ test('native hash navigation, history and skip links clear the measured sticky h
   expect(clearance).toBeGreaterThanOrEqual(6);
   try {
     scenario('sticky-off', testInfo.project.use.baseURL);
-    await page.goto(`${fixture.currentTopicPath}#practice-assignments`);
+    await visit(page, `${fixture.currentTopicPath}#practice-assignments`);
     await expect(page.locator('html')).not.toHaveClass(/\bactools-sticky-header-active\b/);
     expect(await header(page).evaluate(element => getComputedStyle(element).position)).not.toBe('sticky');
     expect((await header(page).boundingBox()).y).toBeLessThan(0);
@@ -220,7 +227,7 @@ test('installed core admin interface stays above the header and Layout Builder d
   await login(page);
   for (const width of [390, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto(fixture.currentTopicPath);
+    await visit(page, fixture.currentTopicPath);
     if (fixture.adminInterface === 'toolbar') await expect(page.locator('#toolbar-administration')).toBeVisible();
     else await expect(page.locator('#admin-toolbar')).toHaveCount(1);
     await page.evaluate(() => window.scrollTo(0, 600));
@@ -238,7 +245,7 @@ test('installed core admin interface stays above the header and Layout Builder d
   }
   await page.setViewportSize({ width: 1440, height: 900 });
   if (fixture.adminInterface === 'toolbar') {
-    await page.goto(fixture.currentTopicPath);
+    await visit(page, fixture.currentTopicPath);
     const manage = page.locator('#toolbar-item-administration');
     await expect(manage).toBeVisible();
     if (await manage.getAttribute('aria-pressed') !== 'true') await manage.click();
@@ -254,7 +261,7 @@ test('installed core admin interface stays above the header and Layout Builder d
     // scrolling or resizing the viewport. The sticky header must follow it.
     await expect.poll(() => header(page).evaluate(element => element.getBoundingClientRect().top)).toBeLessThan(expandedTop - 1);
   }
-  await page.goto(`${fixture.currentTopicPath}/layout`);
+  await visit(page, `${fixture.currentTopicPath}/layout`);
   const addBlock = page.getByRole('link', { name: /^Add block\b/ }).first();
   await expect(addBlock).toHaveAttribute('data-once', /\bajax\b/);
   await addBlock.click();
@@ -271,7 +278,7 @@ test('installed core admin interface stays above the header and Layout Builder d
 test('same-origin editor preview-frame compatibility keeps the page header static', async ({ page }) => {
   // This exercises the public preview-frame contract. It does not install or
   // claim end-to-end coverage of Drupal Canvas or the contributed Gin theme.
-  await page.goto(fixture.previewFramePath);
+  await visit(page, fixture.previewFramePath);
   const preview = page.frameLocator('iframe[data-canvas-preview]');
   await expect(preview.locator('html')).toHaveClass(/\bis-canvas-preview\b/);
   await expect(preview.locator('html')).not.toHaveClass(/\bactools-sticky-header-active\b/);
@@ -289,7 +296,7 @@ test('real menu colours, pale brand, larger text, reduced motion and print remai
         for (const width of [390, 1440]) {
           await page.setViewportSize({ width, height: 1000 });
           await page.emulateMedia({ reducedMotion: 'reduce' });
-          await page.goto(fixture.currentTopicPath);
+          await visit(page, fixture.currentTopicPath);
           // Presentation simulation only: interaction tests above use the real
           // editing/navigation UI without mutating it or its native links.
           await page.locator('html').evaluate((element, value) => element.setAttribute('data-bs-theme', value), mode);
@@ -330,7 +337,7 @@ test('without JavaScript both native menu instances expose every permitted level
   const context = await browser.newContext({ baseURL: testInfo.project.use.baseURL, javaScriptEnabled: false, viewport: { width: 320, height: 900 } });
   const page = await context.newPage();
   try {
-    const response = await page.goto(fixture.currentTopicPath);
+    const response = await visit(page, fixture.currentTopicPath);
     expect(response.status()).toBe(200);
     for (const menu of [navigation(page), footerNavigation(page)]) {
       await expect(menu.getByRole('link', { name: fixture.parentTitle, exact: true })).toBeVisible();
@@ -348,15 +355,15 @@ test('without JavaScript both native menu instances expose every permitted level
 });
 
 test('optional Resource finder applies native GET filters and excludes drafts', async ({ page }) => {
-  await page.goto(fixture.resourceFinderPath);
+  await visit(page, fixture.resourceFinderPath);
   await expect(page.locator('.actools-resource-card')).toHaveCount(5);
   await expect(page.getByText(fixture.unpublishedTitle, { exact: true })).toHaveCount(0);
-  await page.locator('input[name="q"]').fill('Capillary');
+  await page.locator('input[name="keywords"]').fill('Capillary');
   await page.locator('select[name="kind"]').selectOption('worked_examples');
   await page.locator('select[name="level"]').selectOption('jee_advanced');
   await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
   const url = new URL(page.url());
-  expect(url.searchParams.get('q')).toBe('Capillary');
+  expect(url.searchParams.get('keywords')).toBe('Capillary');
   expect(url.searchParams.get('kind')).toBe('worked_examples');
   expect(url.searchParams.get('level')).toBe('jee_advanced');
   await expect(page.locator('.actools-resource-card__heading')).toHaveText(['Capillary rise worked examples']);
@@ -364,8 +371,38 @@ test('optional Resource finder applies native GET filters and excludes drafts', 
   await expect(page.locator('.actools-resource-card__heading')).toHaveText(['Capillary rise worked examples']);
   await page.getByRole('button', { name: 'Reset', exact: true }).click();
   await expect(page.locator('.actools-resource-card')).toHaveCount(5);
-  await page.locator('input[name="q"]').fill('No such physics resource');
+  await page.locator('input[name="keywords"]').fill('No such physics resource');
   await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
   await expect(page.getByText('No resources match your filters.', { exact: true })).toBeVisible();
   await expect(page.locator('.actools-resource-card')).toHaveCount(0);
+});
+
+test('native menu edits invalidate both anonymous header and footer caches', async ({ page }, testInfo) => {
+  await visit(page, fixture.currentTopicPath);
+  const warmed = await visit(page, fixture.currentTopicPath);
+  expect(warmed.status()).toBe(200);
+  expect(warmed.headers()['x-drupal-cache']).toBe('HIT');
+  for (const menu of [navigation(page), footerNavigation(page)]) {
+    await expect(menu.getByRole('link', { name: fixture.parentTitle, exact: true })).toHaveCount(1);
+  }
+  try {
+    // The CLI fixture performs an ordinary MenuLinkContent::save(). It does
+    // not rebuild any cache, so a stale placement cannot pass accidentally.
+    scenario('menu-rename', testInfo.project.use.baseURL);
+    for (let pass = 0; pass < 2; pass++) {
+      await visit(page, fixture.currentTopicPath);
+      for (const menu of [navigation(page), footerNavigation(page)]) {
+        await expect(menu.getByRole('link', { name: fixture.parentTitle, exact: true })).toHaveCount(0);
+        const renamed = menu.getByRole('link', { name: fixture.renamedParentTitle, exact: true });
+        await expect(renamed).toHaveCount(1);
+        expect(new URL(await renamed.getAttribute('href'), testInfo.project.use.baseURL).pathname).toBe(fixture.parentPath);
+      }
+    }
+  }
+  finally { scenario('menu-restore', testInfo.project.use.baseURL); }
+  await visit(page, fixture.currentTopicPath);
+  for (const menu of [navigation(page), footerNavigation(page)]) {
+    await expect(menu.getByRole('link', { name: fixture.parentTitle, exact: true })).toHaveCount(1);
+    await expect(menu.getByRole('link', { name: fixture.renamedParentTitle, exact: true })).toHaveCount(0);
+  }
 });
