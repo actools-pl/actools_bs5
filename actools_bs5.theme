@@ -26,7 +26,7 @@ function actools_bs5_preprocess_block(array &$variables) {
   $variables['actools_heading'] = '';
   $variables['actools_position'] = 'right';
   $variables['actools_has_image'] = FALSE;
-  $metadata = \Drupal\Core\Cache\CacheableMetadata::createFromRenderArray($content)
+  $metadata = \Drupal\Core\Render\BubbleableMetadata::createFromRenderArray($content)
     ->addCacheableDependency($block);
   foreach (['field_actools_heading', 'field_actools_position', 'field_actools_image'] as $name) {
     if (!$block->hasField($name)) {
@@ -35,10 +35,32 @@ function actools_bs5_preprocess_block(array &$variables) {
     $field = $block->get($name);
     $access = $field->access('view', NULL, TRUE);
     $metadata->addCacheableDependency($access);
-    // Respect both field access and the selected entity display. In particular,
-    // a hidden heading must not reappear merely because it exists on the entity.
-    if (!$access->isAllowed() || !isset($content[$name]) || ($content[$name]['#access'] ?? TRUE) === FALSE) {
+    $element = $content[$name] ?? NULL;
+    if (is_array($element)) {
+      // Denied elements contribute cacheability, never their attached settings.
+      $metadata = $metadata->merge(\Drupal\Core\Cache\CacheableMetadata::createFromRenderArray($element));
+      $element_access = $element['#access'] ?? TRUE;
+      if ($element_access instanceof \Drupal\Core\Access\AccessResultInterface) {
+        $metadata->addCacheableDependency($element_access);
+        $element_allowed = $element_access->isAllowed();
+      }
+      else {
+        $element_allowed = (bool) $element_access;
+      }
+    }
+    else {
+      $element_allowed = TRUE;
+    }
+    // Position is an editing control intentionally hidden from the display.
+    // Heading/image must respect display visibility as well as field access.
+    if (!$access->isAllowed() || !$element_allowed
+      || ($name !== 'field_actools_position' && !is_array($element))) {
       continue;
+    }
+    if (is_array($element)) {
+      // Plain presentation values do not render their original elements. Keep
+      // attachments only after both field and element access allow their use.
+      $metadata = $metadata->merge(\Drupal\Core\Render\BubbleableMetadata::createFromRenderArray($element));
     }
     if ($name === 'field_actools_heading') {
       $variables['actools_heading'] = (string) ($field->value ?? '');

@@ -149,10 +149,10 @@ final class TopicStarterRecipeKernelTest extends KernelTestBase {
     ]);
     $this->container->get('file_system')->prepareDirectory('public://actools-tests', FileSystemInterface::CREATE_DIRECTORY);
     $uri = 'public://actools-tests/diagram.png';
-    file_put_contents($uri, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a1ioAAAAASUVORK5CYII='));
+    file_put_contents($uri, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAFElEQVR4nGP8//8/AwwwMSAB3BwAlm4DBfIlvvkAAAAASUVORK5CYII='));
     $file = File::create(['uri' => $uri, 'status' => 1]);
     $file->save();
-    $block->set('field_actools_image', ['target_id' => $file->id(), 'alt' => 'Concave water meniscus diagram', 'width' => 1, 'height' => 1]);
+    $block->set('field_actools_image', ['target_id' => $file->id(), 'alt' => 'Concave water meniscus diagram', 'width' => 4, 'height' => 4]);
     $block->save();
     [$html, $metadata] = $this->renderBlockAs($block, new AnonymousUserSession());
     $this->assertStringContainsString('actools-text-image', $html);
@@ -213,6 +213,49 @@ final class TopicStarterRecipeKernelTest extends KernelTestBase {
     ]);
     $node->save();
     return $node;
+  }
+
+  /**
+   * Hidden editing controls work without bypassing denied presentation fields.
+   */
+  public function testPresentationMappingPreservesElementAccessAndMetadata(): void {
+    $block = BlockContent::create([
+      'type' => 'actools_text_image', 'info' => 'Mapping regression', 'status' => 1,
+      'field_actools_heading' => 'Restricted heading',
+      'field_actools_body' => ['value' => 'A public introduction.', 'format' => 'plain_text'],
+      'field_actools_position' => 'left',
+    ]);
+    $block->save();
+    $theme_path = $this->container->get('extension.list.theme')->getPath('actools_bs5');
+    require_once DRUPAL_ROOT . '/' . $theme_path . '/actools_bs5.theme';
+    $view = $this->container->get('entity_type.manager')->getViewBuilder('block_content')->view($block);
+    $this->assertArrayNotHasKey('field_actools_position', $view, 'Position is an editing control, not displayed text.');
+    foreach ([\Drupal\Core\Access\AccessResult::forbidden(), \Drupal\Core\Access\AccessResult::neutral()] as $access) {
+      $variables = ['content' => $view];
+      $variables['content']['field_actools_heading']['#access'] = $access->cachePerPermissions();
+      $variables['content']['field_actools_heading']['#cache']['tags'] = ['actools_heading:probe'];
+      $variables['content']['field_actools_heading']['#attached']['library'] = ['core/drupal'];
+      $variables['content']['field_actools_heading']['#attached']['drupalSettings']['restricted_heading'] = 'Private heading setting';
+      actools_bs5_preprocess_block($variables);
+      $this->assertSame('', $variables['actools_heading'], 'A denied/neutral render element must not expose its raw field value.');
+      $this->assertSame('left', $variables['actools_position'], 'The hidden position control remains effective.');
+      $metadata = \Drupal\Core\Render\BubbleableMetadata::createFromRenderArray($variables['content']);
+      $this->assertContains('user.permissions', $metadata->getCacheContexts());
+      $this->assertContains('actools_heading:probe', $metadata->getCacheTags());
+      $this->assertNotContains('core/drupal', $metadata->getAttachments()['library'] ?? []);
+      $this->assertArrayNotHasKey('restricted_heading', $metadata->getAttachments()['drupalSettings'] ?? []);
+    }
+    $variables = ['content' => $view];
+    $variables['content']['field_actools_heading']['#access'] = \Drupal\Core\Access\AccessResult::allowed();
+    $variables['content']['field_actools_heading']['#attached']['library'] = ['core/drupal'];
+    actools_bs5_preprocess_block($variables);
+    $this->assertSame('Restricted heading', $variables['actools_heading']);
+    $this->assertContains('core/drupal', $variables['content']['#attached']['library']);
+    unset($view['field_actools_heading']);
+    $variables = ['content' => $view];
+    actools_bs5_preprocess_block($variables);
+    $this->assertSame('', $variables['actools_heading'], 'A display-hidden heading stays hidden.');
+    $this->assertSame('left', $variables['actools_position']);
   }
 
   /**

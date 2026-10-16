@@ -36,7 +36,7 @@ final class TopicStarterEditorFunctionalTest extends BrowserTestBase {
     $path = $this->container->get('extension.list.theme')->getPath('actools_bs5');
     // Core's test helper invokes the real CLI, checks its exit code, and
     // rebuilds the test runner after any recipe-installed modules.
-    $this->applyRecipe($this->getDrupalRoot() . '/' . $path . '/recipes/actools_topic_starter');
+    $this->applyRecipe($this->root . '/' . $path . '/recipes/actools_topic_starter');
     $this->drupalPlaceBlock('system_main_block', ['region' => 'content']);
     $this->drupalPlaceBlock('system_messages_block', ['region' => 'content']);
     $this->drupalPlaceBlock('page_title_block', ['region' => 'content']);
@@ -65,7 +65,7 @@ final class TopicStarterEditorFunctionalTest extends BrowserTestBase {
 
     $this->container->get('file_system')->prepareDirectory('public://actools-editor-fixture', FileSystemInterface::CREATE_DIRECTORY);
     $uri = 'public://actools-editor-fixture/diagram.png';
-    file_put_contents($uri, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a1ioAAAAASUVORK5CYII='));
+    file_put_contents($uri, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAFElEQVR4nGP8//8/AwwwMSAB3BwAlm4DBfIlvvkAAAAASUVORK5CYII='));
     $this->submitForm([
       'info[0][value]' => 'Meniscus introduction',
       'field_actools_heading[0][value]' => 'Reading a meniscus',

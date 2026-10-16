@@ -4,7 +4,7 @@ dependencies: {}
 name: Actools topic
 type: actools_topic
 description: A topic introduction followed by references to teaching resources.
-help: ''
+help: 'Introduce a teaching topic and select its resources in the intended order.'
 new_revision: true
 preview_mode: 1
 display_submitted: false
