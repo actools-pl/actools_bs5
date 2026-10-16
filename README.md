@@ -12,11 +12,16 @@ require Node or a build step.
 - Drupal constraint: `^11.3` (includes Drupal 11.4; excludes Drupal 12).
 - PHP: follow the requirements of the installed Drupal core release (8.3+ for
   the targeted Drupal 11 releases).
-- 97 Single Directory Components, 56 standard Drupal Twig overrides and six
+- 99 Single Directory Components, 66 standard Drupal Twig overrides and six
   registered Layout Discovery sections.
 - English/LTR styling. Complete RTL styling is not supplied or certified.
 
 ## Install or update
+
+**Optional editable Topic pages:** [PAGE_BUILDING.md](docs/PAGE_BUILDING.md)
+describes the separate recipe for resource cards, text/image blocks, and shared
+Topic layouts. Theme installation alone does not apply it or create content
+types. Use a test site before adopting this new feature on BOA.
 
 **GitHub/Composer installation:** see [INSTALL.md](INSTALL.md) for the package
 repository, exact-lock/commit workflow and BOA platform instructions. The theme

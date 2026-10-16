@@ -33,6 +33,24 @@ The complete future acceptance sequence is in docs/IMPROVEMENT_PLAN.md.
 The test pack distinguishes source/asset checks from actual Drupal rendering.
 A skipped check is not a pass.
 
+## Optional Topic starter
+
+The runtime workflow also discovers `TopicStarterRecipeKernelTest` and
+`TopicStarterEditorFunctionalTest`. They apply the actual optional recipe in
+disposable Drupal installations, exercise its real fields/forms and Layout
+Builder sections, and check reference access, warm caches, edits and formatted
+text. Read the run results; adding a test is not evidence that it passed.
+
+`topic-blocks.spec.cjs` checks the committed component CSS against representative
+markup at phone/tablet/desktop sizes and in a narrow column on a wide screen.
+It covers container-based stacking, whole-image aspect ratios and card-link
+keyboard focus. Kernel/Functional coverage exercises the actual Twig integration;
+the CSS fixtures do not simulate authenticated drag/drop editing.
+
+See [PAGE_BUILDING.md](docs/PAGE_BUILDING.md) for manual acceptance, installation
+and backup requirements. BOA site Verify and live layout editing remain separate
+operator checks.
+
 ## Checks without Drupal
 
 In a Git checkout, run the packaging/static audit against an exported tree so

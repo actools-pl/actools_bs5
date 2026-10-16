@@ -1,0 +1,70 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - core.entity_view_mode.node.actools_resource_card
+  - field.field.node.actools_topic.field_actools_body
+  - field.field.node.actools_topic.field_actools_resources
+  - node.type.actools_topic
+  module:
+  - layout_builder
+  - layout_discovery
+  - text
+  theme:
+  - actools_bs5
+id: node.actools_topic.default
+targetEntityType: node
+bundle: actools_topic
+mode: default
+third_party_settings:
+  layout_builder:
+    enabled: true
+    allow_custom: true
+    sections:
+    - layout_id: actools_bs5_onecol_contained
+      layout_settings:
+        label: Topic content
+      components:
+        d68525ed-af18-475a-8a04-c603e408391d:
+          uuid: d68525ed-af18-475a-8a04-c603e408391d
+          region: content
+          configuration:
+            id: field_block:node:actools_topic:field_actools_body
+            label: Body
+            label_display: '0'
+            provider: layout_builder
+            context_mapping:
+              entity: layout_builder.entity
+            formatter:
+              type: text_default
+              label: hidden
+              settings: {}
+              third_party_settings: {}
+          weight: 0
+          additional: {}
+        a84e57ed-a093-4720-9460-6f1bdac6d699:
+          uuid: a84e57ed-a093-4720-9460-6f1bdac6d699
+          region: content
+          configuration:
+            id: field_block:node:actools_topic:field_actools_resources
+            label: Resources
+            label_display: '0'
+            provider: layout_builder
+            context_mapping:
+              entity: layout_builder.entity
+            formatter:
+              type: entity_reference_entity_view
+              label: above
+              settings:
+                view_mode: actools_resource_card
+                link: false
+              third_party_settings: {}
+          weight: 1
+          additional: {}
+      third_party_settings: {}
+content: {}
+hidden:
+  field_actools_body: true
+  field_actools_resources: true
+  langcode: true
+  links: true

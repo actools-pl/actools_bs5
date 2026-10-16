@@ -1,0 +1,29 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - field.storage.node.field_actools_resources
+  - node.type.actools_resource
+  - node.type.actools_topic
+id: node.actools_topic.field_actools_resources
+field_name: field_actools_resources
+entity_type: node
+bundle: actools_topic
+label: Resources
+description: Select existing Actools resources. Only published resources available
+  to the visitor are displayed.
+required: false
+translatable: true
+default_value: []
+default_value_callback: ''
+settings:
+  handler: default:node
+  handler_settings:
+    target_bundles:
+      actools_resource: actools_resource
+    sort:
+      field: title
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

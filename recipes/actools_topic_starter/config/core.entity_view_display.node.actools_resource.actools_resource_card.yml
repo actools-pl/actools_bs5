@@ -1,0 +1,41 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - core.entity_view_mode.node.actools_resource_card
+  - field.field.node.actools_resource.field_actools_body
+  - field.field.node.actools_resource.field_actools_download
+  - field.field.node.actools_resource.field_actools_image
+  - field.field.node.actools_resource.field_actools_summary
+  - image.style.actools_resource_card
+  - node.type.actools_resource
+  module:
+  - image
+id: node.actools_resource.actools_resource_card
+targetEntityType: node
+bundle: actools_resource
+mode: actools_resource_card
+content:
+  field_actools_image:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: actools_resource_card
+      image_loading:
+        attribute: lazy
+    third_party_settings: {}
+    weight: 0
+    region: content
+  field_actools_summary:
+    type: basic_string
+    label: hidden
+    settings: {}
+    third_party_settings: {}
+    weight: 1
+    region: content
+hidden:
+  field_actools_body: true
+  field_actools_download: true
+  langcode: true
+  links: true

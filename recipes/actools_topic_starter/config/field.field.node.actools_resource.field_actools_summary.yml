@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - field.storage.node.field_actools_summary
+  - node.type.actools_resource
+id: node.actools_resource.field_actools_summary
+field_name: field_actools_summary
+entity_type: node
+bundle: actools_resource
+label: Summary
+description: ''
+required: false
+translatable: true
+default_value: []
+default_value_callback: ''
+settings: {}
+field_type: string_long

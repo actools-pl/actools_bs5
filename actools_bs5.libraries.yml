@@ -13,6 +13,12 @@ layout-builder:
     layout:
       css/layout/builder.layout.css: {}
 
+# The optional starter's entity-reference formatter shares one responsive grid.
+resource-card-grid:
+  css:
+    component:
+      components/organisms/resource-card/resource-card-grid.css: {}
+
 # Bootstrap 5 global styles library.
 bootstrap-styles:
   css:

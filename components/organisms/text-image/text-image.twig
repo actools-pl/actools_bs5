@@ -1,0 +1,22 @@
+{% set position = position|default('right') %}
+{% set position = position in ['left', 'right'] ? position : 'right' %}
+{% set has_media = has_media ?? false %}
+{% set classes = [
+  'actools-text-image',
+  has_media ? 'actools-text-image--media-' ~ position : 'actools-text-image--text-only',
+] %}
+<div{{ attributes.addClass(classes) }}>
+  <div class="actools-text-image__content">
+    {% if heading %}
+      {% include 'actools_bs5:heading' with {
+        heading_text: heading,
+        level: 2,
+        attributes: (title_attributes|default(create_attribute())).addClass('actools-text-image__heading'),
+      } only %}
+    {% endif %}
+    <div class="actools-text-image__body">{% block body %}{% endblock %}</div>
+  </div>
+  {% if has_media %}
+    <div class="actools-text-image__media">{% block media %}{% endblock %}</div>
+  {% endif %}
+</div>

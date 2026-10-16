@@ -1,0 +1,71 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - field.field.node.actools_resource.field_actools_body
+  - field.field.node.actools_resource.field_actools_download
+  - field.field.node.actools_resource.field_actools_image
+  - field.field.node.actools_resource.field_actools_summary
+  - image.style.actools_editor_preview
+  - node.type.actools_resource
+  module:
+  - file
+  - image
+  - text
+id: node.actools_resource.default
+targetEntityType: node
+bundle: actools_resource
+mode: default
+content:
+  title:
+    type: string_textfield
+    weight: -10
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  field_actools_summary:
+    type: string_textarea
+    weight: 0
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings: {}
+  field_actools_body:
+    type: text_textarea
+    weight: 1
+    region: content
+    settings:
+      rows: 8
+      placeholder: ''
+    third_party_settings: {}
+  field_actools_image:
+    type: image_image
+    weight: 2
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: actools_editor_preview
+    third_party_settings: {}
+  field_actools_download:
+    type: file_generic
+    weight: 3
+    region: content
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {}
+  status:
+    type: boolean_checkbox
+    weight: 100
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+hidden:
+  langcode: true
+  uid: true
+  created: true
+  promote: true
+  sticky: true

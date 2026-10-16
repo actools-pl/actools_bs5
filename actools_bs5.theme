@@ -10,6 +10,52 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\File\FileExists;
 
 /**
+ * Implements hook_preprocess_block().
+ *
+ * Maps only the optional starter's plain presentation fields. Body, images and
+ * references remain core field render arrays, retaining formatters and access.
+ */
+function actools_bs5_preprocess_block(array &$variables) {
+  $content = &$variables['content'];
+  $block = $content['#block_content'] ?? NULL;
+  if (!$block instanceof \Drupal\block_content\BlockContentInterface
+    || !in_array($block->bundle(), ['actools_text_image', 'actools_resource_cards'], TRUE)) {
+    return;
+  }
+
+  $variables['actools_heading'] = '';
+  $variables['actools_position'] = 'right';
+  $variables['actools_has_image'] = FALSE;
+  $metadata = \Drupal\Core\Cache\CacheableMetadata::createFromRenderArray($content)
+    ->addCacheableDependency($block);
+  foreach (['field_actools_heading', 'field_actools_position', 'field_actools_image'] as $name) {
+    if (!$block->hasField($name)) {
+      continue;
+    }
+    $field = $block->get($name);
+    $access = $field->access('view', NULL, TRUE);
+    $metadata->addCacheableDependency($access);
+    // Respect both field access and the selected entity display. In particular,
+    // a hidden heading must not reappear merely because it exists on the entity.
+    if (!$access->isAllowed() || !isset($content[$name]) || ($content[$name]['#access'] ?? TRUE) === FALSE) {
+      continue;
+    }
+    if ($name === 'field_actools_heading') {
+      $variables['actools_heading'] = (string) ($field->value ?? '');
+    }
+    elseif ($name === 'field_actools_position') {
+      $variables['actools_position'] = $field->value === 'left' ? 'left' : 'right';
+    }
+    else {
+      $variables['actools_has_image'] = !$field->isEmpty();
+    }
+  }
+  // Wrappers render content after consuming individual fields, so metadata for
+  // a hidden/denied presentation field bubbles even when it produces no markup.
+  $metadata->applyTo($content);
+}
+
+/**
  * Implements hook_library_info_alter().
  */
 function actools_bs5_library_info_alter(array &$libraries, $module) {

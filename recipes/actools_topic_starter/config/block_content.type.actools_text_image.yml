@@ -1,0 +1,7 @@
+langcode: en
+status: true
+dependencies: {}
+id: actools_text_image
+label: 'Actools: Text and image'
+revision: true
+description: An introduction or explanation with an optional image.

@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - block_content.type.actools_text_image
+  - field.storage.block_content.field_actools_position
+  module:
+  - options
+id: block_content.actools_text_image.field_actools_position
+field_name: field_actools_position
+entity_type: block_content
+bundle: actools_text_image
+label: Image position
+description: ''
+required: true
+translatable: true
+default_value:
+- value: right
+default_value_callback: ''
+settings: {}
+field_type: list_string
