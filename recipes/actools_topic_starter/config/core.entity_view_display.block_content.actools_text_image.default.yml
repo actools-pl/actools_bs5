@@ -4,6 +4,7 @@ dependencies:
   config:
   - block_content.type.actools_text_image
   - field.field.block_content.actools_text_image.field_actools_body
+  - field.field.block_content.actools_text_image.field_actools_caption
   - field.field.block_content.actools_text_image.field_actools_heading
   - field.field.block_content.actools_text_image.field_actools_image
   - field.field.block_content.actools_text_image.field_actools_position
@@ -43,6 +44,13 @@ content:
         attribute: lazy
     third_party_settings: {}
     weight: 2
+    region: content
+  field_actools_caption:
+    type: basic_string
+    label: hidden
+    settings: {}
+    third_party_settings: {}
+    weight: 3
     region: content
 hidden:
   langcode: true

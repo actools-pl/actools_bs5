@@ -1,0 +1,6 @@
+{# Keep Drupal's generic node rendering and load the optional publishing styles. #}
+{% extends 'actools_bs5:node' %}
+{% block content %}
+  {{ attach_library('actools_bs5/publishing') }}
+  {{ parent() }}
+{% endblock %}

@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
+const path = require('node:path');
 
 const fixturePath = process.env.ACTOOLS_LAYOUT_FIXTURE;
 if (!fixturePath || !process.env.ACTOOLS_LAYOUT_EDITOR_PASSWORD) {
@@ -101,6 +102,24 @@ test('editor creates, edits, reorders and saves inline blocks through Layout Bui
   await page.getByLabel('Username', { exact: true }).fill(fixture.username);
   await page.getByLabel('Password', { exact: true }).fill(process.env.ACTOOLS_LAYOUT_EDITOR_PASSWORD);
   await page.getByRole('button', { name: 'Log in', exact: true }).click();
+
+  // Metadata is edited through the ordinary Drupal node form, then checked on
+  // its referenced card in the anonymously cached Topic below.
+  await page.goto(fixture.resources[0].editPath);
+  const kind = page.getByLabel('Resource kind', { exact: true });
+  const level = page.getByLabel('Study level', { exact: true });
+  await expect(kind).toHaveAttribute('name', 'field_actools_kind');
+  await expect(level).toHaveAttribute('name', 'field_actools_level');
+  await expect(kind).toHaveValue('notes');
+  await expect(level).toHaveValue('foundation');
+  await kind.selectOption('worked_examples');
+  await level.selectOption('jee_advanced');
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page).toHaveURL(`${testInfo.project.use.baseURL}/node/${fixture.resources[0].id}`);
+  await page.goto(fixture.resources[0].editPath);
+  await expect(page.getByLabel('Resource kind', { exact: true })).toHaveValue('worked_examples');
+  await expect(page.getByLabel('Study level', { exact: true })).toHaveValue('jee_advanced');
+
   await page.goto(fixture.topicPath);
   await page.getByRole('link', { name: 'Layout', exact: true }).click();
   await expect(page).toHaveURL(`${testInfo.project.use.baseURL}${fixture.topicPath}/layout`);
@@ -109,6 +128,10 @@ test('editor creates, edits, reorders and saves inline blocks through Layout Bui
   await createText.locator('[name="settings[label]"]').fill('Meniscus editor block');
   await createText.locator('[name="settings[block_form][field_actools_heading][0][value]"]').fill('Reading a meniscus');
   await createText.locator('[name="settings[block_form][field_actools_body][0][value]"]').fill('First explanation written in the live layout form.');
+  const createCaption = createText.getByLabel('Image caption', { exact: true });
+  await expect(createCaption).toHaveAttribute('name', 'settings[block_form][field_actools_caption][0][value]');
+  await expect(createCaption).toHaveJSProperty('required', false);
+  await createCaption.fill('First caption written in the live layout form.');
   await createText.getByLabel('Image position', { exact: true }).selectOption('right');
   await expect(createText.locator('input[type="file"]')).toHaveAttribute('data-once', /\bauto-file-upload\b/);
   await createText.locator('input[type="file"]').setInputFiles(fixture.imagePath);
@@ -125,6 +148,8 @@ test('editor creates, edits, reorders and saves inline blocks through Layout Bui
   await expect(editText.locator('[name="settings[block_form][field_actools_body][0][value]"]')).toHaveValue('First explanation written in the live layout form.');
   await editText.locator('[name="settings[block_form][field_actools_heading][0][value]"]').fill('Understanding a meniscus');
   await editText.locator('[name="settings[block_form][field_actools_body][0][value]"]').fill('Revised explanation saved through the editor.');
+  await expect(editText.getByLabel('Image caption', { exact: true })).toHaveValue('First caption written in the live layout form.');
+  await editText.getByLabel('Image caption', { exact: true }).fill('Figure 1. Capillary rise in a narrow glass tube.');
   await editText.getByLabel('Image position', { exact: true }).selectOption('left');
   await clickAjaxButton(editText.getByRole('button', { name: 'Update', exact: true }));
   await expect(page.locator('#drupal-off-canvas')).toHaveCount(0);
@@ -188,9 +213,13 @@ test('editor creates, edits, reorders and saves inline blocks through Layout Bui
       await expect(blocks.nth(0)).toContainText('Selected practice');
       await expect(blocks.nth(1)).toContainText('Understanding a meniscus');
       await expect(publicPage.locator('.actools-resource-card__heading')).toHaveText(fixture.resources.map(resource => resource.title));
+      await expect(publicPage.locator('.actools-resource-card').nth(0).locator('.actools-resource-metadata__item')).toHaveText(['Worked examples', 'JEE Advanced']);
+      await expect(publicPage.locator('.actools-resource-card').nth(1).locator('.actools-resource-metadata__item')).toHaveText(['Notes', 'Foundation']);
       await expect(publicPage.getByText('Revised explanation saved through the editor.', { exact: true })).toBeVisible();
       await expect(publicPage.getByText('First explanation written in the live layout form.', { exact: true })).toHaveCount(0);
       await expect(publicPage.locator('.actools-text-image--media-left img')).toHaveAttribute('alt', 'Complete meniscus diagram');
+      await expect(publicPage.locator('figure.actools-text-image__media > figcaption.actools-text-image__caption')).toHaveText('Figure 1. Capillary rise in a narrow glass tube.');
+      await expect(publicPage.getByText('First caption written in the live layout form.', { exact: true })).toHaveCount(0);
       await expect(publicPage.getByRole('link', { name: 'Layout', exact: true })).toHaveCount(0);
     }
     await testInfo.attach('anonymous-saved-topic.html', { body: await publicPage.content(), contentType: 'text/html' });
@@ -202,5 +231,88 @@ test('editor creates, edits, reorders and saves inline blocks through Layout Bui
     await anonymous.close();
     await testInfo.attach('browser-errors.json', { body: JSON.stringify(errors, null, 2), contentType: 'application/json' });
   }
+  expect(errors).toEqual([]);
+});
+
+async function waitForPublishingImages(page) {
+  await page.evaluate(async () => { await document.fonts.ready; });
+  // Let native lazy loading fetch real Drupal image derivatives by scrolling
+  // them into view; do not replace the images or their loading attributes.
+  const images = page.locator('main img');
+  for (let index = 0; index < await images.count(); index++) {
+    const image = images.nth(index);
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(() => image.evaluate(element => element.complete && element.naturalWidth > 0)).toBe(true);
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+}
+
+test('published Surface tension topic presents grouped resources on desktop and phone', async ({ page }, testInfo) => {
+  const errors = browserErrors.get(page);
+  const outputDirectory = process.env.ACTOOLS_LAYOUT_BROWSER_OUTPUT || testInfo.project.outputDir;
+  fs.mkdirSync(outputDirectory, { recursive: true });
+
+  // The seeded preview is a saved core Layout Builder override rendered by
+  // Drupal. It is separate from the two topics used for live editor operations.
+  for (const [width, filename] of [[1440, 'topic-desktop.png'], [390, 'topic-phone.png']]) {
+    await page.setViewportSize({ width, height: 1000 });
+    for (let pass = 0; pass < 2; pass++) {
+      const response = await page.goto(fixture.previewTopicPath);
+      expect(response.status()).toBe(200);
+      await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Surface tension');
+      await expect(page.getByRole('heading', { level: 2 })).toHaveText(fixture.previewHeadings);
+      await expect(page.locator('.actools-resource-card__heading')).toHaveText(fixture.previewResources.map(resource => resource.title));
+      await expect(page.locator('h3.actools-resource-card__heading')).toHaveCount(9);
+      await expect(page.locator('.actools-resource-card')).toHaveCount(9);
+      await expect(page.locator('.actools-resource-card__metadata.actools-resource-metadata')).toHaveCount(9);
+      await expect(page.locator('.actools-resource-metadata__item')).toHaveCount(18);
+      await expect(page.locator('figure.actools-text-image__media > figcaption.actools-text-image__caption')).toHaveText('Figure 1. Capillary rise in a narrow glass tube.');
+      await expect(page.locator('#toolbar-administration, .toolbar-bar, [data-layout-block-uuid]')).toHaveCount(0);
+      await expect(page.getByRole('link', { name: 'Layout', exact: true })).toHaveCount(0);
+
+      for (const [index, resource] of fixture.previewResources.entries()) {
+        const card = page.locator('.actools-resource-card').nth(index);
+        await expect(card.locator('img')).toHaveCount(resource.hasImage ? 1 : 0);
+      }
+    }
+
+    await waitForPublishingImages(page);
+    const layout = await page.evaluate(() => ({
+      width: innerWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      sections: [...document.querySelectorAll('.actools-topic, .actools-text-image, .actools-resource-card, .actools-resource-cards__items')].map(element => {
+        const box = element.getBoundingClientRect();
+        return { className: element.className, left: box.left, right: box.right };
+      }),
+      headings: [...document.querySelectorAll('main h1, main h2, main h3')].map(element => Number(element.tagName.slice(1))),
+    }));
+    expect(layout.scrollWidth).toBeLessThanOrEqual(layout.width);
+    for (const section of layout.sections) {
+      expect(section.left, section.className).toBeGreaterThanOrEqual(-1);
+      expect(section.right, section.className).toBeLessThanOrEqual(layout.width + 1);
+    }
+    expect(layout.headings).toEqual([1, 2, 2, 3, 3, 3, 2, 3, 3, 3, 2, 3, 3, 3]);
+
+    // Every visible native diagram keeps its complete aspect ratio. Both the
+    // long-title and image-free cards remain in the real page under test.
+    for (const image of await page.locator('main img').all()) {
+      const proportions = await image.evaluate(element => {
+        const box = element.getBoundingClientRect();
+        return { rendered: box.width / box.height, intrinsic: element.naturalWidth / element.naturalHeight };
+      });
+      expect(proportions.rendered).toBeCloseTo(proportions.intrinsic, 2);
+    }
+
+    await page.emulateMedia({ media: 'print' });
+    await expect(page.getByRole('heading', { level: 2 })).toHaveText(fixture.previewHeadings);
+    for (const heading of await page.getByRole('heading', { level: 2 }).all()) await expect(heading).toBeVisible();
+    await expect(page.locator('figcaption.actools-text-image__caption')).toBeVisible();
+    await page.emulateMedia({ media: 'screen' });
+    await waitForPublishingImages(page);
+    await page.screenshot({ path: path.join(outputDirectory, filename), fullPage: true });
+  }
+
+  await testInfo.attach('published-surface-tension-topic.html', { body: await page.content(), contentType: 'text/html' });
   expect(errors).toEqual([]);
 });

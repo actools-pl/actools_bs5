@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - field.storage.node.field_actools_kind
+  - node.type.actools_resource
+  module:
+  - options
+id: node.actools_resource.field_actools_kind
+field_name: field_actools_kind
+entity_type: node
+bundle: actools_resource
+label: Resource kind
+description: 'Optional: identify how students will use this resource.'
+required: false
+translatable: true
+default_value: []
+default_value_callback: ''
+settings: {}
+field_type: list_string

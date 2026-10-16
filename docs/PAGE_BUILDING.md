@@ -9,15 +9,28 @@ does not apply this setup.
 
 | Item | Editor controls |
 | --- | --- |
-| Text and image block | Heading, formatted text, optional uploaded image with alternative text, image on the left or right |
+| Text and image block | Heading, formatted text, optional uploaded image with alternative text and caption, image on the left or right |
 | Resource cards block | Heading and an ordered selection of existing Actools resources |
-| Resource | Title, short plain-text summary, formatted body, optional image and public PDF/DOCX download |
+| Resource | Title, short plain-text summary, optional resource kind and study level, formatted body, optional image and public PDF/DOCX download |
 | Topic | Introduction and an ordered resource selection, with a shared Layout Builder default |
 
 Cards reference resources rather than copying their titles and summaries.
 Updating a resource updates its cards. Drupal's entity-reference formatter
 controls access to referenced resources. Card summaries use plain text; longer
 formatted explanations belong in the resource body.
+
+Resource kind and study level are optional native select fields. Kind offers
+Lesson, Notes, Worked examples and Assignment; level offers Foundation,
+JEE Advanced and Olympiad. A resource without these values remains a normal
+card, with no empty badge or separator. Cards and full resource pages use the
+same field values and labels. These selections identify material; they do not
+automatically sort resources, create filters or grant access.
+
+The optional image caption is plain text and appears below the image as a
+semantic figure caption. For example, "Figure 1. Capillary rise in a narrow
+glass tube." Figure numbering is editorial, not automatic. Alternative text
+still describes the image for readers who cannot see it. A caption without a
+displayed image is retained for editing but is not printed on the page.
 
 The supplied image widget is a standard core image upload with required
 alternative text, not a Media Library selector. Existing site text formats
@@ -70,10 +83,17 @@ stops on conflicting existing starter configuration. Recipes are applied to
 site configuration; deleting the recipe directory is not an uninstall or a
 rollback. Restore the pre-change site backup to undo an unwanted application.
 
+If an earlier PR revision of this starter was already applied on a test site,
+updating theme files alone does not create its new caption or metadata fields.
+Use a fresh disposable site for acceptance, or review and deploy those changes
+through the site's normal configuration-management process. Do not force a
+recipe reapplication over an existing customised display.
+
 ## Build the first Topic page
 
 1. In **Content → Add content → Actools resource**, create two real teaching
-   resources. Give each a short useful summary. For example, “Surface tension:
+   resources. Give each a short useful summary and, when useful, select its kind
+   and level. For example, “Surface tension:
    concepts and diagrams” and “Capillarity: solved problems”. Publish only
    material that should be publicly readable.
 2. In **Content → Add content → Actools topic**, enter “Surface tension and
@@ -84,7 +104,8 @@ rollback. Restore the pre-change site backup to undo an unwanted application.
    Actools topic → Manage display → Manage layout**.
 4. For a deliberately different page, open its **Layout** tab. Choose **Add
    block → Create custom block → Actools text and image**. Enter its heading,
-   text and image, choose left/right, add it to the section and save the layout.
+   text and image, add an optional caption, choose left/right, add it to the
+   section and save the layout.
 5. Add an **Actools resource cards** custom block the same way when a separate
    curated resource group is useful. Choose the resources rather than typing
    links. The block's heading is its visible heading; its administrative label
@@ -94,6 +115,37 @@ Keep the Topic's page title as its single h1. Section/block headings use h2 and
 resource-card titles h3. Use a short introduction and clear labels before
 adding decorative content. Individual layout overrides stop following changes
 to the shared default; use them intentionally.
+
+## Publishing appearance and a complete Topic
+
+The publishing styles load with the starter's Topic pages and resource metadata.
+They keep the site's configured fonts and accessible link colours, use a
+restrained spacing scale, and give Topic introductions a readable line length.
+Cards retain their full titles, summaries and uncropped diagrams. Cards without
+images or optional metadata have an intentional compact presentation. These
+styles are scoped to the starter's content, not a replacement for the site's
+header, navigation or footer configuration.
+
+For a complete "Surface tension and capillarity" Topic, use this editorial order:
+
+1. A short introduction explaining what the student will study.
+2. A text/image block with an explanatory diagram and caption.
+3. A resource-cards group headed **Concepts and notes**.
+4. A resource-cards group headed **Worked examples**.
+5. A resource-cards group headed **Practice assignments**.
+
+Build each group with a normal resource-cards block and select its resources in
+the intended order. The default single resource field remains available for
+simpler Topics. Shared layouts are preferable when several Topics use this
+pattern; a deliberately separate page can use an individual override. No sample
+content or grouping is silently added to an existing site by this theme.
+
+The repository includes a static visual specimen at
+[preview/topic.html](preview/topic.html), using the committed publishing and
+component styles. Open it from a checkout with its relative assets intact.
+It is an appearance reference rather than a substitute for a Drupal page.
+The disposable browser test also builds a real Topic and retains desktop and
+phone screenshots in its `layout-builder-editor-browser` Actions artifact.
 
 ## Acceptance before live use
 
@@ -109,6 +161,13 @@ to the shared default; use them intentionally.
   resources are absent. Check anonymous file access separately.
 - Check formatted text uses its configured filter, image alternative text is
   retained, and PDF/DOCX links and printing work.
+- Edit a caption and both metadata selections through their native forms. Check
+  the saved caption, kind and level on a warm public page and after reload.
+  Empty or access-denied optional fields must leave no heading, badge or
+  separator behind.
+- Review one complete Topic with real long titles, resources with and without
+  images, a captioned diagram and all three resource groups at desktop and
+  phone widths and in print. The page should have one h1 and clear h2/h3 order.
 - Check card-title contrast in light/dark mode and with the selected brand
   colour. Titles use the theme's readable link colours, including hover/focus.
 - Check image `srcset` selects derivatives rather than loading the original by

@@ -2,7 +2,7 @@ $schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schema
 name: Resource card
 group: Teaching resources
 status: experimental
-description: A linked resource heading with Drupal-rendered image and summary slots. Intended for the optional teaching-pages recipe.
+description: A linked resource heading with Drupal-rendered image, metadata and summary slots. Intended for the optional teaching-pages recipe.
 props:
   type: object
   properties:
@@ -19,6 +19,9 @@ props:
       title: Resource page URL
       default: ''
 slots:
+  metadata:
+    title: Resource metadata
+    description: Native optional Resource kind and Study level field render arrays. Rendering preserves field access, translated option labels and cache metadata.
   media:
     title: Resource image
     description: The image field render array, retaining its formatter, alt text and cache metadata.

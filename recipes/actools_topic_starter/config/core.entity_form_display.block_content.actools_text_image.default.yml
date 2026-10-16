@@ -4,6 +4,7 @@ dependencies:
   config:
   - block_content.type.actools_text_image
   - field.field.block_content.actools_text_image.field_actools_body
+  - field.field.block_content.actools_text_image.field_actools_caption
   - field.field.block_content.actools_text_image.field_actools_heading
   - field.field.block_content.actools_text_image.field_actools_image
   - field.field.block_content.actools_text_image.field_actools_position
@@ -50,9 +51,17 @@ content:
       progress_indicator: throbber
       preview_image_style: actools_editor_preview
     third_party_settings: {}
+  field_actools_caption:
+    type: string_textarea
+    weight: 3
+    region: content
+    settings:
+      rows: 2
+      placeholder: ''
+    third_party_settings: {}
   field_actools_position:
     type: options_select
-    weight: 3
+    weight: 4
     region: content
     settings: {}
     third_party_settings: {}

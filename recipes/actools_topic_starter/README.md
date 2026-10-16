@@ -16,17 +16,23 @@ has permission to use. No new text format or HTML permission is granted.
 
 | Type | Fields | Use |
 | --- | --- | --- |
-| **Actools: Text and image** block | Heading, formatted Body, optional Image, Image position | Topic introduction or explanation; image on the left or right on wide screens. |
+| **Actools: Text and image** block | Heading, formatted Body, optional Image and plain-text Caption, Image position | Topic introduction or explanation; image on the left or right on wide screens. |
 | **Actools: Resource cards** block | Heading, one or more references to Resources | A reusable selection of existing teaching resources. |
-| **Actools resource** content | Title, optional Summary, formatted Body, Image, Download | A lesson, assignment or teaching resource with its own page. |
+| **Actools resource** content | Title, optional Summary, Resource kind and Study level, formatted Body, Image, Download | A lesson, assignment or teaching resource with its own page. |
 | **Actools topic** content | Title, required formatted Body, optional references to Resources | A consistent introduction followed by resource cards. |
 
 Resource fields only reference existing **Actools resource** nodes. Card titles
 and destinations come from those nodes, so an editor does not maintain copied
 links or titles. Visitors see the resources that Drupal's entity and field access
 checks permit them to view. Reference order is card order. Cards display the
-resource title, optional image and summary; they do not embed the full Body or
+resource title, optional kind/level, image and summary; they do not embed the full Body or
 Download field. The resource's own full page displays those fields.
+
+Captions remain plain Drupal field render arrays and are shown only with a
+displayed image. Number a figure within the caption when useful; numbering is
+not generated automatically. Resource kind and study level are optional native
+select fields. Empty or denied values leave no metadata badge or separator.
+The fields identify resources without changing reference order or access.
 
 Images are optional. When an image is provided, its alternative-text field is
 required. Full Resource pages and text/image blocks use core's Responsive Image

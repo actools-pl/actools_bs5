@@ -1,7 +1,13 @@
 {# Drupal fields arrive through slots; the title and URL are plain scalar props. #}
+{# Render before testing emptiness so denied/empty fields still bubble cache
+   metadata. Print the captured markup unchanged; trim is only a predicate. #}
+{% set metadata_markup %}{% block metadata %}{% endblock %}{% endset %}
 <div{{ attributes.addClass('actools-resource-card') }}>
   <div class="actools-resource-card__media">{% block media %}{% endblock %}</div>
   <div class="actools-resource-card__content">
+    {% if metadata_markup|trim %}
+      <div class="actools-resource-card__metadata actools-resource-metadata">{{ metadata_markup }}</div>
+    {% endif %}
     {% if heading %}
       {% include 'actools_bs5:heading' with {
         heading_text: heading,

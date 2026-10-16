@@ -45,6 +45,17 @@
   margin-block: 0;
 }
 
+figure.actools-text-image__media {
+  margin: 0;
+}
+
+.actools-text-image__caption {
+  margin-block-start: 0.75rem;
+  color: var(--bs-secondary-color, #6c757d);
+  font-size: 0.875em;
+  line-height: 1.5;
+}
+
 @container actools-text-image (min-width: 40rem) {
   .actools-text-image--media-right,
   .actools-text-image--media-left {

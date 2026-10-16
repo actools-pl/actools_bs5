@@ -1,9 +1,14 @@
 {% set position = position|default('right') %}
 {% set position = position in ['left', 'right'] ? position : 'right' %}
 {% set has_media = has_media ?? false %}
+{# Render the original field once so deferred access controls both the figure
+   and its caption. Keep the captured safe markup unchanged; trim only to test
+   emptiness. Access/cache metadata still bubbles when the field renders empty. #}
+{% set media_markup %}{% if has_media %}{% block media %}{% endblock %}{% endif %}{% endset %}
+{% set show_media = has_media and media_markup|trim is not empty %}
 {% set classes = [
   'actools-text-image',
-  has_media ? 'actools-text-image--media-' ~ position : 'actools-text-image--text-only',
+  show_media ? 'actools-text-image--media-' ~ position : 'actools-text-image--text-only',
 ] %}
 <div{{ attributes.addClass(classes) }}>
   <div class="actools-text-image__content">
@@ -18,7 +23,10 @@
     {% endblock %}
     <div class="actools-text-image__body">{% block body %}{% endblock %}</div>
   </div>
-  {% if has_media %}
-    <div class="actools-text-image__media">{% block media %}{% endblock %}</div>
+  {% if show_media %}
+    <figure class="actools-text-image__media">
+      {{ media_markup }}
+      {% block caption %}{% endblock %}
+    </figure>
   {% endif %}
 </div>

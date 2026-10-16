@@ -19,6 +19,12 @@ resource-card-grid:
     component:
       components/organisms/resource-card/resource-card-grid.css: {}
 
+# Optional Topic/Resource publishing styles; attached only by their templates.
+publishing:
+  css:
+    theme:
+      css/theme/publishing.theme.css: {}
+
 # Bootstrap 5 global styles library.
 bootstrap-styles:
   css:

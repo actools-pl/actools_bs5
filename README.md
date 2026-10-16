@@ -12,7 +12,7 @@ require Node or a build step.
 - Drupal constraint: `^11.3` (includes Drupal 11.4; excludes Drupal 12).
 - PHP: follow the requirements of the installed Drupal core release (8.3+ for
   the targeted Drupal 11 releases).
-- 99 Single Directory Components, 67 standard Drupal Twig overrides and six
+- 99 Single Directory Components, 72 standard Drupal Twig overrides and six
   registered Layout Discovery sections.
 - English/LTR styling. Complete RTL styling is not supplied or certified.
 
@@ -20,7 +20,8 @@ require Node or a build step.
 
 **Optional editable Topic pages:** [PAGE_BUILDING.md](docs/PAGE_BUILDING.md)
 describes the separate recipe for resource cards, text/image blocks, and shared
-Topic layouts. Theme installation alone does not apply it or create content
+Topic layouts, with optional figure captions and resource kind/level labels.
+Theme installation alone does not apply it or create content
 types. Use a test site before adopting this new feature on BOA.
 
 **GitHub/Composer installation:** see [INSTALL.md](INSTALL.md) for the package
@@ -87,9 +88,10 @@ Full available width respects the surrounding page container. For full-width
 page sections, set **Appearance → Actools BS5 → Settings → Containers → Content**
 to **No Container** and use contained sections for narrow content.
 
-These are section layouts. This ZIP does not create new Hero/Resource block
-types, content types, complete page presets or an SDC component picker. Those
-can be added with structured block configuration or a separate SDC integration.
+Installing the theme supplies these section layouts. The optional Topic starter
+recipe supplies its documented native block and content types when explicitly
+applied. Hero/FAQ editing blocks and a general SDC component picker are separate
+integrations.
 No Varbase distribution or Canvas installation is needed for the six layouts.
 
 ## Appearance settings

@@ -21,7 +21,7 @@ props:
     has_media:
       type: boolean
       title: Display the media slot
-      description: Set by the field integration after checking image access and emptiness; avoids pre-rendering fields to probe their output.
+      description: Indicates a nonempty image field is present in the display. The component renders its original media slot once and shows the figure/caption only when deferred access leaves actual media output.
       default: false
 slots:
   heading_content:
@@ -33,3 +33,6 @@ slots:
   media:
     title: Image
     description: Drupal's image field render array, retaining alt text, dimensions and field access.
+  caption:
+    title: Optional image caption
+    description: Drupal's plain-text caption field render array. Its field template supplies figcaption after core access checks; rendered only with the media slot.

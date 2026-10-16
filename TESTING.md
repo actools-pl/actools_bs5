@@ -71,6 +71,15 @@ See [PAGE_BUILDING.md](docs/PAGE_BUILDING.md) for manual acceptance, installatio
 and backup requirements. BOA site Verify and live layout editing remain separate
 operator checks.
 
+Publishing regressions also exercise the optional plain-text figure caption
+and resource kind/level fields through native formatters, including empty and
+denied output and cache metadata. The real-site browser fixture includes a
+complete Surface tension Topic with separately named resource groups. Its
+desktop and phone screenshots are retained in the
+`layout-builder-editor-browser` artifact for visual review; an assertion pass
+alone does not certify the appearance. The static specimen in
+`docs/preview/topic.html` is a separate reference using the same committed CSS.
+
 ## Checks without Drupal
 
 In a Git checkout, run the packaging/static audit against an exported tree so
