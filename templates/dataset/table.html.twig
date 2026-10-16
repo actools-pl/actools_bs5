@@ -39,11 +39,13 @@
  * @see template_preprocess_table()
  */
 #}
-{% include 'actools_bs5:table' with {   
+{# Core rows can contain widgets and cyclic entity/form objects. Render them
+   as deferred Drupal render arrays, rather than JSON component properties. #}
+{% include '@actools_bs5/components/molecules/table/table.twig' with {
     caption: caption|default(''),
     colgroups: colgroups|default([]),
     header: header|default([]),
-    sticky: sticky|default([]),
+    sticky: sticky|default(false),
     rows: rows|default([]),
     footer: footer|default([]),
     empty: empty|default(''),

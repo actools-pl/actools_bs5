@@ -321,6 +321,32 @@ final class TopicStarterRecipeKernelTest extends KernelTestBase {
   }
 
   /**
+   * Core widget tables defer live render arrays instead of JSON-encoding them.
+   */
+  public function testCoreTablesKeepLiveRenderArraysOutsideJsonProps(): void {
+    // Entity-reference widgets can carry cyclic entity/form objects. They are
+    // legitimate render-array metadata, not serializable SDC properties.
+    $cycle = new \stdClass();
+    $cycle->self = $cycle;
+    $cell = [
+      '#type' => 'inline_template',
+      '#template' => '{{ label }}',
+      '#context' => ['label' => 'Select a teaching resource'],
+      '#actools_cyclic_probe' => $cycle,
+      '#cache' => ['tags' => ['actools_table:probe']],
+      '#attached' => ['library' => ['core/drupal']],
+    ];
+    $build = ['#type' => 'table', '#header' => ['Resource'], '#rows' => [
+      ['data' => [['data' => $cell]]],
+    ]];
+    $html = (string) $this->container->get('renderer')->renderRoot($build);
+    $this->assertStringContainsString('Select a teaching resource', $html);
+    $this->assertStringContainsString('<table', $html);
+    $this->assertContains('actools_table:probe', CacheableMetadata::createFromRenderArray($build)->getCacheTags());
+    $this->assertContains('core/drupal', $build['#attached']['library']);
+  }
+
+  /**
    * Hidden editing controls work without bypassing denied presentation fields.
    */
   public function testPresentationMappingPreservesElementAccessAndMetadata(): void {

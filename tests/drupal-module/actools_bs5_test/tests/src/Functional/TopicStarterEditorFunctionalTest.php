@@ -37,9 +37,17 @@ final class TopicStarterEditorFunctionalTest extends BrowserTestBase {
     // Core's test helper invokes the real CLI, checks its exit code, and
     // rebuilds the test runner after any recipe-installed modules.
     $this->applyRecipe($this->root . '/' . $path . '/recipes/actools_topic_starter');
-    $this->drupalPlaceBlock('system_main_block', ['region' => 'content']);
-    $this->drupalPlaceBlock('system_messages_block', ['region' => 'content']);
-    $this->drupalPlaceBlock('page_title_block', ['region' => 'content']);
+    // Reuse the theme's optional placements when installed; duplicate main or
+    // title blocks would make a fresh test site render its page twice.
+    foreach ([
+      'actools_bs5_content' => 'system_main_block',
+      'actools_bs5_messages' => 'system_messages_block',
+      'actools_bs5_page_title' => 'page_title_block',
+    ] as $id => $plugin) {
+      if (!\Drupal\block\Entity\Block::load($id)) {
+        $this->drupalPlaceBlock($plugin, ['region' => 'content']);
+      }
+    }
   }
 
   /**
