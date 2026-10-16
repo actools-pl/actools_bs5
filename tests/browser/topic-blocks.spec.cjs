@@ -17,7 +17,7 @@ const image = (width, height) => 'data:image/svg+xml;base64,' + Buffer.from(
 for (const [viewport, available, columns] of [[320, 296, 1], [768, 720, 2], [1440, 1200, 3], [1440, 300, 1]]) {
   test(`resource grid uses its ${available}px column within a ${viewport}px viewport`, async ({ page }) => {
     await page.setViewportSize({ width: viewport, height: 1000 });
-    const card = index => `<li class="actools-resource-cards__item"><article class="actools-resource-card"><div class="actools-resource-card__media"><img src="${image(220, 132)}" width="220" height="132" alt="Complete diagram ${index}"></div><div class="actools-resource-card__content"><h3 class="actools-resource-card__heading"><a href="#resource-${index}">Capillarity resource ${index}</a></h3><div class="actools-resource-card__summary">A useful teaching resource with a longwordthatmustnotpushthecardoutsidetheavailablecolumn.</div></div></article></li>`;
+    const card = index => `<li class="actools-resource-cards__item"><article class="actools-resource-card"><div class="actools-resource-card__content"><div class="actools-resource-card__metadata">Notes · Foundation</div><h3 class="actools-resource-card__heading"><a href="#resource-${index}">Capillarity resource ${index}</a></h3><div class="actools-resource-card__summary">A useful teaching resource with a longwordthatmustnotpushthecardoutsidetheavailablecolumn.</div></div>${index === 2 ? '' : `<div class="actools-resource-card__media"><img src="${image(220, 132)}" width="220" height="132" alt="Complete diagram ${index}"></div>`}</article></li>`;
     await page.setContent(`<!doctype html><html><head><style>${css}</style></head><body><main style="max-width:${available}px;margin:12px"><h1>Surface tension</h1><div class="field--name-field-actools-resources"><h2>Resources</h2><ul class="actools-resource-cards__items">${[1, 2, 3].map(card).join('')}</ul></div></main></body></html>`);
     await page.waitForFunction(() => [...document.images].every(i => i.complete && i.naturalWidth));
     const dimensions = await page.locator('.actools-resource-cards__items').evaluate(el => ({
@@ -30,6 +30,37 @@ for (const [viewport, available, columns] of [[320, 296, 1], [768, 720, 2], [144
     const img = await page.locator('img').first().boundingBox();
     expect(img.width).toBeLessThanOrEqual(220);
     expect(img.width / img.height).toBeCloseTo(220 / 132, 2);
+    const cards = page.locator('.actools-resource-card');
+    const cardMetrics = await cards.evaluateAll(elements => elements.map(card => {
+      const rect = card.getBoundingClientRect();
+      const content = card.querySelector('.actools-resource-card__content').getBoundingClientRect();
+      const title = card.querySelector('.actools-resource-card__heading').getBoundingClientRect();
+      const media = card.querySelector('.actools-resource-card__media');
+      return {
+        textFirst: card.firstElementChild.classList.contains('actools-resource-card__content'),
+        mediaLast: !media || media === card.lastElementChild,
+        mediaBelowText: !media || media.getBoundingClientRect().y >= content.bottom - 1,
+        titleY: title.y,
+        titleOffset: title.y - rect.y,
+        cardHeight: rect.height,
+        contentHeight: content.height,
+      };
+    }));
+    for (const card of cardMetrics) {
+      expect(card.textFirst).toBe(true);
+      expect(card.mediaLast).toBe(true);
+      expect(card.mediaBelowText).toBe(true);
+    }
+    await expect(cards.nth(1).locator('.actools-resource-card__media')).toHaveCount(0);
+    // An optional image cannot push one title below its image-free neighbour.
+    expect(cardMetrics[0].titleOffset).toBeCloseTo(cardMetrics[1].titleOffset, 1);
+    if (columns > 1) expect(cardMetrics[0].titleY).toBeCloseTo(cardMetrics[1].titleY, 1);
+    else {
+      // Stacked cards take their own natural height; the image-free card has
+      // only its content and border, without a thumbnail-sized empty region.
+      expect(cardMetrics[1].cardHeight).toBeCloseTo(cardMetrics[1].contentHeight + 2, 1);
+      expect(cardMetrics[1].cardHeight).toBeLessThan(cardMetrics[0].cardHeight);
+    }
     await page.keyboard.press('Tab');
     const link = page.getByRole('link').first();
     await expect(link).toBeFocused();

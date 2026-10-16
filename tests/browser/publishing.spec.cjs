@@ -17,6 +17,12 @@ for (const width of [320, 390, 768, 1440]) {
     await expect(page.locator('h1')).toHaveCount(1);
     await expect(page.locator('.actools-resource-card')).toHaveCount(8);
     await expect(page.locator('.actools-resource-card__metadata')).toHaveCount(8);
+    await expect(page.locator('.actools-resource-card__media')).toHaveCount(4);
+    expect(await page.locator('.actools-resource-card').evaluateAll(cards => cards.every(card => {
+      const media = card.querySelector('.actools-resource-card__media');
+      return card.firstElementChild.classList.contains('actools-resource-card__content')
+        && (!media || media === card.lastElementChild);
+    }))).toBe(true);
     await expect(page.locator('figcaption.actools-text-image__caption')).toHaveCount(1);
     expect(await page.locator('h2').allTextContents()).toEqual([
       'Why water rises in a narrow tube', 'Concepts and notes', 'Worked examples', 'Practice assignments',

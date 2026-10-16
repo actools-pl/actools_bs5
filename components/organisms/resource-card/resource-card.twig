@@ -2,8 +2,8 @@
 {# Render before testing emptiness so denied/empty fields still bubble cache
    metadata. Print the captured markup unchanged; trim is only a predicate. #}
 {% set metadata_markup %}{% block metadata %}{% endblock %}{% endset %}
+{% set media_markup %}{% block media %}{% endblock %}{% endset %}
 <div{{ attributes.addClass('actools-resource-card') }}>
-  <div class="actools-resource-card__media">{% block media %}{% endblock %}</div>
   <div class="actools-resource-card__content">
     {% if metadata_markup|trim %}
       <div class="actools-resource-card__metadata actools-resource-metadata">{{ metadata_markup }}</div>
@@ -18,4 +18,7 @@
     {% endif %}
     <div class="actools-resource-card__summary">{% block body %}{% endblock %}</div>
   </div>
+  {% if media_markup|trim %}
+    <div class="actools-resource-card__media">{{ media_markup }}</div>
+  {% endif %}
 </div>

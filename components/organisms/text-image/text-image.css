@@ -46,10 +46,19 @@
 }
 
 figure.actools-text-image__media {
-  margin: 0;
+  /* Let the diagram set the figure width, without a long caption stretching
+     it across the grid column. Small diagrams retain a readable caption. */
+  inline-size: fit-content;
+  min-inline-size: min(100%, 18rem);
+  max-inline-size: 100%;
+  justify-self: center;
+  margin-block: 0;
+  margin-inline: auto;
 }
 
 .actools-text-image__caption {
+  contain: inline-size;
+  inline-size: 100%;
   margin-block-start: 0.75rem;
   color: var(--bs-secondary-color, #6c757d);
   font-size: 0.875em;
@@ -80,5 +89,10 @@ figure.actools-text-image__media {
 
   .actools-text-image__media {
     margin-block-start: 1rem;
+  }
+
+  figure.actools-text-image__media {
+    margin-block-start: 1rem;
+    break-inside: avoid;
   }
 }
