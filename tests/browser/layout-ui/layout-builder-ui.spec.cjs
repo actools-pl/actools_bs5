@@ -6,6 +6,16 @@ if (!fixturePath || !process.env.ACTOOLS_LAYOUT_EDITOR_PASSWORD) {
   throw new Error('Run the disposable-site workflow before the Layout Builder UI suite.');
 }
 const fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+const browserErrors = new WeakMap();
+
+test.beforeEach(async ({ page }) => {
+  const errors = [];
+  browserErrors.set(page, errors);
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => {
+    if (message.type() === 'error') errors.push(`console: ${message.text()}`);
+  });
+});
 
 test.afterEach(async ({ page }, testInfo) => {
   if (testInfo.status !== testInfo.expectedStatus) {
@@ -13,11 +23,16 @@ test.afterEach(async ({ page }, testInfo) => {
     // can be diagnosed without downloading the screenshot/trace archive.
     const diagnostics = {
       url: page.url(),
+      errors: browserErrors.get(page),
+      runtime: await page.evaluate(() => ({ readyState: document.readyState, Drupal: typeof window.Drupal, ajax: typeof window.Drupal?.ajax })),
       bodyText: (await page.locator('body').innerText()).slice(0, 12000),
       inputs: await page.locator('input, textarea, select').evaluateAll(elements => elements.map(element => ({
         tag: element.tagName, type: element.type, name: element.name,
       }))),
-      links: await page.getByRole('link').allTextContents(),
+      links: await page.getByRole('link').evaluateAll(elements => elements.map(element => ({
+        text: element.textContent, href: element.getAttribute('href'), classes: element.className, once: element.getAttribute('data-once'),
+      }))),
+      scripts: await page.locator('script[src]').evaluateAll(elements => elements.map(element => element.src)),
     };
     console.error('Layout Builder failure diagnostics:', JSON.stringify(diagnostics, null, 2));
     await testInfo.attach('failed-editor-page.html', { body: await page.content(), contentType: 'text/html' });
@@ -27,12 +42,24 @@ test.afterEach(async ({ page }, testInfo) => {
 // These are real off-canvas forms and contextual links. No request.post,
 // evaluate(DOM mutation), Drush, entity API or direct layout endpoint shortcut
 // performs the create/edit/move/save operations under test.
+async function clickAjaxLink(link) {
+  // Core attaches these behaviors asynchronously after a page/dialog update.
+  // A visible link can otherwise still perform its non-JS fallback navigation.
+  await expect(link).toHaveAttribute('data-once', /\bajax\b/);
+  await link.click();
+}
+
+async function clickAjaxButton(button) {
+  await expect(button).toHaveAttribute('data-once', /\bdrupal-ajax\b/);
+  await button.click();
+}
+
 async function openInlineBlock(page, label) {
-  await page.getByRole('link', { name: /^Add block\b/ }).first().click();
+  await clickAjaxLink(page.getByRole('link', { name: /^Add block\b/ }).first());
   const dialog = page.locator('#drupal-off-canvas');
   await expect(dialog).toBeVisible();
-  await dialog.getByRole('link', { name: /^Create (content|custom) block$/ }).click();
-  await dialog.getByRole('link', { name: label, exact: true }).click();
+  await clickAjaxLink(dialog.getByRole('link', { name: /^Create (content|custom) block$/ }));
+  await clickAjaxLink(dialog.getByRole('link', { name: label, exact: true }));
   await expect(dialog.locator('[name="settings[label]"]')).toBeVisible();
   return dialog;
 }
@@ -43,13 +70,14 @@ async function contextualAction(page, block, label) {
   // real editor interaction and does not remove classes or force-click links.
   await block.locator('.contextual .trigger').focus();
   await block.locator('.contextual .trigger').press('Enter');
-  await block.getByRole('link', { name: label, exact: true }).click();
+  await clickAjaxLink(block.getByRole('link', { name: label, exact: true }));
   await expect(page.locator('#drupal-off-canvas')).toBeVisible();
   return page.locator('#drupal-off-canvas');
 }
 
 async function chooseResource(page, dialog, delta, resource) {
   const input = dialog.locator(`[name="settings[block_form][field_actools_resources][${delta}][target_id]"]`);
+  await expect(input).toHaveAttribute('data-once', /\bautocomplete\b/);
   await input.fill(resource.title);
   const suggestion = page.locator('.ui-autocomplete .ui-menu-item').filter({ hasText: resource.title });
   await expect(suggestion).toBeVisible();
@@ -58,11 +86,7 @@ async function chooseResource(page, dialog, delta, resource) {
 }
 
 test('editor creates, edits, reorders and saves inline blocks through Layout Builder', async ({ page, browser }, testInfo) => {
-  const errors = [];
-  page.on('pageerror', error => errors.push(error.message));
-  page.on('console', message => {
-    if (message.type() === 'error') errors.push(`console: ${message.text()}`);
-  });
+  const errors = browserErrors.get(page);
 
   await page.goto('/user/login');
   await page.getByLabel('Username', { exact: true }).fill(fixture.username);
@@ -77,12 +101,13 @@ test('editor creates, edits, reorders and saves inline blocks through Layout Bui
   await createText.locator('[name="settings[block_form][field_actools_heading][0][value]"]').fill('Reading a meniscus');
   await createText.locator('[name="settings[block_form][field_actools_body][0][value]"]').fill('First explanation written in the live layout form.');
   await createText.getByLabel('Image position', { exact: true }).selectOption('right');
+  await expect(createText.locator('input[type="file"]')).toHaveAttribute('data-once', /\bauto-file-upload\b/);
   await createText.locator('input[type="file"]').setInputFiles(fixture.imagePath);
   const alt = createText.locator('[name="settings[block_form][field_actools_image][0][alt]"]');
   await expect(alt).toBeVisible();
   await expect(alt).toHaveJSProperty('required', true);
   await alt.fill('Complete meniscus diagram');
-  await createText.getByRole('button', { name: 'Add block', exact: true }).click();
+  await clickAjaxButton(createText.getByRole('button', { name: 'Add block', exact: true }));
   await expect(page.locator('#drupal-off-canvas')).toHaveCount(0);
   const textBlock = page.locator('[data-layout-block-uuid]').filter({ has: page.locator('.actools-text-image') });
   await expect(textBlock).toContainText('Reading a meniscus');
@@ -92,7 +117,7 @@ test('editor creates, edits, reorders and saves inline blocks through Layout Bui
   await editText.locator('[name="settings[block_form][field_actools_heading][0][value]"]').fill('Understanding a meniscus');
   await editText.locator('[name="settings[block_form][field_actools_body][0][value]"]').fill('Revised explanation saved through the editor.');
   await editText.getByLabel('Image position', { exact: true }).selectOption('left');
-  await editText.getByRole('button', { name: 'Update', exact: true }).click();
+  await clickAjaxButton(editText.getByRole('button', { name: 'Update', exact: true }));
   await expect(page.locator('#drupal-off-canvas')).toHaveCount(0);
   await expect(textBlock).toContainText('Understanding a meniscus');
 
@@ -100,9 +125,9 @@ test('editor creates, edits, reorders and saves inline blocks through Layout Bui
   await createCards.locator('[name="settings[label]"]').fill('Selected practice cards');
   await createCards.locator('[name="settings[block_form][field_actools_heading][0][value]"]').fill('Practice draft');
   await chooseResource(page, createCards, 0, fixture.resources[0]);
-  await createCards.getByRole('button', { name: 'Add another item', exact: true }).click();
+  await clickAjaxButton(createCards.getByRole('button', { name: 'Add another item', exact: true }));
   await chooseResource(page, createCards, 1, fixture.resources[1]);
-  await createCards.getByRole('button', { name: 'Add block', exact: true }).click();
+  await clickAjaxButton(createCards.getByRole('button', { name: 'Add block', exact: true }));
   await expect(page.locator('#drupal-off-canvas')).toHaveCount(0);
   const cardsBlock = page.locator('[data-layout-block-uuid]').filter({ has: page.locator('.actools-resource-card') });
   await expect(cardsBlock).toContainText('Practice draft');
@@ -112,7 +137,7 @@ test('editor creates, edits, reorders and saves inline blocks through Layout Bui
   await expect(editCards.locator('[name="settings[block_form][field_actools_heading][0][value]"]')).toHaveValue('Practice draft');
   await expect(editCards.locator('[name="settings[block_form][field_actools_resources][0][target_id]"]')).toHaveValue(`${fixture.resources[0].title} (${fixture.resources[0].id})`);
   await editCards.locator('[name="settings[block_form][field_actools_heading][0][value]"]').fill('Selected practice');
-  await editCards.getByRole('button', { name: 'Update', exact: true }).click();
+  await clickAjaxButton(editCards.getByRole('button', { name: 'Update', exact: true }));
   await expect(page.locator('#drupal-off-canvas')).toHaveCount(0);
   await expect(cardsBlock).toContainText('Selected practice');
 
@@ -126,7 +151,7 @@ test('editor creates, edits, reorders and saves inline blocks through Layout Bui
   await handle.press('Tab');
   const rowLabels = move.locator('.layout-builder-components-table__block-label');
   await expect(rowLabels).toContainText(['Body', 'Resources', 'Selected practice cards (current)', 'Meniscus editor block']);
-  await move.getByRole('button', { name: 'Move', exact: true }).click();
+  await clickAjaxButton(move.getByRole('button', { name: 'Move', exact: true }));
   await expect(page.locator('#drupal-off-canvas')).toHaveCount(0);
   const pending = page.locator('[data-layout-block-uuid]').filter({ has: page.locator('.actools-resource-card, .actools-text-image') });
   await expect(pending).toHaveCount(2);
