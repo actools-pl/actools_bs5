@@ -20,6 +20,11 @@ if (PHP_SAPI !== 'cli' || getenv('ACTOOLS_NAV_UI_FIXTURE') !== '1') {
 }
 $fixture_path = getenv('ACTOOLS_NAV_FIXTURE');
 $admin_interface = getenv('ACTOOLS_NAV_ADMIN_INTERFACE');
+$base_url = rtrim((string) getenv('ACTOOLS_NAV_BASE_URL'), '/');
+$base_parts = parse_url($base_url);
+if (($base_parts['scheme'] ?? '') !== 'http' || !in_array($base_parts['host'] ?? '', ['127.0.0.1', 'localhost', '[::1]'], TRUE)) {
+  throw new RuntimeException('Navigation fixtures require an explicit loopback HTTP base URL.');
+}
 if (!$fixture_path || !in_array($admin_interface, ['toolbar', 'navigation'], TRUE)) {
   throw new RuntimeException('Specify the disposable fixture path and real core admin interface.');
 }
@@ -118,7 +123,10 @@ $add_link('Jump to worked examples', 'entity:node/' . $resource_fixtures['Surfac
   'query' => ['ref' => 'navigation'], 'fragment' => 'worked-examples',
   'attributes' => ['data-publisher-link' => 'preserved', 'title' => 'Read the worked examples', 'rel' => ['help'], 'class' => ['fixture-native-url']],
 ]);
-$add_link('Continue to practice assignments', 'route:<current>', 2, $support, ['fragment' => 'practice-assignments']);
+// A same-origin absolute URL keeps this anchor out of canonical node route
+// matching. Core's generation-only <current> route is intentionally not allowed
+// by native menu-tree access; do not override that access behavior for a test.
+$add_link('Continue to practice assignments', $base_url . '/node/' . $topic->id(), 2, $support, ['fragment' => 'practice-assignments']);
 
 foreach (Block::loadMultiple() as $block) {
   if ($block->getTheme() === 'actools_bs5') {
