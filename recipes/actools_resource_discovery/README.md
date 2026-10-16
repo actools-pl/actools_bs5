@@ -29,6 +29,18 @@ existing menu through normal site configuration when appropriate. A Resource
 can be selected in several Topics, so this recipe does not invent a Topic parent
 or breadcrumb for it. Uploaded public files keep their existing public access.
 
+From the Composer project root, using its modern project-local Drush, a test
+site with the starter already applied can enable discovery with:
+
+```sh
+vendor/bin/drush --uri=https://test.example recipe web/themes/custom/actools_bs5/recipes/actools_resource_discovery
+vendor/bin/drush --uri=https://test.example cache:rebuild
+```
+
+Use the actual test-site URI and theme location. Open `/resources` anonymously,
+exercise its filters, and then add a descriptive menu link through Drupal's
+menu interface. The theme does not add a decorative Search link automatically.
+
 Strict matching stops on a conflicting existing `views.view.actools_resources`.
 The starter is deliberately not reapplied by this recipe, preserving separately
 customised forms/displays. Existing starter fields and its card view mode are

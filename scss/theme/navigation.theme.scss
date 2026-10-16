@@ -116,6 +116,24 @@
   font-weight: 600;
 }
 
+// Decorative hamburger accompanies the visible translated Menu label.
+.actools-navigation__toggle-icon {
+  position: relative;
+  display: block;
+  inline-size: 1.125rem;
+  block-size: 0.875rem;
+  border-block: 0.125rem solid currentColor;
+}
+
+.actools-navigation__toggle-icon::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 50%;
+  border-block-start: 0.125rem solid currentColor;
+  transform: translateY(-0.0625rem);
+}
+
 .actools-navigation__disclosure {
   flex: 0 0 auto;
   border-color: transparent;
@@ -144,6 +162,10 @@
 }
 
 .page > header[role="banner"] {
+  .actools-navigation__list {
+    display: block;
+  }
+
   .actools-navigation__link {
     min-block-size: 2.75rem;
     color: var(--bs-body-color);
@@ -260,7 +282,7 @@
 }
 
 // The main menu is also a fully visible nested list when placed in a footer.
-footer.footer .actools-navigation__link {
+footer.footer .block-system-menu-blockmain .nav-item a.actools-navigation__link {
   white-space: normal;
   overflow-wrap: anywhere;
 }
