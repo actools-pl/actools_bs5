@@ -54,7 +54,8 @@ final class TopicStarterCaptionKernelTest extends KernelTestBase {
     $this->container->get('theme.manager')->setActiveTheme($active);
     $this->container->get('theme.registry')->reset();
     $this->container->get('router.builder')->rebuild();
-    $this->assertTrue($this->container->get('file_system')->prepareDirectory('public://actools-caption-tests', FileSystemInterface::CREATE_DIRECTORY));
+    $directory = 'public://actools-caption-tests';
+    $this->assertTrue($this->container->get('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY));
   }
 
   /**

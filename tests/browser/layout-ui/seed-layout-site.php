@@ -197,7 +197,8 @@ imagepng($image, $image_path);
 imagedestroy($image);
 
 $file_system = \Drupal::service('file_system');
-if (!$file_system->prepareDirectory('public://actools-preview', FileSystemInterface::CREATE_DIRECTORY)) {
+$diagram_directory = 'public://actools-preview';
+if (!$file_system->prepareDirectory($diagram_directory, FileSystemInterface::CREATE_DIRECTORY)) {
   throw new RuntimeException('The disposable public diagram directory is not writable.');
 }
 $diagram_uri = $file_system->copy($image_path, 'public://actools-preview/capillary-rise.png', FileExists::Replace);

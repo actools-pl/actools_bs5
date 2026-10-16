@@ -12,7 +12,9 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
+use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
+use Drupal\user\RoleInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -47,6 +49,9 @@ final class ResourceMetadataKernelTest extends KernelTestBase {
     $this->container->get('theme.manager')->setActiveTheme($this->container->get('theme.initialization')->getActiveThemeByName('actools_bs5'));
     $this->container->get('theme.registry')->reset();
     $this->container->get('router.builder')->rebuild();
+    // Native Layout Builder field blocks check their parent node's access.
+    // Published Topic fixtures are public content for this rendering test.
+    Role::load(RoleInterface::ANONYMOUS_ID)->grantPermission('access content')->save();
     User::create(['uid' => 1, 'name' => 'Resource metadata author', 'status' => 1])->save();
   }
 
