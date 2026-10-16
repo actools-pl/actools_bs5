@@ -211,6 +211,9 @@ test('keyboard disclosures, Escape focus and resized panels remain usable', asyn
 test('native hash navigation, history and skip links clear the measured sticky header', async ({ page }, testInfo) => {
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
+    // Each viewport must exercise a new document's initial fragment load,
+    // rather than reusing the previous width's same-hash document mid-resize.
+    await page.goto('about:blank');
     await visit(page, `${fixture.currentTopicPath}#worked-examples`);
     await expect(page.locator('html')).toHaveClass(/\bactools-sticky-header-active\b/);
     await assertHeadingClearsHeader(page, 'worked-examples');
