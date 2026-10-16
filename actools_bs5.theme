@@ -12,8 +12,9 @@ use Drupal\Core\File\FileExists;
 /**
  * Implements hook_preprocess_block().
  *
- * Maps only the optional starter's plain presentation fields. Body, images and
- * references remain core field render arrays, retaining formatters and access.
+ * Maps only the hidden presentation control. Visible fields remain render
+ * arrays: core's renderer must run deferred access checks before their markup
+ * or attachments are allowed to appear.
  */
 function actools_bs5_preprocess_block(array &$variables) {
   $content = &$variables['content'];
@@ -23,10 +24,9 @@ function actools_bs5_preprocess_block(array &$variables) {
     return;
   }
 
-  $variables['actools_heading'] = '';
   $variables['actools_position'] = 'right';
   $variables['actools_has_image'] = FALSE;
-  $metadata = \Drupal\Core\Render\BubbleableMetadata::createFromRenderArray($content)
+  $metadata = \Drupal\Core\Cache\CacheableMetadata::createFromRenderArray($content)
     ->addCacheableDependency($block);
   foreach (['field_actools_heading', 'field_actools_position', 'field_actools_image'] as $name) {
     if (!$block->hasField($name)) {
@@ -36,44 +36,41 @@ function actools_bs5_preprocess_block(array &$variables) {
     $access = $field->access('view', NULL, TRUE);
     $metadata->addCacheableDependency($access);
     $element = $content[$name] ?? NULL;
+    $element_allowed = TRUE;
     if (is_array($element)) {
-      // Denied elements contribute cacheability, never their attached settings.
+      // Cacheability may bubble even for denied fields. Attachments may not:
+      // only the original element's normal rendering can authorise those.
       $metadata = $metadata->merge(\Drupal\Core\Cache\CacheableMetadata::createFromRenderArray($element));
-      $element_access = $element['#access'] ?? TRUE;
-      if ($element_access instanceof \Drupal\Core\Access\AccessResultInterface) {
-        $metadata->addCacheableDependency($element_access);
-        $element_allowed = $element_access->isAllowed();
-      }
-      else {
-        $element_allowed = (bool) $element_access;
+      if (isset($element['#access'])) {
+        $element_access = $element['#access'];
+        if ($element_access instanceof \Drupal\Core\Access\AccessResultInterface) {
+          $metadata->addCacheableDependency($element_access);
+          $element_allowed = $element_access->isAllowed();
+        }
+        else {
+          $element_allowed = (bool) $element_access;
+        }
       }
     }
-    else {
-      $element_allowed = TRUE;
-    }
-    // Position is an editing control intentionally hidden from the display.
-    // Heading/image must respect display visibility as well as field access.
-    if (!$access->isAllowed() || !$element_allowed
-      || ($name !== 'field_actools_position' && !is_array($element))) {
+    // Never extract a heading's raw value. The wrappers render the original
+    // field, preserving #access_callback, formatters and bubbled metadata.
+    if ($name === 'field_actools_heading' || !$access->isAllowed() || !$element_allowed) {
       continue;
     }
-    if (is_array($element)) {
-      // Plain presentation values do not render their original elements. Keep
-      // attachments only after both field and element access allow their use.
-      $metadata = $metadata->merge(\Drupal\Core\Render\BubbleableMetadata::createFromRenderArray($element));
+    if ($name === 'field_actools_position') {
+      // Position is intentionally hidden in the recipe's view display. If an
+      // alter adds a deferred-access display element, do not consume its raw
+      // value before core has authorised it.
+      if (!is_array($element) || isset($element['#access']) || !isset($element['#access_callback'])) {
+        $variables['actools_position'] = $field->value === 'left' ? 'left' : 'right';
+      }
     }
-    if ($name === 'field_actools_heading') {
-      $variables['actools_heading'] = (string) ($field->value ?? '');
-    }
-    elseif ($name === 'field_actools_position') {
-      $variables['actools_position'] = $field->value === 'left' ? 'left' : 'right';
-    }
-    else {
+    elseif (is_array($element)) {
+      // This chooses a layout only. The image element itself still renders
+      // normally, so any deferred callback controls its markup/attachments.
       $variables['actools_has_image'] = !$field->isEmpty();
     }
   }
-  // Wrappers render content after consuming individual fields, so metadata for
-  // a hidden/denied presentation field bubbles even when it produces no markup.
   $metadata->applyTo($content);
 }
 

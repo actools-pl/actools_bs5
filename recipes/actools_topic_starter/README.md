@@ -29,12 +29,25 @@ resource title, optional image and summary; they do not embed the full Body or
 Download field. The resource's own full page displays those fields.
 
 Images are optional. When an image is provided, its alternative-text field is
-required. Resource-card thumbnails use the new, independently named
-`actools_resource_card` image style (fit within 960 by 960 pixels, with no
-cropping or enlargement of smaller images). This preserves diagram labels. The separate `actools_editor_preview` style fits image previews within 150 by
-150 pixels, also without cropping or enlargement. No existing image style is
-edited. Both block types and both node types create new revisions by
-default.
+required. Full Resource pages and text/image blocks use core's Responsive Image
+formatter with the new `actools_diagram` responsive style. The browser selects
+from 480, 960, 1440 and 1920-pixel-wide derivatives; the image fallback is capped
+at 960 pixels. All derivatives scale proportionally without cropping or enlarging
+small uploads. Clicking the displayed image opens the original, full-resolution
+file, so detailed diagram labels remain available without downloading the
+original on every page view.
+
+Images use native lazy loading. The `sizes` attribute begins with `auto`, allowing
+supporting browsers to account for the image's actual Layout Builder column
+width. A contained-page viewport estimate supports older browsers; those
+browsers can choose a larger derivative in a narrow column. Core supplies the
+image's alternative text, dimensions, derivative URLs and cache dependencies.
+
+Resource-card thumbnails retain the independent `actools_resource_card` style
+(fit within 960 by 960 pixels, without cropping or enlargement). The separate
+`actools_editor_preview` style fits editing previews within 150 by 150 pixels.
+No existing image style is edited. Both block types and both node types create
+new revisions by default.
 
 ## Public uploads
 

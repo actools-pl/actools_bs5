@@ -6,6 +6,7 @@ namespace Drupal\Tests\actools_bs5_test\Kernel;
 
 use Drupal\block_content\Entity\BlockContent;
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Plugin\Context\EntityContext;
 use Drupal\Core\Recipe\Recipe;
@@ -347,9 +348,9 @@ final class TopicStarterRecipeKernelTest extends KernelTestBase {
   }
 
   /**
-   * Hidden editing controls work without bypassing denied presentation fields.
+   * Hidden controls work while preprocessing never consumes visible headings.
    */
-  public function testPresentationMappingPreservesElementAccessAndMetadata(): void {
+  public function testPreprocessingLeavesHeadingRenderArraysUntouched(): void {
     $block = BlockContent::create([
       'type' => 'actools_text_image', 'info' => 'Mapping regression', 'status' => 1,
       'field_actools_heading' => 'Restricted heading',
@@ -361,39 +362,116 @@ final class TopicStarterRecipeKernelTest extends KernelTestBase {
     require_once DRUPAL_ROOT . '/' . $theme_path . '/actools_bs5.theme';
     $view = $this->container->get('entity_type.manager')->getViewBuilder('block_content')->view($block);
     $this->assertArrayNotHasKey('field_actools_position', $view, 'Position is an editing control, not displayed text.');
-    foreach ([\Drupal\Core\Access\AccessResult::forbidden(), \Drupal\Core\Access\AccessResult::neutral()] as $access) {
+    foreach ([\Drupal\Core\Access\AccessResult::forbidden(), \Drupal\Core\Access\AccessResult::neutral(), \Drupal\Core\Access\AccessResult::allowed()] as $access) {
       $variables = ['content' => $view];
       $variables['content']['field_actools_heading']['#access'] = $access->cachePerPermissions();
       $variables['content']['field_actools_heading']['#cache']['tags'] = ['actools_heading:probe'];
-      $variables['content']['field_actools_heading']['#attached']['library'] = ['core/drupal'];
       $variables['content']['field_actools_heading']['#attached']['drupalSettings']['restricted_heading'] = 'Private heading setting';
+      $original_heading = $variables['content']['field_actools_heading'];
       actools_bs5_preprocess_block($variables);
-      $this->assertSame('', $variables['actools_heading'], 'A denied/neutral render element must not expose its raw field value.');
+      $this->assertArrayNotHasKey('actools_heading', $variables, 'No raw heading variable exists for any access result.');
+      $this->assertSame($original_heading, $variables['content']['field_actools_heading']);
       $this->assertSame('left', $variables['actools_position'], 'The hidden position control remains effective.');
-      $metadata = \Drupal\Core\Render\BubbleableMetadata::createFromRenderArray($variables['content']);
+      $metadata = BubbleableMetadata::createFromRenderArray($variables['content']);
       $this->assertContains('user.permissions', $metadata->getCacheContexts());
       $this->assertContains('actools_heading:probe', $metadata->getCacheTags());
-      $this->assertNotContains('core/drupal', $metadata->getAttachments()['library'] ?? []);
-      $this->assertArrayNotHasKey('restricted_heading', $metadata->getAttachments()['drupalSettings'] ?? []);
+      $this->assertArrayNotHasKey('restricted_heading', $metadata->getAttachments()['drupalSettings'] ?? [], 'Preprocessing never promotes field attachments, even before an allowed field renders.');
     }
-    $variables = ['content' => $view];
-    $variables['content']['field_actools_heading']['#access'] = \Drupal\Core\Access\AccessResult::allowed();
-    $variables['content']['field_actools_heading']['#attached']['library'] = ['core/drupal'];
-    actools_bs5_preprocess_block($variables);
-    $this->assertSame('Restricted heading', $variables['actools_heading']);
-    $this->assertContains('core/drupal', $variables['content']['#attached']['library']);
     unset($view['field_actools_heading']);
     $variables = ['content' => $view];
     actools_bs5_preprocess_block($variables);
-    $this->assertSame('', $variables['actools_heading'], 'A display-hidden heading stays hidden.');
+    $this->assertArrayNotHasKey('field_actools_heading', $variables['content'], 'A display-hidden heading stays absent.');
+    $this->assertArrayNotHasKey('actools_heading', $variables);
     $this->assertSame('left', $variables['actools_position']);
+  }
+
+  /**
+   * Deferred decisions run on the original heading field, never its raw value.
+   */
+  public function testPresentationMappingPreservesElementAccessAndMetadata(): void {
+    foreach (['actools_text_image', 'actools_resource_cards'] as $bundle) {
+      foreach (['forbidden', 'neutral', 'boolean_denied', 'allowed', 'boolean_allowed'] as $mode) {
+        $heading = 'Restricted heading ' . $bundle . ' ' . $mode;
+        $block = BlockContent::create([
+          'type' => $bundle, 'info' => $heading, 'status' => 1,
+          'reusable' => TRUE, 'field_actools_heading' => $heading,
+        ]);
+        if ($bundle === 'actools_text_image') {
+          $block->set('field_actools_body', ['value' => 'A public introduction.', 'format' => 'plain_text']);
+          $block->set('field_actools_position', 'left');
+        }
+        $block->save();
+        $this->container->get('state')->set('actools_bs5_test.heading_access_probe', ['block_id' => $block->id(), 'mode' => $mode]);
+        foreach ([1, 2] as $pass) {
+          [$html, $metadata] = $this->renderBlockAs($block, new AnonymousUserSession());
+          $allowed = in_array($mode, ['allowed', 'boolean_allowed'], TRUE);
+          if ($allowed) {
+            $this->assertStringContainsString($heading, $html);
+            $this->assertMatchesRegularExpression('/<h2[^>]*>\s*<span[^>]*>' . preg_quote($heading, '/') . '<\/span>\s*<\/h2>/', $html);
+            $this->assertContains('core/drupal.debounce', $metadata->getAttachments()['library'] ?? []);
+            $this->assertSame('Private heading setting', $metadata->getAttachments()['drupalSettings']['actoolsRestrictedHeading'] ?? NULL);
+          }
+          else {
+            $this->assertStringNotContainsString($heading, $html, 'A denied heading cannot reappear through its block label.');
+            $this->assertDoesNotMatchRegularExpression('/<h2\b/', $html, 'Denied fields produce no empty heading.');
+            $this->assertNotContains('core/drupal.debounce', $metadata->getAttachments()['library'] ?? []);
+            $this->assertArrayNotHasKey('actoolsRestrictedHeading', $metadata->getAttachments()['drupalSettings'] ?? []);
+          }
+          $this->assertContains('actools_heading_element:probe', $metadata->getCacheTags());
+          if (!str_starts_with($mode, 'boolean_')) {
+            $this->assertContains('actools_heading_access:' . $mode, $metadata->getCacheTags(), 'AccessResult metadata comes from core running the callback.');
+          }
+        }
+      }
+    }
+    $this->container->get('state')->delete('actools_bs5_test.heading_access_probe');
+  }
+
+  /**
+   * Equal-permission viewers cannot reuse another viewer's allowed heading.
+   */
+  public function testDeferredHeadingAccessSurvivesWarmViewerCaches(): void {
+    // Neither viewer has special permissions; only the callback's user cache
+    // context can distinguish these otherwise equivalent authenticated users.
+    Role::load(RoleInterface::AUTHENTICATED_ID)->grantPermission('access content')->save();
+    $allowed_viewer = User::create(['uid' => 2, 'name' => 'Allowed heading reader', 'status' => 1]);
+    $allowed_viewer->save();
+    $denied_viewer = User::create(['uid' => 3, 'name' => 'Denied heading reader', 'status' => 1]);
+    $denied_viewer->save();
+    foreach (['actools_text_image', 'actools_resource_cards'] as $bundle) {
+      $block = BlockContent::create([
+        'type' => $bundle, 'info' => 'Private viewer heading', 'status' => 1,
+        'reusable' => TRUE, 'field_actools_heading' => 'Private viewer heading',
+      ]);
+      if ($bundle === 'actools_text_image') {
+        $block->set('field_actools_body', ['value' => 'A public introduction.', 'format' => 'plain_text']);
+      }
+      $block->save();
+      $this->container->get('state')->set('actools_bs5_test.heading_access_probe', ['block_id' => $block->id(), 'mode' => 'viewer']);
+      foreach ([$allowed_viewer, $denied_viewer, $denied_viewer, $allowed_viewer, $allowed_viewer, $denied_viewer] as $viewer) {
+        [$html, $metadata] = $this->renderBlockAs($block, $viewer);
+        if ((int) $viewer->id() === 2) {
+          $this->assertStringContainsString('Private viewer heading', $html);
+          $this->assertArrayHasKey('actoolsRestrictedHeading', $metadata->getAttachments()['drupalSettings'] ?? []);
+        }
+        else {
+          $this->assertStringNotContainsString('Private viewer heading', $html);
+          $this->assertDoesNotMatchRegularExpression('/<h2\b/', $html);
+          $this->assertArrayNotHasKey('actoolsRestrictedHeading', $metadata->getAttachments()['drupalSettings'] ?? []);
+        }
+        $this->assertContains('user', $metadata->getCacheContexts());
+        $this->assertContains('actools_heading_access:viewer', $metadata->getCacheTags());
+        $this->assertNotSame(0, $metadata->getCacheMaxAge(), 'Viewer transitions exercise cacheable block output.');
+      }
+    }
+    $this->container->get('state')->delete('actools_bs5_test.heading_access_probe');
   }
 
   /**
    * Renders a reusable block through Layout Builder without clearing caches.
    *
-   * @return array{0: string, 1: \Drupal\Core\Cache\CacheableMetadata}
-   *   HTML and bubbled metadata.
+   * @return array{0: string, 1: \Drupal\Core\Render\BubbleableMetadata}
+   *   HTML and bubbled metadata, including authorised attachments.
    */
   private function renderBlockAs(BlockContent $block, AccountInterface $viewer): array {
     $switcher = $this->container->get('account_switcher');
@@ -410,7 +488,7 @@ final class TopicStarterRecipeKernelTest extends KernelTestBase {
       ]);
       $build = (new Section('actools_bs5_onecol_contained', [], [$component]))->toRenderArray([], FALSE);
       $html = (string) $this->container->get('renderer')->renderRoot($build);
-      return [$html, CacheableMetadata::createFromRenderArray($build)];
+      return [$html, BubbleableMetadata::createFromRenderArray($build)];
     }
     finally {
       $switcher->switchBack();
@@ -427,7 +505,7 @@ final class TopicStarterRecipeKernelTest extends KernelTestBase {
     try {
       $build = $this->container->get('entity_type.manager')->getViewBuilder('node')->view($topic, 'default');
       $html = (string) $this->container->get('renderer')->renderRoot($build);
-      return [$html, CacheableMetadata::createFromRenderArray($build)];
+      return [$html, BubbleableMetadata::createFromRenderArray($build)];
     }
     finally {
       $switcher->switchBack();

@@ -1,13 +1,7 @@
 {# A fielded custom block; its reference formatter renders accessible resource nodes. #}
 <div{{ attributes.addClass('block', 'block-block-content', 'actools-resource-cards') }}>
   {{ title_prefix }}
-  {% if actools_heading or label %}
-    {% include 'actools_bs5:heading' with {
-      heading_text: actools_heading|default(label, true),
-      level: 2,
-      attributes: title_attributes.addClass('actools-resource-cards__heading'),
-    } only %}
-  {% endif %}
+  {{ content.field_actools_heading }}
   {{ title_suffix }}
   <div{{ content_attributes }}>
     {{ content.field_actools_resources }}

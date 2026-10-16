@@ -7,9 +7,10 @@ dependencies:
   - field.field.block_content.actools_text_image.field_actools_heading
   - field.field.block_content.actools_text_image.field_actools_image
   - field.field.block_content.actools_text_image.field_actools_position
+  - responsive_image.styles.actools_diagram
   module:
   - file
-  - image
+  - responsive_image
   - options
   - text
 id: block_content.actools_text_image.default
@@ -33,11 +34,11 @@ content:
     weight: 1
     region: content
   field_actools_image:
-    type: image
+    type: responsive_image
     label: hidden
     settings:
-      image_link: ''
-      image_style: ''
+      image_link: file
+      responsive_image_style: actools_diagram
       image_loading:
         attribute: lazy
     third_party_settings: {}

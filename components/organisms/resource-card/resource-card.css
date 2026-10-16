@@ -39,7 +39,7 @@
 }
 
 .actools-resource-card__heading a {
-  color: var(--bs-primary, #0d6efd);
+  /* Inherit the theme's contrast-adjusted normal/hover/focus link colours. */
   text-decoration-thickness: 0.08em;
   text-underline-offset: 0.15em;
 }

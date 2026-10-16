@@ -1,0 +1,27 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - image.style.actools_diagram_480
+  - image.style.actools_diagram_960
+  - image.style.actools_diagram_1440
+  - image.style.actools_diagram_1920
+  module:
+  - responsive_image
+id: actools_diagram
+label: Actools uncropped diagram
+image_style_mappings:
+- image_mapping_type: sizes
+  image_mapping:
+    # Native auto sizing uses the rendered Layout Builder container width.
+    # The remaining entries support browsers without lazy-image auto sizing.
+    sizes: 'auto, (min-width: 1400px) 1320px, calc(100vw - 2rem)'
+    sizes_image_styles:
+    - actools_diagram_480
+    - actools_diagram_960
+    - actools_diagram_1440
+    - actools_diagram_1920
+  breakpoint_id: responsive_image.viewport_sizing
+  multiplier: 1x
+breakpoint_group: responsive_image
+fallback_image_style: actools_diagram_960

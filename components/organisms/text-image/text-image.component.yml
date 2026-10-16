@@ -24,6 +24,9 @@ props:
       description: Set by the field integration after checking image access and emptiness; avoids pre-rendering fields to probe their output.
       default: false
 slots:
+  heading_content:
+    title: Rendered heading field
+    description: The original Drupal field render array. Its deferred access checks run before heading markup or attachments are emitted; overrides the plain heading prop.
   body:
     title: Formatted text
     description: Drupal's formatted text field render array, preserving text-format filtering and attachments.

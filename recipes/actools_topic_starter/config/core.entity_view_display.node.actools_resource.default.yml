@@ -7,9 +7,10 @@ dependencies:
   - field.field.node.actools_resource.field_actools_image
   - field.field.node.actools_resource.field_actools_summary
   - node.type.actools_resource
+  - responsive_image.styles.actools_diagram
   module:
   - file
-  - image
+  - responsive_image
   - text
 id: node.actools_resource.default
 targetEntityType: node
@@ -17,11 +18,11 @@ bundle: actools_resource
 mode: default
 content:
   field_actools_image:
-    type: image
+    type: responsive_image
     label: hidden
     settings:
-      image_link: ''
-      image_style: ''
+      image_link: file
+      responsive_image_style: actools_diagram
       image_loading:
         attribute: lazy
     third_party_settings: {}

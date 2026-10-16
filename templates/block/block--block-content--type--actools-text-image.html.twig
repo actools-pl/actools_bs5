@@ -1,24 +1,17 @@
 {# Core's bundle-specific OUTER block template, not a block_content entity template. #}
 <div{{ attributes.addClass('block', 'block-block-content', 'actools-text-image-block') }}>
   {{ title_prefix }}
-  {% if not actools_heading and label %}
-    {% include 'actools_bs5:heading' with {
-      heading_text: label,
-      level: 2,
-      attributes: title_attributes,
-    } only %}
-  {% endif %}
   {{ title_suffix }}
   <div{{ content_attributes }}>
     {% embed 'actools_bs5:text-image' with {
-      heading: actools_heading|default(''),
+      heading_field: content.field_actools_heading,
       position: actools_position|default('right'),
       has_media: actools_has_image|default(false),
       attributes: create_attribute(),
-      title_attributes: title_attributes,
       body_content: content.field_actools_body,
       media_content: content.field_actools_image,
     } only %}
+      {% block heading_content %}{{ heading_field }}{% endblock %}
       {% block body %}{{ body_content }}{% endblock %}
       {% block media %}{{ media_content }}{% endblock %}
     {% endembed %}
