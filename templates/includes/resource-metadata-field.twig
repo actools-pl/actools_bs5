@@ -1,0 +1,17 @@
+{# The formatter has resolved labels and Drupal has checked field access before
+   this template runs. Keep its render arrays and item attributes intact. #}
+{{ attach_library('actools_bs5/publishing') }}
+{% if items %}
+  {% set metadata_classes = [
+    'field',
+    'field--name-' ~ field_name|clean_class,
+    'field--type-' ~ field_type|clean_class,
+    'field--label-' ~ label_display,
+    'actools-resource-metadata',
+    'actools-resource-metadata__field',
+  ] %}
+  <div{{ attributes.addClass(metadata_classes) }}>
+    {% if not label_hidden %}<div{{ title_attributes.addClass('field__label') }}>{{ label }}</div>{% endif %}
+    {% for item in items %}<span{{ item.attributes.addClass('field__item', 'actools-resource-metadata__item') }}>{{ item.content }}</span>{% endfor %}
+  </div>
+{% endif %}

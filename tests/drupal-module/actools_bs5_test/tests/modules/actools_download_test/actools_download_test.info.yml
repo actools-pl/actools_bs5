@@ -1,0 +1,8 @@
+name: 'Actools download access fixtures'
+type: module
+description: 'Test-only deferred access fixtures for Resource downloads.'
+package: Testing
+core_version_requirement: ^11.3
+dependencies:
+  - drupal:file
+  - drupal:node

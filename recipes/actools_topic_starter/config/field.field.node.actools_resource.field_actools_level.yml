@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - field.storage.node.field_actools_level
+  - node.type.actools_resource
+  module:
+  - options
+id: node.actools_resource.field_actools_level
+field_name: field_actools_level
+entity_type: node
+bundle: actools_resource
+label: Study level
+description: 'Optional: indicate the intended level of study.'
+required: false
+translatable: true
+default_value: []
+default_value_callback: ''
+settings: {}
+field_type: list_string

@@ -1,0 +1,43 @@
+/* Shared by a resource-cards block and a Topic page's reference field. */
+.field--name-field-actools-resources {
+  container: actools-resource-grid / inline-size;
+}
+
+.actools-resource-cards__items {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.actools-resource-cards__item {
+  min-width: 0;
+}
+
+.actools-resource-cards__heading {
+  margin-block: 0 1.5rem;
+}
+
+@container actools-resource-grid (min-width: 40rem) {
+  .actools-resource-cards__items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container actools-resource-grid (min-width: 64rem) {
+  .actools-resource-cards__items {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media print {
+  .actools-resource-cards__items {
+    display: block;
+  }
+
+  .actools-resource-cards__item + .actools-resource-cards__item {
+    margin-block-start: 1rem;
+  }
+}

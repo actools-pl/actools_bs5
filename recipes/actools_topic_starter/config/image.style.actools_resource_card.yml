@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies:
+  module:
+  - image
+name: actools_resource_card
+label: Actools resource card (fit within 960px)
+effects:
+  8cba3698-90a3-4d82-9a37-2b36be5ca3ce:
+    uuid: 8cba3698-90a3-4d82-9a37-2b36be5ca3ce
+    id: image_scale
+    weight: 0
+    data:
+      width: 960
+      height: 960
+      upscale: false

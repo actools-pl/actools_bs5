@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * @file
+ * Render fixtures for the optional starter's field access regressions.
+ */
+
+use Drupal\actools_bs5_test\Render\HeadingAccessProbe;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_ENTITY_TYPE_view_alter() for block_content.
+ */
+function actools_bs5_test_block_content_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display): void {
+  $probe = \Drupal::state()->get('actools_bs5_test.heading_access_probe', []);
+  if ((string) ($probe['block_id'] ?? '') !== (string) $entity->id() || !isset($build['field_actools_heading'])) {
+    return;
+  }
+  // This reproduces a render-alter integration deferring its decision until
+  // core's renderer processes the original field element.
+  $heading = &$build['field_actools_heading'];
+  unset($heading['#access']);
+  $heading['#access_callback'] = [HeadingAccessProbe::class, 'access'];
+  $heading['#actools_heading_access_mode'] = $probe['mode'];
+  $heading['#cache']['tags'][] = 'actools_heading_element:probe';
+  // Formatter descendants may contribute their own attachments. Core must
+  // not render those descendants when the parent field is denied. Deliberately
+  // avoid attaching this private probe to the field root: Drupal bubbles a
+  // denied AccessResult element's own attachments along with its metadata.
+  $heading[0]['#attached']['library'][] = 'core/drupal.debounce';
+  $heading[0]['#attached']['drupalSettings']['actoolsRestrictedHeading'] = 'Private heading setting';
+}

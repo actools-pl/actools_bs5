@@ -1,0 +1,15 @@
+{# Keep the normal node rendering contract in every view mode. Only a full
+   Topic opts into publishing styles; the page-title block remains its h1. #}
+{% extends 'actools_bs5:node' %}
+
+{% if view_mode == 'full' %}
+  {% set attributes = attributes.addClass('actools-topic--publishing') %}
+  {% set content_attributes = content_attributes.addClass('actools-topic__content') %}
+{% endif %}
+
+{% block content %}
+  {% if view_mode == 'full' %}
+    {{ attach_library('actools_bs5/publishing') }}
+  {% endif %}
+  {{ parent() }}
+{% endblock %}

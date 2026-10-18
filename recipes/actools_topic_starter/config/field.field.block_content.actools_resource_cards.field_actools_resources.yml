@@ -1,0 +1,31 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - block_content.type.actools_resource_cards
+  - field.storage.block_content.field_actools_resources
+  - node.type.actools_resource
+  module:
+  - node
+id: block_content.actools_resource_cards.field_actools_resources
+field_name: field_actools_resources
+entity_type: block_content
+bundle: actools_resource_cards
+label: Resources
+description: Select existing Actools resources. Only published resources available
+  to the visitor are displayed.
+required: true
+translatable: true
+default_value: []
+default_value_callback: ''
+settings:
+  handler: default:node
+  handler_settings:
+    target_bundles:
+      actools_resource: actools_resource
+    sort:
+      field: title
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

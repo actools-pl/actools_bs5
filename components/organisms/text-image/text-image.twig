@@ -1,0 +1,32 @@
+{% set position = position|default('right') %}
+{% set position = position in ['left', 'right'] ? position : 'right' %}
+{% set has_media = has_media ?? false %}
+{# Render the original field once so deferred access controls both the figure
+   and its caption. Keep the captured safe markup unchanged; trim only to test
+   emptiness. Access/cache metadata still bubbles when the field renders empty. #}
+{% set media_markup %}{% if has_media %}{% block media %}{% endblock %}{% endif %}{% endset %}
+{% set show_media = has_media and media_markup|trim is not empty %}
+{% set classes = [
+  'actools-text-image',
+  show_media ? 'actools-text-image--media-' ~ position : 'actools-text-image--text-only',
+] %}
+<div{{ attributes.addClass(classes) }}>
+  <div class="actools-text-image__content">
+    {% block heading_content %}
+    {% if heading %}
+      {% include 'actools_bs5:heading' with {
+        heading_text: heading,
+        level: 2,
+        attributes: (title_attributes|default(create_attribute())).addClass('actools-text-image__heading'),
+      } only %}
+    {% endif %}
+    {% endblock %}
+    <div class="actools-text-image__body">{% block body %}{% endblock %}</div>
+  </div>
+  {% if show_media %}
+    <figure class="actools-text-image__media">
+      {{ media_markup }}
+      {% block caption %}{% endblock %}
+    </figure>
+  {% endif %}
+</div>

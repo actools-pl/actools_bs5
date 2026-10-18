@@ -1,0 +1,184 @@
+/* Optional publishing treatment. The page shell, navigation and other content
+   types keep their normal theme styles. All text follows the site's font and
+   contrast-adjusted colour tokens. */
+.page-node-type-actools-topic .block-page-title-block {
+  padding-block-start: clamp(1.75rem, 4vw, 3.5rem);
+  margin-block-end: clamp(1.25rem, 2.5vw, 2rem);
+}
+
+.page-node-type-actools-topic .block-page-title-block h1 {
+  max-inline-size: 24ch;
+  margin-block: 0;
+  color: var(--bs-emphasis-color, #001d38);
+  font-size: clamp(2rem, 1.65rem + 1.6vw, 3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  overflow-wrap: break-word;
+}
+
+.actools-topic--publishing {
+  margin-block-end: clamp(2.5rem, 5vw, 5rem);
+}
+
+/* A contained page already supplies its horizontal gutters. Preserve the
+   explicitly full-width/fluid page settings and all grid region attributes. */
+.page-node-type-actools-topic main > :is(.container, .container-sm, .container-md, .container-lg, .container-xl, .container-xxl) .actools-topic--publishing .actools-layout--contained.container {
+  max-width: none;
+  padding-inline: 0;
+}
+
+.actools-topic--publishing .actools-topic__content > .actools-layout:first-child {
+  padding-block-start: 0;
+}
+
+.actools-topic--publishing .layout__region > .block + .block {
+  margin-block-start: clamp(2.5rem, 4vw, 4rem);
+}
+
+.actools-topic--publishing .field--name-field-actools-body {
+  max-inline-size: 72ch;
+  font-size: var(--bs-body-font-size, 1.125rem);
+  line-height: 1.75;
+}
+
+.actools-topic--publishing .field--name-field-actools-body :is(p, ul, ol) {
+  margin-block-end: 1.125rem;
+}
+
+.actools-topic--publishing .field--name-field-actools-body > :last-child {
+  margin-block-end: 0;
+}
+
+.actools-topic--publishing :is(.actools-resource-cards__heading, .actools-text-image__heading) {
+  margin-block: 0 1.25rem;
+  color: var(--bs-emphasis-color, #001d38);
+  font-size: clamp(1.5rem, 1.35rem + 0.5vw, 1.875rem);
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+}
+
+.actools-topic--publishing .actools-text-image-block {
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  border: 1px solid rgba(var(--bs-body-color-rgb, 33, 37, 41), 0.1);
+  border-radius: var(--bs-border-radius-lg, 0.75rem);
+  background: rgba(var(--bs-body-color-rgb, 33, 37, 41), 0.025);
+}
+
+.actools-topic--publishing .actools-text-image__body .field--name-field-actools-body {
+  font-size: inherit;
+}
+
+/* A quiet information line from Drupal's rendered option labels. Long and
+   translated labels may wrap naturally. */
+.actools-resource-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.5rem;
+  color: var(--bs-secondary-color, #495057);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.actools-resource-metadata .field {
+  margin: 0;
+}
+
+.actools-resource-metadata__field {
+  display: inline-flex;
+}
+
+.actools-resource-metadata__field + .actools-resource-metadata__field::before {
+  content: "\00b7";
+  margin-inline-end: 0.5rem;
+}
+
+.actools-resource-metadata__item {
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+.actools-resource-card__metadata {
+  margin-block-end: 0.75rem;
+}
+
+.actools-resource > div > .actools-resource-metadata__field {
+  margin-inline-end: 0.5rem;
+  margin-block-end: 1.5rem;
+  vertical-align: top;
+}
+
+/* Native Resource file links remain ordinary links, with quiet supporting
+   information beside them. Long labels and phone widths can wrap naturally. */
+.actools-resource-downloads {
+  margin-block: 2rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid rgba(var(--bs-body-color-rgb, 33, 37, 41), 0.15);
+  border-radius: var(--bs-border-radius-lg, 0.75rem);
+  color: var(--bs-body-color, #212529);
+  background: var(--bs-body-bg, #fff);
+}
+
+.actools-resource-downloads__label {
+  margin-block-end: 0.75rem;
+  color: var(--bs-emphasis-color, #212529);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.actools-resource-downloads__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  min-inline-size: 0;
+}
+
+.actools-resource-downloads__item + .actools-resource-downloads__item {
+  margin-block-start: 1rem;
+}
+
+.actools-resource-downloads__link {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+.actools-resource-downloads__link a {
+  font-weight: 600;
+  text-underline-offset: 0.15em;
+}
+
+.actools-resource-downloads__metadata {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  color: var(--bs-secondary-color, #495057);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.actools-resource-downloads__type,
+.actools-resource-downloads__size {
+  white-space: nowrap;
+}
+
+@media print {
+  .page-node-type-actools-topic .block-page-title-block {
+    padding-block-start: 0;
+  }
+
+  .actools-topic--publishing .actools-text-image-block {
+    padding: 1rem;
+    border-color: #777;
+  }
+
+  .actools-resource-downloads {
+    background: transparent;
+    border-color: #777;
+    break-inside: avoid;
+  }
+}

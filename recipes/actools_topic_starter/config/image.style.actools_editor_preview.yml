@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies:
+  module:
+  - image
+name: actools_editor_preview
+label: Actools editor preview (fit within 150px)
+effects:
+  e7f6042d-92e8-4608-b814-6c544ec58773:
+    uuid: e7f6042d-92e8-4608-b814-6c544ec58773
+    id: image_scale
+    weight: 0
+    data:
+      width: 150
+      height: 150
+      upscale: false

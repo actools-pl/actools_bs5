@@ -1,0 +1,17 @@
+{# Render every original formatter item before checking whether it is visible.
+   Access cacheability still bubbles when the complete field wrapper is empty. #}
+{% set download_items %}
+  {% for item in items %}
+    {% set item_markup %}{{ item.content }}{% endset %}
+    {% if item_markup|striptags|trim is not empty %}
+      <div{{ item.attributes.addClass('field__item', 'actools-resource-downloads__item') }}>{{ item_markup }}</div>
+    {% endif %}
+  {% endfor %}
+{% endset %}
+{% if download_items|striptags|trim is not empty %}
+  {{ attach_library('actools_bs5/publishing') }}
+  <div{{ attributes.addClass('field', 'field--name-field-actools-download', 'field--type-file', 'field--label-' ~ label_display, 'actools-resource-downloads') }}>
+    {% if not label_hidden %}<div{{ title_attributes.addClass('field__label', 'actools-resource-downloads__label') }}>{{ label }}</div>{% endif %}
+    {{ download_items }}
+  </div>
+{% endif %}

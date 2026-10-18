@@ -1,0 +1,98 @@
+.actools-text-image-block {
+  container: actools-text-image / inline-size;
+}
+
+.actools-text-image {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  overflow-wrap: anywhere;
+  color: var(--bs-body-color, #212529);
+}
+
+.actools-text-image__content,
+.actools-text-image__media {
+  min-width: 0;
+}
+
+.actools-text-image__content {
+  max-width: 70ch;
+}
+
+.actools-text-image__heading {
+  margin-block: 0 1rem;
+  line-height: 1.25;
+}
+
+.actools-text-image__body {
+  line-height: 1.7;
+}
+
+.actools-text-image__body p:last-child {
+  margin-block-end: 0;
+}
+
+.actools-text-image__media img {
+  display: block;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  margin-inline: auto;
+}
+
+.actools-text-image__media figure {
+  margin-block: 0;
+}
+
+figure.actools-text-image__media {
+  /* Let the diagram set the figure width, without a long caption stretching
+     it across the grid column. Small diagrams retain a readable caption. */
+  inline-size: fit-content;
+  min-inline-size: min(100%, 18rem);
+  max-inline-size: 100%;
+  justify-self: center;
+  margin-block: 0;
+  margin-inline: auto;
+}
+
+.actools-text-image__caption {
+  contain: inline-size;
+  inline-size: 100%;
+  margin-block-start: 0.75rem;
+  color: var(--bs-secondary-color, #6c757d);
+  font-size: 0.875em;
+  line-height: 1.5;
+}
+
+@container actools-text-image (min-width: 40rem) {
+  .actools-text-image--media-right,
+  .actools-text-image--media-left {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .actools-text-image--media-left .actools-text-image__media {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .actools-text-image--media-left .actools-text-image__content {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media print {
+  .actools-text-image {
+    display: block;
+  }
+
+  .actools-text-image__media {
+    margin-block-start: 1rem;
+  }
+
+  figure.actools-text-image__media {
+    margin-block-start: 1rem;
+    break-inside: avoid;
+  }
+}

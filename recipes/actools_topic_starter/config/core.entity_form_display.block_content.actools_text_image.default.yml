@@ -1,0 +1,70 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - block_content.type.actools_text_image
+  - field.field.block_content.actools_text_image.field_actools_body
+  - field.field.block_content.actools_text_image.field_actools_caption
+  - field.field.block_content.actools_text_image.field_actools_heading
+  - field.field.block_content.actools_text_image.field_actools_image
+  - field.field.block_content.actools_text_image.field_actools_position
+  - image.style.actools_editor_preview
+  module:
+  - file
+  - image
+  - options
+  - text
+id: block_content.actools_text_image.default
+targetEntityType: block_content
+bundle: actools_text_image
+mode: default
+content:
+  info:
+    type: string_textfield
+    weight: -10
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  field_actools_heading:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  field_actools_body:
+    type: text_textarea
+    weight: 1
+    region: content
+    settings:
+      rows: 8
+      placeholder: ''
+    third_party_settings: {}
+  field_actools_image:
+    type: image_image
+    weight: 2
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: actools_editor_preview
+    third_party_settings: {}
+  field_actools_caption:
+    type: string_textarea
+    weight: 3
+    region: content
+    settings:
+      rows: 2
+      placeholder: ''
+    third_party_settings: {}
+  field_actools_position:
+    type: options_select
+    weight: 4
+    region: content
+    settings: {}
+    third_party_settings: {}
+hidden:
+  langcode: true
+  revision_log: true

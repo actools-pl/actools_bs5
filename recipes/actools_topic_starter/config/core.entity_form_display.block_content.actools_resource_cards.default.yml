@@ -1,0 +1,43 @@
+langcode: en
+status: true
+dependencies:
+  config:
+  - block_content.type.actools_resource_cards
+  - field.field.block_content.actools_resource_cards.field_actools_heading
+  - field.field.block_content.actools_resource_cards.field_actools_resources
+  module:
+  - node
+id: block_content.actools_resource_cards.default
+targetEntityType: block_content
+bundle: actools_resource_cards
+mode: default
+content:
+  info:
+    type: string_textfield
+    weight: -10
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  field_actools_heading:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  field_actools_resources:
+    type: entity_reference_autocomplete
+    weight: 1
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+hidden:
+  langcode: true
+  revision_log: true

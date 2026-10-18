@@ -1,0 +1,29 @@
+{# The recipe's dedicated view mode. Never rebuild fields from raw entity values. #}
+{{ attach_library('actools_bs5/publishing') }}
+{% set classes = [
+  'node',
+  'node--type-actools-resource',
+  'node--view-mode-actools-resource-card',
+  'actools-resource-card-node',
+  not node.isPublished() ? 'node--unpublished',
+] %}
+<article{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}
+  {{ title_suffix }}
+  {% embed 'actools_bs5:resource-card' with {
+    heading: label,
+    url: url,
+    attributes: create_attribute(),
+    title_attributes: title_attributes,
+    content_attributes: content_attributes,
+    image_content: content.field_actools_image,
+    summary_content: content.field_actools_summary,
+    kind_content: content.field_actools_kind,
+    level_content: content.field_actools_level,
+  } only %}
+    {% block media %}{{- image_content -}}{% endblock %}
+    {% block metadata %}{{- kind_content -}}{{- level_content -}}{% endblock %}
+    {% block body %}<div{{ content_attributes }}>{{ summary_content }}</div>{% endblock %}
+  {% endembed %}
+  {{ content|without('field_actools_image', 'field_actools_summary', 'field_actools_kind', 'field_actools_level') }}
+</article>
