@@ -1,1 +1,5 @@
-.page>header[role=banner]{position:sticky;z-index:1020;top:0}.page>header[role=banner].scrolled{box-shadow:0 .3125rem .625rem 0 rgba(var(--bs-body-color-rgb), 0.1)}.gin--core-navigation .page>header[role=banner]{z-index:489}@media(min-width: 64em){.page>header[role=banner]{top:var(--drupal-displace-offset-top, 0)}}.is-canvas-preview .page>header[role=banner]{position:static}
+/*!
+ * Bootstrap  v5.3.8 (https://getbootstrap.com/)
+ * Copyright 2011-2025 The Bootstrap Authors
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+ */.page>header[role=banner]{position:sticky;top:var(--actools-header-admin-offset, var(--drupal-displace-offset-top, 0px));z-index:100}.page>header[role=banner].scrolled{box-shadow:0 .3125rem .625rem 0 rgba(var(--bs-body-color-rgb), 0.1)}:root.actools-sticky-header-active{scroll-padding-block-start:calc(var(--actools-header-admin-offset, var(--drupal-displace-offset-top, 0px)) + var(--actools-header-height, 0px) + .5rem)}.is-canvas-preview .page>header[role=banner]{position:static;z-index:auto;box-shadow:none}@media(prefers-reduced-motion: reduce){.page>header[role=banner],.page>header[role=banner] .navbar{transition:none}}@media print{:root.actools-sticky-header-active{scroll-padding-block-start:0}}

@@ -43,6 +43,12 @@ jobs:
           python tests/tools/actools_bs5_static_audit_tests.py "$theme_audit_dir" --require-php
       - name: Layout source regressions
         run: python tests/tools/test_layout_regressions.py
+      - name: Verify compiled navigation and sticky styles
+        run: |
+          npm ci --ignore-scripts
+          npm run build:css -- --entry=theme/navigation.theme --entry=theme/sticky-header.theme
+          cmp .build/css/theme/navigation.theme.css css/theme/navigation.theme.css
+          cmp .build/css/theme/sticky-header.theme.css css/theme/sticky-header.theme.css
       - name: CSS publication guard regressions
         run: npm run test:build-tools
 

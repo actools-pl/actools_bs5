@@ -8,13 +8,15 @@ const buildRoot = path.join(root, '.build');
 const candidateRoot = path.join(buildRoot, 'css');
 const manifestFile = path.join(buildRoot, 'css-manifest.json');
 const reportFile = path.join(buildRoot, 'css-build-report.json');
-const entries = [
+const allEntries = [
   'base/bootstrap.base', 'base/tokens.base', 'base/actools.base', 'base/ckeditor5.bootstrap.base',
   'layout/edge2edge.layout', 'layout/equal-height.layout', 'layout/print.layout', 'layout/builder.layout',
-  'theme/content-moderation.theme', 'theme/sticky-header.theme',
+  'theme/content-moderation.theme', 'theme/sticky-header.theme', 'theme/navigation.theme',
 ];
 const [command = 'build', ...flags] = process.argv.slice(2);
 const allowRemoval = flags.includes('--allow-selector-removal');
+const requestedEntries = flags.filter(flag => flag.startsWith('--entry=')).map(flag => flag.slice(8));
+const entries = requestedEntries.length ? [...new Set(requestedEntries)] : allEntries;
 
 async function sourceHashes() {
   const files = ['package.json', 'package-lock.json', 'scripts/build-css.mjs', 'scripts/css-compat.mjs'];
@@ -60,9 +62,10 @@ async function check() {
 
 try {
   if (!['build', 'check', 'publish'].includes(command) ||
-      flags.some(flag => flag !== '--allow-selector-removal') ||
+      flags.some(flag => flag !== '--allow-selector-removal' && !flag.startsWith('--entry=')) ||
+      requestedEntries.some(entry => !allEntries.includes(entry)) ||
       (allowRemoval && command !== 'publish')) {
-    throw new Error('Usage: node scripts/build-css.mjs build|check|publish [--allow-selector-removal for publish only]');
+    throw new Error('Usage: node scripts/build-css.mjs build|check|publish [--entry=known/bundle (repeatable)] [--allow-selector-removal for publish only]');
   }
   if (command === 'build') {
     let sass;

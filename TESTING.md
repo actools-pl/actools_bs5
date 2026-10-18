@@ -168,3 +168,35 @@ of hidden answers. Full-width sections respect the outer Content container.
 
 The shipped tests are not a substitute for this browser/Drupal acceptance.
 The test helper is never auto-enabled and is not required in production.
+
+## Header/navigation and discovery acceptance
+
+A separate navigation browser fixture places actual branding and main-menu
+blocks in Header plus a second menu instance in Footer. It runs on disposable
+Drupal 11.4.10/PHP 8.4 sites with each core administration interface (Toolbar
+and Navigation), using a restricted editor. It exercises parent navigation,
+submenus, focus/Escape, width changes, fragment/history clearance, sticky off,
+no JavaScript, theme colours/text sizes, print and Layout Builder dialogs.
+Desktop and closed/open phone screenshots are retained per interface. These
+fixtures do not establish compatibility with an uninstalled Gin or Canvas app;
+the Canvas preview marker remains supported.
+
+The optional discovery recipe has query/rendering and real form tests covering
+title/summary matches, metadata filters, native cards, node grants and pager
+counts, warm edits/unpublishing and negotiated-language output. It changes no
+roles or Topic relationships. See docs/HEADER_NAVIGATION.md for site setup.
+
+The Sass tree has pre-existing drift from some shipped Bootstrap/RTL bundles.
+Compile the maintained navigation entries without republishing those bundles:
+
+```sh
+npm ci --ignore-scripts
+npm run build:css -- --entry=theme/navigation.theme --entry=theme/sticky-header.theme
+npm run check:css -- --entry=theme/navigation.theme --entry=theme/sticky-header.theme
+npm run publish:css -- --entry=theme/navigation.theme --entry=theme/sticky-header.theme
+```
+
+The entry allowlist rejects arbitrary paths; existing source/candidate hashes
+and selector-removal guards still apply. The source workflow compares these
+compiled files byte for byte with the committed CSS. Unselected bundles retain
+their shipped contents.
