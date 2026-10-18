@@ -41,6 +41,9 @@ Role::load(Role::ANONYMOUS_ID)->grantPermission('access content')->save();
 $role = Role::create(['id' => 'actools_navigation_editor', 'label' => 'Disposable navigation editor']);
 $permissions = [
   'access content', 'access contextual links', 'access administration pages', 'access content overview',
+  // Real header contextual wrappers are permission-dependent. Exercise them
+  // for the disposable editor, without changing any production role.
+  'administer blocks', 'administer menu',
   'edit own actools_topic content', 'view own unpublished content',
   'configure editable actools_topic node layout overrides', 'create and edit custom blocks',
   $admin_interface === 'toolbar' ? 'access toolbar' : 'access navigation',

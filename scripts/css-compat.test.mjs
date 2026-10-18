@@ -70,6 +70,7 @@ async function fixture(t) {
     'base/bootstrap.base', 'base/tokens.base', 'base/actools.base', 'base/ckeditor5.bootstrap.base',
     'layout/edge2edge.layout', 'layout/equal-height.layout', 'layout/print.layout', 'layout/builder.layout',
     'theme/content-moderation.theme', 'theme/sticky-header.theme', 'theme/navigation.theme',
+    'theme/generic-lesson.theme',
   ];
   for (const name of entries) {
     await writeFile(path.join(directory, 'css', `${name}.css`), '.kept{color:red}.removed{display:block}\n');

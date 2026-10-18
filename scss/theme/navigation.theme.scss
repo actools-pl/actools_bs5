@@ -216,6 +216,35 @@
   }
 }
 
+@media (max-width: 63.999rem) {
+  .actools-site-header__row:has([data-actools-nav-enhanced]) {
+    // Core Contextual makes each editable block position:relative. The native
+    // mobile toggle belongs to the header row, not the zero-height menu block
+    // below the branding when its panel is closed.
+    > :is(.block-system-branding-block, .block-system-menu-blockmain).contextual-region {
+      position: static;
+    }
+
+    // Keep the original contextual controls available beside the site toggle.
+    // Each retains its own block's permissions, links and keyboard behavior.
+    > .block-system-menu-blockmain > .contextual {
+      inset-block-start: 0.75rem;
+      inset-inline-start: auto;
+      inset-inline-end: calc(var(--actools-nav-toggle-width, 5.5rem) + 0.25rem);
+    }
+
+    > .block-system-branding-block > .contextual {
+      inset-block-start: 0.75rem;
+      inset-inline-start: auto;
+      inset-inline-end: calc(var(--actools-nav-toggle-width, 5.5rem) + 2.5rem);
+    }
+
+    &:has(> .contextual-region) > .block-system-branding-block {
+      padding-inline-end: calc(var(--actools-nav-toggle-width, 5.5rem) + 4.5rem);
+    }
+  }
+}
+
 @media (min-width: 64rem) {
   .actools-site-header__row {
     min-block-size: 4rem;

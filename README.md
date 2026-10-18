@@ -26,6 +26,10 @@ types. Use a test site before adopting this new feature on BOA.
 
 **Header and navigation setup:** [HEADER_NAVIGATION.md](docs/HEADER_NAVIGATION.md)
 
+**Generic Lesson integration:** [GENERIC_LESSON.md](docs/GENERIC_LESSON.md)
+describes the optional reader styling for Generic Lesson 2.1.2, including theme
+colours, quiz controls, mobile layouts, sticky-header clearance and print.
+
 **GitHub/Composer installation:** see [INSTALL.md](INSTALL.md) for the package
 repository, exact-lock/commit workflow and BOA platform instructions. The theme
 code is at this repository's root. Main is a test candidate with no tagged
@@ -171,7 +175,7 @@ npm run build
 npm run check:css
 ```
 
-Full builds stage eleven base/layout/theme CSS files under `.build/css/`. They never
+Full builds stage twelve base/layout/theme CSS files under `.build/css/`. They never
 silently overwrite `css/`. A report in `.build/css-build-report.json` records
 hashes and selector differences. A build/check exits nonzero if selectors would
 be lost. This is expected for the inherited source drift until the pipeline is

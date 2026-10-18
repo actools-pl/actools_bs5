@@ -94,6 +94,84 @@ Browser asset regressions also check text-first cards with mixed image/no-image
 content, figure/caption alignment for small and large diagrams, and wrapping
 download information in light/dark modes, on phones and in print media.
 
+## Generic Lesson integration acceptance
+
+`GenericLessonAssetsKernelTest` exercises the optional `libraries-extend`
+integration through core asset discovery, rendering, caching and AJAX. The
+theme CI runs it without installing Generic Lesson; a parsed module-library
+fixture checks the extension without shipping a fake module that could shadow
+the real one. The test also verifies normal theme assets with no module fixture.
+
+The separate `tests/browser/generic-lesson-ui/` suite requires the actual
+**Generic Lesson 2.1.2** package, Paragraphs, Entity Reference Revisions and the
+local MathJax **3.2.2** distribution. These external module files are not bundled
+in the theme. The ordinary asset-browser job deliberately excludes this suite;
+it cannot establish real-module integration from the theme repository alone.
+
+Use a disposable Drupal 11.4.10 project with Drush, this theme and Generic
+Lesson installed at their normal custom extension paths. Install/enable
+Generic Lesson using its package's instructions. From that project's root,
+prepare the local maths assets and fixture:
+
+```sh
+export ACTOOLS_GL_PROJECT="$(pwd)"
+export ACTOOLS_GL_DRUSH="$ACTOOLS_GL_PROJECT/vendor/bin/drush"
+export ACTOOLS_GL_THEME_FIXTURE=1
+export ACTOOLS_GL_BASE_URL=http://127.0.0.1:8894
+export ACTOOLS_GL_FIXTURE="$ACTOOLS_GL_PROJECT/lesson-fixture.json"
+export ACTOOLS_GL_BROWSER_OUTPUT="$ACTOOLS_GL_PROJECT/lesson-browser-results"
+export ACTOOLS_GL_EDITOR_PASSWORD="$(openssl rand -hex 24)"
+export ACTOOLS_GL_ADMIN_PASSWORD="$(openssl rand -hex 24)"
+npm install --prefix lesson-mathjax --no-save --package-lock=false --ignore-scripts mathjax@3.2.2
+mkdir -p web/libraries/mathjax
+cp -R lesson-mathjax/node_modules/mathjax/es5 web/libraries/mathjax/
+"$ACTOOLS_GL_DRUSH" --uri="$ACTOOLS_GL_BASE_URL" php:script web/themes/custom/actools_bs5/tests/browser/generic-lesson-ui/seed-lesson-site.php
+"$ACTOOLS_GL_DRUSH" --uri="$ACTOOLS_GL_BASE_URL" cache:rebuild
+```
+
+The guarded seed changes the disposable site's theme/settings, creates test
+accounts and content, and refuses to run twice. The native fixtures include
+guided/continuous reading, all seven quiz formats, a real Layout Builder
+override, figures, maths, public disclosures and a normal-page control. The
+suite changes only fixture presentation settings and resets the fixture
+learner's records when testing saved answers. Do not use an existing live site.
+
+Install pinned Playwright tooling outside the theme, then run server and browser
+within the same process/network environment:
+
+```sh
+npm install --prefix lesson-browser-tools --no-save --package-lock=false @playwright/test@1.64.1
+export NODE_PATH="$ACTOOLS_GL_PROJECT/lesson-browser-tools/node_modules"
+"$ACTOOLS_GL_PROJECT/lesson-browser-tools/node_modules/.bin/playwright" install --with-deps chromium
+(
+  cd "$ACTOOLS_GL_PROJECT/web"
+  php -S 127.0.0.1:8894 .ht.router.php > "$ACTOOLS_GL_PROJECT/lesson-server.log" 2>&1 &
+  lesson_server_pid=$!
+  trap 'kill "$lesson_server_pid" 2>/dev/null || true' EXIT
+  for attempt in $(seq 1 20); do
+    if curl --fail --silent --output /dev/null "$ACTOOLS_GL_BASE_URL/user/login"; then break; fi
+    sleep 1
+  done
+  curl --fail --silent --output /dev/null "$ACTOOLS_GL_BASE_URL/user/login"
+  cd themes/custom/actools_bs5
+  "$ACTOOLS_GL_PROJECT/lesson-browser-tools/node_modules/.bin/playwright" test --config tests/browser/generic-lesson-ui/playwright.config.cjs
+)
+```
+
+Set `ACTOOLS_GL_CHROMIUM` only when using a separately installed compatible
+Chromium executable. Screenshots, failure traces and a print PDF go to the
+explicit output directory. The browser checks cover theme palette overrides,
+text/control contrast, keyboard anchors, actual Toolbar geometry, narrow
+viewports, answers/progress, Layout Builder, editor loading and print privacy.
+This is Chromium coverage, not a complete assistive-technology or browser matrix.
+
+The maintained lesson stylesheet can be rebuilt independently:
+
+```sh
+npm run build:css -- --entry=theme/generic-lesson.theme
+npm run check:css -- --entry=theme/generic-lesson.theme
+```
+
 ## Checks without Drupal
 
 In a Git checkout, run the packaging/static audit against an exported tree so

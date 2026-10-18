@@ -112,6 +112,29 @@ async function assertHeadingClearsHeader(page, id, { aligned = true } = {}) {
     }).toBeLessThanOrEqual(32);
   }
 }
+async function assertAuthorHeaderControls(page) {
+  const toggle = menuToggle(page);
+  if (!(await toggle.isVisible())) return;
+  const bounds = await toggle.boundingBox();
+  const banner = await header(page).boundingBox();
+  expect(bounds.y).toBeGreaterThanOrEqual(banner.y);
+  expect(bounds.y + bounds.height, 'Native contextual wrappers must not shift the Menu button over page content.').toBeLessThanOrEqual(banner.y + banner.height);
+  const branding = await header(page).getByRole('link', { name: /Aarin Content Tools/ }).boundingBox();
+  expect(branding.x + branding.width).toBeLessThanOrEqual(bounds.x);
+  const triggers = header(page).locator('.contextual > button.trigger');
+  await expect(triggers).toHaveCount(2);
+  for (const trigger of await triggers.all()) {
+    await trigger.focus();
+    await expect(trigger).toBeVisible();
+    const editing = await trigger.boundingBox();
+    expect(editing.x + editing.width).toBeLessThanOrEqual(bounds.x);
+    await trigger.press('Enter');
+    await expect(trigger).toHaveAttribute('aria-pressed', 'true');
+    await expect(trigger.locator('..').locator('.contextual-links a').first()).toBeVisible();
+    await trigger.press('Enter');
+    await expect(trigger).toHaveAttribute('aria-pressed', 'false');
+  }
+}
 async function assertReadable(locator) {
   const painted = await locator.evaluate(element => {
     const rgba = colour => {
@@ -266,7 +289,7 @@ test('native hash navigation, history and skip links clear the measured sticky h
 
 test('installed core admin interface stays above the header and Layout Builder dialog', async ({ page }, testInfo) => {
   await login(page);
-  for (const width of [390, 1024, 1440]) {
+  for (const width of [320, 390, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await visit(page, fixture.currentTopicPath);
     if (fixture.adminInterface === 'toolbar') await expect(page.locator('#toolbar-administration .toolbar-bar')).toBeVisible();
@@ -306,6 +329,7 @@ test('installed core admin interface stays above the header and Layout Builder d
       return { headerTop: banner.getBoundingClientRect().top, visibleBarBottom: Math.max(0, ...bars.map(element => element.getBoundingClientRect().bottom)) };
     });
     expect(offsets.headerTop).toBeGreaterThanOrEqual(offsets.visibleBarBottom - 1);
+    await assertAuthorHeaderControls(page);
     await assertNoOverflow(page);
   }
   await page.setViewportSize({ width: 1440, height: 900 });

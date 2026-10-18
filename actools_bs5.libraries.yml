@@ -25,6 +25,12 @@ publishing:
     theme:
       css/theme/publishing.theme.css: {}
 
+# Extends the optional Generic Lesson reader; never added to global assets.
+generic-lesson:
+  css:
+    theme:
+      css/theme/generic-lesson.theme.css: {}
+
 # Bootstrap 5 global styles library.
 bootstrap-styles:
   css:
