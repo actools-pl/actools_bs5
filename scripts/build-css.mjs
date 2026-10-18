@@ -12,6 +12,7 @@ const allEntries = [
   'base/bootstrap.base', 'base/tokens.base', 'base/actools.base', 'base/ckeditor5.bootstrap.base',
   'layout/edge2edge.layout', 'layout/equal-height.layout', 'layout/print.layout', 'layout/builder.layout',
   'theme/content-moderation.theme', 'theme/sticky-header.theme', 'theme/navigation.theme',
+  'theme/generic-lesson.theme',
 ];
 const [command = 'build', ...flags] = process.argv.slice(2);
 const allowRemoval = flags.includes('--allow-selector-removal');

@@ -26,8 +26,11 @@
 // includes admin chrome. Native anchor navigation/history/focus scrolling use
 // this clearance without a second scroll handler or a hard-coded header height.
 // No class/property is set when the sticky library is disabled or in Canvas.
+// Core Toolbar also writes inline scroll-padding-top for its own bar. Override
+// that physical property while our composed clearance is active; otherwise its
+// toolbar-only value wins over this logical property and hides anchor targets.
 :root.actools-sticky-header-active {
-  scroll-padding-block-start: calc(var(--actools-header-admin-offset, var(--drupal-displace-offset-top, 0px)) + var(--actools-header-height, 0px) + 0.5rem);
+  scroll-padding-block-start: calc(var(--actools-header-admin-offset, var(--drupal-displace-offset-top, 0px)) + var(--actools-header-height, 0px) + 0.5rem) !important;
 }
 
 // Inside the Drupal Canvas editor preview (sticky-header.js adds the class) drop
@@ -48,6 +51,6 @@
 
 @media print {
   :root.actools-sticky-header-active {
-    scroll-padding-block-start: 0;
+    scroll-padding-block-start: 0 !important;
   }
 }
