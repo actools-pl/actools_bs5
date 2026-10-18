@@ -245,6 +245,30 @@
   }
 }
 
+// Core Navigation's three-column top bar can exceed a 320px viewport even
+// when its tools region is empty. Let its existing regions wrap in DOM order
+// on phones, keeping every action reachable and the desktop layout unchanged.
+@media screen and (max-width: 34.999rem) {
+  .top-bar[data-drupal-admin-styles] .top-bar__content {
+    // Core deliberately gives this rule ID-level specificity.
+    display: flex !important;
+    flex-wrap: wrap;
+  }
+
+  .top-bar[data-drupal-admin-styles] :is(.top-bar__tools, .top-bar__context, .top-bar__actions) {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+
+    &:empty {
+      display: none !important;
+    }
+  }
+
+  .top-bar[data-drupal-admin-styles] :is(.top-bar__tools, .top-bar__actions) {
+    flex-wrap: wrap;
+  }
+}
+
 @media (min-width: 64rem) {
   .actools-site-header__row {
     min-block-size: 4rem;

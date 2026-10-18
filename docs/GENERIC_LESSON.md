@@ -39,6 +39,8 @@ There is no replacement quiz JavaScript or extra answer-checking endpoint.
 - Lesson destinations share the theme's measured sticky-header clearance,
   including the visible Drupal administration bar, without counting the header
   twice.
+- On narrow phones, the core Navigation administration bar wraps its existing
+  action groups so Edit and More actions remain inside the viewport.
 - Print styling keeps the reading content available and removes navigation
   controls. Quiz answer visibility continues to follow the module's rules;
   printing does not unlock an unresolved quiz.

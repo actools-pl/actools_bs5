@@ -65,6 +65,12 @@ async function openBranch(page, title) {
 }
 async function assertNoOverflow(page) {
   const geometry = await page.evaluate(() => ({ width: innerWidth, scroll: document.documentElement.scrollWidth }));
+  if (geometry.scroll > geometry.width) {
+    console.error('Horizontal overflow elements:', JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('body *')].map(element => {
+      const bounds = element.getBoundingClientRect(), style = getComputedStyle(element);
+      return { tag: element.tagName, id: element.id, classes: element.className, right: bounds.right, left: bounds.left, width: bounds.width, display: style.display, position: style.position, overflowX: style.overflowX, whiteSpace: style.whiteSpace, minWidth: style.minWidth, scrollWidth: element.scrollWidth, clientWidth: element.clientWidth };
+    }).filter(element => element.width > 0 && element.right > innerWidth).sort((a, b) => b.right - a.right).slice(0, 30)), null, 2));
+  }
   expect(geometry.scroll).toBeLessThanOrEqual(geometry.width);
 }
 async function screenshot(page, testInfo, name) {
@@ -113,6 +119,7 @@ async function assertHeadingClearsHeader(page, id, { aligned = true } = {}) {
   }
 }
 async function assertAuthorHeaderControls(page) {
+  await assertNoOverflow(page);
   const toggle = menuToggle(page);
   if (!(await toggle.isVisible())) return;
   const bounds = await toggle.boundingBox();
@@ -295,6 +302,22 @@ test('installed core admin interface stays above the header and Layout Builder d
     if (fixture.adminInterface === 'toolbar') await expect(page.locator('#toolbar-administration .toolbar-bar')).toBeVisible();
     else {
       await expect(page.locator('#admin-toolbar')).toHaveCount(1);
+      if (width < 1024) {
+        // A long current-page title must not push core's authoring actions out
+        // of a narrow viewport. Exercise the real dropdown instead of clipping
+        // overflow or accepting a horizontally scrolled administrative bar.
+        await page.evaluate(() => window.scrollTo(0, 0));
+        const topBar = page.locator('.top-bar[data-drupal-admin-styles]');
+        await expect(topBar.getByRole('link', { name: 'Edit', exact: true })).toBeInViewport({ ratio: 1 });
+        const more = topBar.getByRole('button', { name: 'More actions', exact: true });
+        await expect(more).toBeInViewport({ ratio: 1 });
+        await more.click();
+        await expect(more).toHaveAttribute('aria-expanded', 'true');
+        await expect(topBar.getByRole('link', { name: 'Layout', exact: true })).toBeVisible();
+        await assertNoOverflow(page);
+        await more.click();
+        await expect(more).toHaveAttribute('aria-expanded', 'false');
+      }
       if (width === 390) {
         const trigger = page.locator('[data-drupal-selector="admin-toolbar-mobile-trigger"]');
         await expect(trigger).toBeVisible();
